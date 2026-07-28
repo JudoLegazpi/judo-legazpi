@@ -9,8 +9,56 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TorneosRouteImport } from './routes/torneos'
+import { Route as LopiviRouteImport } from './routes/lopivi'
+import { Route as HorariosRouteImport } from './routes/horarios'
+import { Route as DocumentosRouteImport } from './routes/documentos'
+import { Route as CuerpoTecnicoRouteImport } from './routes/cuerpo-tecnico'
+import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as ClubRouteImport } from './routes/club'
+import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TorneosRoute = TorneosRouteImport.update({
+  id: '/torneos',
+  path: '/torneos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LopiviRoute = LopiviRouteImport.update({
+  id: '/lopivi',
+  path: '/lopivi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorariosRoute = HorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentosRoute = DocumentosRouteImport.update({
+  id: '/documentos',
+  path: '/documentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CuerpoTecnicoRoute = CuerpoTecnicoRouteImport.update({
+  id: '/cuerpo-tecnico',
+  path: '/cuerpo-tecnico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactoRoute = ContactoRouteImport.update({
+  id: '/contacto',
+  path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClubRoute = ClubRouteImport.update({
+  id: '/club',
+  path: '/club',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +67,144 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/torneos': typeof TorneosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/torneos': typeof TorneosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/torneos': typeof TorneosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/torneos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/torneos'
+  id:
+    | '__root__'
+    | '/'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/torneos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CalendarioRoute: typeof CalendarioRoute
+  ClubRoute: typeof ClubRoute
+  ContactoRoute: typeof ContactoRoute
+  CuerpoTecnicoRoute: typeof CuerpoTecnicoRoute
+  DocumentosRoute: typeof DocumentosRoute
+  HorariosRoute: typeof HorariosRoute
+  LopiviRoute: typeof LopiviRoute
+  TorneosRoute: typeof TorneosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/torneos': {
+      id: '/torneos'
+      path: '/torneos'
+      fullPath: '/torneos'
+      preLoaderRoute: typeof TorneosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lopivi': {
+      id: '/lopivi'
+      path: '/lopivi'
+      fullPath: '/lopivi'
+      preLoaderRoute: typeof LopiviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horarios': {
+      id: '/horarios'
+      path: '/horarios'
+      fullPath: '/horarios'
+      preLoaderRoute: typeof HorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentos': {
+      id: '/documentos'
+      path: '/documentos'
+      fullPath: '/documentos'
+      preLoaderRoute: typeof DocumentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cuerpo-tecnico': {
+      id: '/cuerpo-tecnico'
+      path: '/cuerpo-tecnico'
+      fullPath: '/cuerpo-tecnico'
+      preLoaderRoute: typeof CuerpoTecnicoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacto': {
+      id: '/contacto'
+      path: '/contacto'
+      fullPath: '/contacto'
+      preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/club': {
+      id: '/club'
+      path: '/club'
+      fullPath: '/club'
+      preLoaderRoute: typeof ClubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +217,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CalendarioRoute: CalendarioRoute,
+  ClubRoute: ClubRoute,
+  ContactoRoute: ContactoRoute,
+  CuerpoTecnicoRoute: CuerpoTecnicoRoute,
+  DocumentosRoute: DocumentosRoute,
+  HorariosRoute: HorariosRoute,
+  LopiviRoute: LopiviRoute,
+  TorneosRoute: TorneosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
