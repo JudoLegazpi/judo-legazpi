@@ -9,38 +9,386 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TorneosRouteImport } from './routes/torneos'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as LopiviRouteImport } from './routes/lopivi'
+import { Route as HorariosRouteImport } from './routes/horarios'
+import { Route as DocumentosRouteImport } from './routes/documentos'
+import { Route as CuerpoTecnicoRouteImport } from './routes/cuerpo-tecnico'
+import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as ClubRouteImport } from './routes/club'
+import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EuIndexRouteImport } from './routes/eu.index'
+import { Route as EuTorneosRouteImport } from './routes/eu.torneos'
+import { Route as EuLopiviRouteImport } from './routes/eu.lopivi'
+import { Route as EuHorariosRouteImport } from './routes/eu.horarios'
+import { Route as EuDocumentosRouteImport } from './routes/eu.documentos'
+import { Route as EuCuerpoTecnicoRouteImport } from './routes/eu.cuerpo-tecnico'
+import { Route as EuContactoRouteImport } from './routes/eu.contacto'
+import { Route as EuClubRouteImport } from './routes/eu.club'
+import { Route as EuCalendarioRouteImport } from './routes/eu.calendario'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const TorneosRoute = TorneosRouteImport.update({
+  id: '/torneos',
+  path: '/torneos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LopiviRoute = LopiviRouteImport.update({
+  id: '/lopivi',
+  path: '/lopivi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorariosRoute = HorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentosRoute = DocumentosRouteImport.update({
+  id: '/documentos',
+  path: '/documentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CuerpoTecnicoRoute = CuerpoTecnicoRouteImport.update({
+  id: '/cuerpo-tecnico',
+  path: '/cuerpo-tecnico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactoRoute = ContactoRouteImport.update({
+  id: '/contacto',
+  path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClubRoute = ClubRouteImport.update({
+  id: '/club',
+  path: '/club',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EuIndexRoute = EuIndexRouteImport.update({
+  id: '/eu/',
+  path: '/eu/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuTorneosRoute = EuTorneosRouteImport.update({
+  id: '/eu/torneos',
+  path: '/eu/torneos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuLopiviRoute = EuLopiviRouteImport.update({
+  id: '/eu/lopivi',
+  path: '/eu/lopivi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuHorariosRoute = EuHorariosRouteImport.update({
+  id: '/eu/horarios',
+  path: '/eu/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuDocumentosRoute = EuDocumentosRouteImport.update({
+  id: '/eu/documentos',
+  path: '/eu/documentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuCuerpoTecnicoRoute = EuCuerpoTecnicoRouteImport.update({
+  id: '/eu/cuerpo-tecnico',
+  path: '/eu/cuerpo-tecnico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuContactoRoute = EuContactoRouteImport.update({
+  id: '/eu/contacto',
+  path: '/eu/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuClubRoute = EuClubRouteImport.update({
+  id: '/eu/club',
+  path: '/eu/club',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuCalendarioRoute = EuCalendarioRouteImport.update({
+  id: '/eu/calendario',
+  path: '/eu/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/torneos': typeof TorneosRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu/': typeof EuIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/torneos': typeof TorneosRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu': typeof EuIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/calendario': typeof CalendarioRoute
+  '/club': typeof ClubRoute
+  '/contacto': typeof ContactoRoute
+  '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
+  '/documentos': typeof DocumentosRoute
+  '/horarios': typeof HorariosRoute
+  '/lopivi': typeof LopiviRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/torneos': typeof TorneosRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu/': typeof EuIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/sitemap.xml'
+    | '/torneos'
+    | '/admin'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/sitemap.xml'
+    | '/torneos'
+    | '/admin'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/calendario'
+    | '/club'
+    | '/contacto'
+    | '/cuerpo-tecnico'
+    | '/documentos'
+    | '/horarios'
+    | '/lopivi'
+    | '/sitemap.xml'
+    | '/torneos'
+    | '/_authenticated/admin'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CalendarioRoute: typeof CalendarioRoute
+  ClubRoute: typeof ClubRoute
+  ContactoRoute: typeof ContactoRoute
+  CuerpoTecnicoRoute: typeof CuerpoTecnicoRoute
+  DocumentosRoute: typeof DocumentosRoute
+  HorariosRoute: typeof HorariosRoute
+  LopiviRoute: typeof LopiviRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TorneosRoute: typeof TorneosRoute
+  EuCalendarioRoute: typeof EuCalendarioRoute
+  EuClubRoute: typeof EuClubRoute
+  EuContactoRoute: typeof EuContactoRoute
+  EuCuerpoTecnicoRoute: typeof EuCuerpoTecnicoRoute
+  EuDocumentosRoute: typeof EuDocumentosRoute
+  EuHorariosRoute: typeof EuHorariosRoute
+  EuLopiviRoute: typeof EuLopiviRoute
+  EuTorneosRoute: typeof EuTorneosRoute
+  EuIndexRoute: typeof EuIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/torneos': {
+      id: '/torneos'
+      path: '/torneos'
+      fullPath: '/torneos'
+      preLoaderRoute: typeof TorneosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lopivi': {
+      id: '/lopivi'
+      path: '/lopivi'
+      fullPath: '/lopivi'
+      preLoaderRoute: typeof LopiviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horarios': {
+      id: '/horarios'
+      path: '/horarios'
+      fullPath: '/horarios'
+      preLoaderRoute: typeof HorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentos': {
+      id: '/documentos'
+      path: '/documentos'
+      fullPath: '/documentos'
+      preLoaderRoute: typeof DocumentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cuerpo-tecnico': {
+      id: '/cuerpo-tecnico'
+      path: '/cuerpo-tecnico'
+      fullPath: '/cuerpo-tecnico'
+      preLoaderRoute: typeof CuerpoTecnicoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contacto': {
+      id: '/contacto'
+      path: '/contacto'
+      fullPath: '/contacto'
+      preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/club': {
+      id: '/club'
+      path: '/club'
+      fullPath: '/club'
+      preLoaderRoute: typeof ClubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +396,113 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/eu/': {
+      id: '/eu/'
+      path: '/eu'
+      fullPath: '/eu/'
+      preLoaderRoute: typeof EuIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/torneos': {
+      id: '/eu/torneos'
+      path: '/eu/torneos'
+      fullPath: '/eu/torneos'
+      preLoaderRoute: typeof EuTorneosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/lopivi': {
+      id: '/eu/lopivi'
+      path: '/eu/lopivi'
+      fullPath: '/eu/lopivi'
+      preLoaderRoute: typeof EuLopiviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/horarios': {
+      id: '/eu/horarios'
+      path: '/eu/horarios'
+      fullPath: '/eu/horarios'
+      preLoaderRoute: typeof EuHorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/documentos': {
+      id: '/eu/documentos'
+      path: '/eu/documentos'
+      fullPath: '/eu/documentos'
+      preLoaderRoute: typeof EuDocumentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/cuerpo-tecnico': {
+      id: '/eu/cuerpo-tecnico'
+      path: '/eu/cuerpo-tecnico'
+      fullPath: '/eu/cuerpo-tecnico'
+      preLoaderRoute: typeof EuCuerpoTecnicoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/contacto': {
+      id: '/eu/contacto'
+      path: '/eu/contacto'
+      fullPath: '/eu/contacto'
+      preLoaderRoute: typeof EuContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/club': {
+      id: '/eu/club'
+      path: '/eu/club'
+      fullPath: '/eu/club'
+      preLoaderRoute: typeof EuClubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/calendario': {
+      id: '/eu/calendario'
+      path: '/eu/calendario'
+      fullPath: '/eu/calendario'
+      preLoaderRoute: typeof EuCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CalendarioRoute: CalendarioRoute,
+  ClubRoute: ClubRoute,
+  ContactoRoute: ContactoRoute,
+  CuerpoTecnicoRoute: CuerpoTecnicoRoute,
+  DocumentosRoute: DocumentosRoute,
+  HorariosRoute: HorariosRoute,
+  LopiviRoute: LopiviRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TorneosRoute: TorneosRoute,
+  EuCalendarioRoute: EuCalendarioRoute,
+  EuClubRoute: EuClubRoute,
+  EuContactoRoute: EuContactoRoute,
+  EuCuerpoTecnicoRoute: EuCuerpoTecnicoRoute,
+  EuDocumentosRoute: EuDocumentosRoute,
+  EuHorariosRoute: EuHorariosRoute,
+  EuLopiviRoute: EuLopiviRoute,
+  EuTorneosRoute: EuTorneosRoute,
+  EuIndexRoute: EuIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
