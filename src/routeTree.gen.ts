@@ -18,6 +18,15 @@ import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as ClubRouteImport } from './routes/club'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EuIndexRouteImport } from './routes/eu.index'
+import { Route as EuTorneosRouteImport } from './routes/eu.torneos'
+import { Route as EuLopiviRouteImport } from './routes/eu.lopivi'
+import { Route as EuHorariosRouteImport } from './routes/eu.horarios'
+import { Route as EuDocumentosRouteImport } from './routes/eu.documentos'
+import { Route as EuCuerpoTecnicoRouteImport } from './routes/eu.cuerpo-tecnico'
+import { Route as EuContactoRouteImport } from './routes/eu.contacto'
+import { Route as EuClubRouteImport } from './routes/eu.club'
+import { Route as EuCalendarioRouteImport } from './routes/eu.calendario'
 
 const TorneosRoute = TorneosRouteImport.update({
   id: '/torneos',
@@ -64,6 +73,51 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EuIndexRoute = EuIndexRouteImport.update({
+  id: '/eu/',
+  path: '/eu/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuTorneosRoute = EuTorneosRouteImport.update({
+  id: '/eu/torneos',
+  path: '/eu/torneos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuLopiviRoute = EuLopiviRouteImport.update({
+  id: '/eu/lopivi',
+  path: '/eu/lopivi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuHorariosRoute = EuHorariosRouteImport.update({
+  id: '/eu/horarios',
+  path: '/eu/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuDocumentosRoute = EuDocumentosRouteImport.update({
+  id: '/eu/documentos',
+  path: '/eu/documentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuCuerpoTecnicoRoute = EuCuerpoTecnicoRouteImport.update({
+  id: '/eu/cuerpo-tecnico',
+  path: '/eu/cuerpo-tecnico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuContactoRoute = EuContactoRouteImport.update({
+  id: '/eu/contacto',
+  path: '/eu/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuClubRoute = EuClubRouteImport.update({
+  id: '/eu/club',
+  path: '/eu/club',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EuCalendarioRoute = EuCalendarioRouteImport.update({
+  id: '/eu/calendario',
+  path: '/eu/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +129,15 @@ export interface FileRoutesByFullPath {
   '/horarios': typeof HorariosRoute
   '/lopivi': typeof LopiviRoute
   '/torneos': typeof TorneosRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu/': typeof EuIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +149,15 @@ export interface FileRoutesByTo {
   '/horarios': typeof HorariosRoute
   '/lopivi': typeof LopiviRoute
   '/torneos': typeof TorneosRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu': typeof EuIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +170,15 @@ export interface FileRoutesById {
   '/horarios': typeof HorariosRoute
   '/lopivi': typeof LopiviRoute
   '/torneos': typeof TorneosRoute
+  '/eu/calendario': typeof EuCalendarioRoute
+  '/eu/club': typeof EuClubRoute
+  '/eu/contacto': typeof EuContactoRoute
+  '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
+  '/eu/documentos': typeof EuDocumentosRoute
+  '/eu/horarios': typeof EuHorariosRoute
+  '/eu/lopivi': typeof EuLopiviRoute
+  '/eu/torneos': typeof EuTorneosRoute
+  '/eu/': typeof EuIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +192,15 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/lopivi'
     | '/torneos'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +212,15 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/lopivi'
     | '/torneos'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu'
   id:
     | '__root__'
     | '/'
@@ -133,6 +232,15 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/lopivi'
     | '/torneos'
+    | '/eu/calendario'
+    | '/eu/club'
+    | '/eu/contacto'
+    | '/eu/cuerpo-tecnico'
+    | '/eu/documentos'
+    | '/eu/horarios'
+    | '/eu/lopivi'
+    | '/eu/torneos'
+    | '/eu/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +253,15 @@ export interface RootRouteChildren {
   HorariosRoute: typeof HorariosRoute
   LopiviRoute: typeof LopiviRoute
   TorneosRoute: typeof TorneosRoute
+  EuCalendarioRoute: typeof EuCalendarioRoute
+  EuClubRoute: typeof EuClubRoute
+  EuContactoRoute: typeof EuContactoRoute
+  EuCuerpoTecnicoRoute: typeof EuCuerpoTecnicoRoute
+  EuDocumentosRoute: typeof EuDocumentosRoute
+  EuHorariosRoute: typeof EuHorariosRoute
+  EuLopiviRoute: typeof EuLopiviRoute
+  EuTorneosRoute: typeof EuTorneosRoute
+  EuIndexRoute: typeof EuIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +329,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/eu/': {
+      id: '/eu/'
+      path: '/eu'
+      fullPath: '/eu/'
+      preLoaderRoute: typeof EuIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/torneos': {
+      id: '/eu/torneos'
+      path: '/eu/torneos'
+      fullPath: '/eu/torneos'
+      preLoaderRoute: typeof EuTorneosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/lopivi': {
+      id: '/eu/lopivi'
+      path: '/eu/lopivi'
+      fullPath: '/eu/lopivi'
+      preLoaderRoute: typeof EuLopiviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/horarios': {
+      id: '/eu/horarios'
+      path: '/eu/horarios'
+      fullPath: '/eu/horarios'
+      preLoaderRoute: typeof EuHorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/documentos': {
+      id: '/eu/documentos'
+      path: '/eu/documentos'
+      fullPath: '/eu/documentos'
+      preLoaderRoute: typeof EuDocumentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/cuerpo-tecnico': {
+      id: '/eu/cuerpo-tecnico'
+      path: '/eu/cuerpo-tecnico'
+      fullPath: '/eu/cuerpo-tecnico'
+      preLoaderRoute: typeof EuCuerpoTecnicoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/contacto': {
+      id: '/eu/contacto'
+      path: '/eu/contacto'
+      fullPath: '/eu/contacto'
+      preLoaderRoute: typeof EuContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/club': {
+      id: '/eu/club'
+      path: '/eu/club'
+      fullPath: '/eu/club'
+      preLoaderRoute: typeof EuClubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eu/calendario': {
+      id: '/eu/calendario'
+      path: '/eu/calendario'
+      fullPath: '/eu/calendario'
+      preLoaderRoute: typeof EuCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +405,15 @@ const rootRouteChildren: RootRouteChildren = {
   HorariosRoute: HorariosRoute,
   LopiviRoute: LopiviRoute,
   TorneosRoute: TorneosRoute,
+  EuCalendarioRoute: EuCalendarioRoute,
+  EuClubRoute: EuClubRoute,
+  EuContactoRoute: EuContactoRoute,
+  EuCuerpoTecnicoRoute: EuCuerpoTecnicoRoute,
+  EuDocumentosRoute: EuDocumentosRoute,
+  EuHorariosRoute: EuHorariosRoute,
+  EuLopiviRoute: EuLopiviRoute,
+  EuTorneosRoute: EuTorneosRoute,
+  EuIndexRoute: EuIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
