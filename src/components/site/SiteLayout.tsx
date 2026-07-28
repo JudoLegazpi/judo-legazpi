@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { Menu, X, CalendarDays, Clock, Mail, Instagram, Send } from "lucide-react";
 import { localePath, t, type Locale } from "@/lib/i18n";
+import logoAsset from "@/assets/logo-judo-legazpi.png.asset.json";
 
 type NavItem = { path: string; labelKey: string };
 
@@ -27,12 +28,13 @@ function to(locale: Locale, path: string) {
 function Wordmark({ locale }: { locale: Locale }) {
   return (
     <Link to={to(locale, "/")} className="flex min-w-0 items-center gap-3">
-      <span
-        aria-hidden
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary font-display text-lg font-semibold text-primary-foreground"
-      >
-        JL
-      </span>
+      <img
+        src={logoAsset.url}
+        alt="Club Judo Legazpi"
+        width={44}
+        height={44}
+        className="h-11 w-11 shrink-0 object-contain"
+      />
       <span className="min-w-0">
         <span className="block truncate font-display text-base leading-none font-semibold uppercase">
           Judo Legazpi
