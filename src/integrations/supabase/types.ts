@@ -14,16 +14,318 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          file_url: string
+          id: string
+          published: boolean
+          sort_order: number
+          title_es: string
+          title_eu: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          file_url: string
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title_es: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          file_url?: string
+          id?: string
+          published?: boolean
+          sort_order?: number
+          title_es?: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          category: string
+          created_at: string
+          description_es: string | null
+          description_eu: string | null
+          end_date: string | null
+          event_date: string
+          id: string
+          link_url: string | null
+          location: string | null
+          published: boolean
+          title_es: string
+          title_eu: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          end_date?: string | null
+          event_date: string
+          id?: string
+          link_url?: string | null
+          location?: string | null
+          published?: boolean
+          title_es: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          end_date?: string | null
+          event_date?: string
+          id?: string
+          link_url?: string | null
+          location?: string | null
+          published?: boolean
+          title_es?: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gallery_images: {
+        Row: {
+          caption_es: string | null
+          caption_eu: string | null
+          created_at: string
+          id: string
+          image_url: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption_es?: string | null
+          caption_eu?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption_es?: string | null
+          caption_eu?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedules: {
+        Row: {
+          age_range: string | null
+          created_at: string
+          day_of_week: number
+          end_time: string
+          group_es: string
+          group_eu: string | null
+          id: string
+          location: string | null
+          sort_order: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          created_at?: string
+          day_of_week?: number
+          end_time: string
+          group_es: string
+          group_eu?: string | null
+          id?: string
+          location?: string | null
+          sort_order?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          group_es?: string
+          group_eu?: string | null
+          id?: string
+          location?: string | null
+          sort_order?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_texts: {
+        Row: {
+          key: string
+          label: string
+          updated_at: string
+          value_es: string
+          value_eu: string
+        }
+        Insert: {
+          key: string
+          label: string
+          updated_at?: string
+          value_es?: string
+          value_eu?: string
+        }
+        Update: {
+          key?: string
+          label?: string
+          updated_at?: string
+          value_es?: string
+          value_eu?: string
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          belt: string | null
+          bio_es: string | null
+          bio_eu: string | null
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+          qualifications: string | null
+          role_es: string | null
+          role_eu: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          belt?: string | null
+          bio_es?: string | null
+          bio_eu?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          qualifications?: string | null
+          role_es?: string | null
+          role_eu?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          belt?: string | null
+          bio_es?: string | null
+          bio_eu?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          qualifications?: string | null
+          role_es?: string | null
+          role_eu?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tournaments: {
+        Row: {
+          created_at: string
+          description_es: string | null
+          description_eu: string | null
+          edition: string | null
+          event_date: string | null
+          id: string
+          location: string | null
+          poster_url: string | null
+          published: boolean
+          results_url: string | null
+          slug: string
+          title_es: string
+          title_eu: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          edition?: string | null
+          event_date?: string | null
+          id?: string
+          location?: string | null
+          poster_url?: string | null
+          published?: boolean
+          results_url?: string | null
+          slug: string
+          title_es: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          edition?: string | null
+          event_date?: string | null
+          id?: string
+          location?: string | null
+          poster_url?: string | null
+          published?: boolean
+          results_url?: string | null
+          slug?: string
+          title_es?: string
+          title_eu?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +452,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
