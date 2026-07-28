@@ -392,9 +392,13 @@ function RecordForm({
       else payload[field.name] = value === "" ? null : value;
     }
 
-    const query = row
-      ? supabase.from(config.table).update(payload).eq("id", row.id)
-      : supabase.from(config.table).insert(payload as never);
+    // Los campos son dinámicos por tabla, por eso el tipado genérico aquí es laxo.
+    const table = supabase.from(config.table) as unknown as {
+      update: (payload: Record<string, unknown>) => { eq: (col: string, val: string) => PromiseLike<{ error: { message: string } | null }> };
+      insert: (payload: Record<string, unknown>) => PromiseLike<{ error: { message: string } | null }>;
+    };
+    const query = row ? table.update(payload).eq("id", row.id) : table.insert(payload);
+
     const { error } = await query;
     setBusy(false);
     if (error) onError(error.message);
