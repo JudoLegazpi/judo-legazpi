@@ -5,10 +5,11 @@ import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
 import { dayName, formatDate, localePath, pick, t, type Locale } from "@/lib/i18n";
 import type { SiteContent } from "@/lib/site-content.functions";
+import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
 const to = (locale: Locale, path: string) => localePath(locale, path) as never;
 
-export function HomePage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const upcoming = content.events
     .filter((e) => new Date(`${e.event_date}T00:00:00`) >= new Date(new Date().toDateString()))
     .slice(0, 3);
@@ -157,7 +158,7 @@ export function HomePage({ locale, content }: { locale: Locale; content: SiteCon
   );
 }
 
-export function ClubPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function ClubPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/club">
       <PageHeader eyebrow={t(locale, "club_name")} title={t(locale, "club_title")} />
@@ -198,7 +199,7 @@ export function ClubPage({ locale, content }: { locale: Locale; content: SiteCon
   );
 }
 
-export function SchedulePage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function SchedulePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const groups = new Map<string, typeof content.schedules>();
   for (const row of content.schedules) {
     const key = pick(locale, row.group_es, row.group_eu);
@@ -250,7 +251,7 @@ export function SchedulePage({ locale, content }: { locale: Locale; content: Sit
   );
 }
 
-export function StaffPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function StaffPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/cuerpo-tecnico">
       <PageHeader
@@ -290,7 +291,7 @@ export function StaffPage({ locale, content }: { locale: Locale; content: SiteCo
   );
 }
 
-export function CalendarPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const today = new Date(new Date().toDateString());
   const upcoming = content.events.filter((e) => new Date(`${e.event_date}T00:00:00`) >= today);
   const past = content.events.filter((e) => new Date(`${e.event_date}T00:00:00`) < today).reverse();
@@ -341,7 +342,7 @@ export function CalendarPage({ locale, content }: { locale: Locale; content: Sit
   );
 }
 
-export function TournamentsPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/torneos">
       <PageHeader
@@ -390,7 +391,7 @@ export function TournamentsPage({ locale, content }: { locale: Locale; content: 
   );
 }
 
-export function LopiviPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const docs = content.documents.filter((d) => d.category === "lopivi");
   return (
     <SiteLayout locale={locale} path="/lopivi">
@@ -422,7 +423,7 @@ export function LopiviPage({ locale, content }: { locale: Locale; content: SiteC
   );
 }
 
-export function DocumentsPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function DocumentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const categories = Array.from(new Set(content.documents.map((d) => d.category)));
   return (
     <SiteLayout locale={locale} path="/documentos">
@@ -459,7 +460,7 @@ export function DocumentsPage({ locale, content }: { locale: Locale; content: Si
   );
 }
 
-export function ContactPage({ locale, content }: { locale: Locale; content: SiteContent }) {
+export function ContactPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/contacto">
       <PageHeader
