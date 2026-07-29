@@ -227,7 +227,7 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4" aria-label="Secciones">
-          {[...CONFIGS.map((c) => ({ key: c.key, label: c.label })), { key: "textos", label: "Textos" }].map(
+          {[...CONFIGS.map((c) => ({ key: c.key, label: c.label })), { key: "imagenes", label: "Imágenes" }, { key: "textos", label: "Textos" }].map(
             (item) => (
               <button
                 key={item.key}
@@ -247,6 +247,8 @@ function AdminPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         {tab === "textos" ? (
           <TextsEditor />
+        ) : tab === "imagenes" ? (
+          <ImagesEditor />
         ) : (
           <CrudSection config={CONFIGS.find((c) => c.key === tab)!} />
         )}
@@ -493,6 +495,68 @@ function RecordForm({
         </button>
       </div>
     </form>
+  );
+}
+
+type ImageRow = { key: string; label: string; image_url: string | null };
+
+function ImagesEditor() {
+  const [rows, setRows] = useState<ImageRow[]>([]);
+  const [status, setStatus] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const { data } = await supabase.from("site_images").select("key,label,image_url").order("key");
+    setRows((data ?? []) as ImageRow[]);
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function replace(row: ImageRow, file: File) {
+    setStatus(`Subiendo ${file.name}…`);
+    try {
+      const url = await uploadFile(file);
+      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", row.key);
+      setStatus(error ? error.message : `Actualizada: ${row.label}`);
+      await load();
+    } catch (uploadError) {
+      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="text-2xl">Imágenes de la web</h2>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+      <ul className="mt-6 space-y-4">
+        {rows.map((row) => (
+          <li key={row.key} className="card-elevated grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
+            <div className="aspect-[3/2] overflow-hidden rounded-sm bg-muted">
+              {row.image_url && (
+                <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-base">{row.label}</h3>
+              <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
+                Sustituir imagen
+              </label>
+              <input
+                id={`img-${row.key}`}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void replace(row, file);
+                }}
+                className="mt-1 block w-full text-sm"
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
