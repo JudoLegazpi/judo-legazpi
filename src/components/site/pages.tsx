@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, ChevronDown, Download, Mail } from "lucide-react";
 import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
@@ -9,23 +9,42 @@ import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
 const to = (locale: Locale, path: string) => localePath(locale, path) as never;
 
-export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  const upcoming = content.events
-    .filter((e) => new Date(`${e.event_date}T00:00:00`) >= new Date(new Date().toDateString()))
-    .slice(0, 3);
+export const JOIN_URL = "https://judolegazpi.playoffinformatica.com/preinscripcion/";
 
-  const groups = Array.from(
-    new Map(
-      content.schedules.map((s) => [
-        pick(locale, s.group_es, s.group_eu),
-        { name: pick(locale, s.group_es, s.group_eu), age: s.age_range ?? "" },
-      ]),
-    ).values(),
+const list = (value?: string | null) =>
+  (value ?? "")
+    .split(/[\n·,;]/)
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <header className="text-center">
+      <h2 className="text-3xl sm:text-4xl lg:text-5xl">{title}</h2>
+      <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
+      {subtitle && <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">{subtitle}</p>}
+    </header>
   );
+}
+
+export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
+  const today = new Date(new Date().toDateString());
+  const upcoming = content.events
+    .filter((e) => new Date(`${e.event_date}T00:00:00`) >= today)
+    .slice(0, 6);
+
+  const lopiviDocs = content.documents.filter((d) => d.category === "lopivi");
+
+  // Tabla semanal: filas = franjas horarias, columnas = días con clase.
+  const days = Array.from(new Set(content.schedules.map((s) => s.day_of_week))).sort((a, b) => a - b);
+  const slots = Array.from(
+    new Set(content.schedules.map((s) => `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}`)),
+  ).sort();
 
   return (
     <SiteLayout locale={locale} path="/">
-      <section className="relative isolate">
+      {/* HERO a pantalla completa */}
+      <section className="relative isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
         <img
           src={heroImg}
           alt={locale === "eu" ? "Judokak tatamian entrenatzen" : "Judokas entrenando sobre el tatami"}
@@ -33,127 +52,265 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           height={1280}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="overlay-ink absolute inset-0" aria-hidden />
-        <div className="relative mx-auto flex max-w-6xl flex-col justify-end px-4 py-20 lg:px-6 lg:py-32">
-          <p className="eyebrow">{t(locale, "hero_kicker")}</p>
-          <h1 className="mt-3 max-w-3xl text-4xl text-ink-foreground sm:text-5xl lg:text-6xl">
-            {t(locale, "hero_title")}
+        <div className="absolute inset-0 bg-ink/80" aria-hidden />
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center">
+          <h1 className="font-display text-6xl leading-[0.9] font-bold tracking-tight text-ink-foreground sm:text-8xl lg:text-9xl">
+            Judo
+            <span className="block text-accent">Legazpi</span>
           </h1>
-          <p className="mt-4 max-w-xl text-base text-ink-foreground/85">
-            {content.texts.home_intro?.[locale] ?? ""}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to={to(locale, "/contacto")}
-              className="inline-flex min-h-11 items-center gap-2 rounded-sm bg-primary px-5 font-display text-sm uppercase tracking-wide text-primary-foreground"
+          <p className="mt-6 text-base text-ink-muted sm:text-lg">{t(locale, "hero_tagline")}</p>
+          <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <a
+              href={JOIN_URL}
+              rel="noreferrer noopener"
+              target="_blank"
+              className="inline-flex min-h-12 items-center justify-center rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
             >
-              {t(locale, "cta_try")} <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              to={to(locale, "/horarios")}
-              className="inline-flex min-h-11 items-center rounded-sm border border-ink-foreground/40 px-5 font-display text-sm uppercase tracking-wide text-ink-foreground"
+              {t(locale, "cta_join")}
+            </a>
+            <a
+              href="#kluba"
+              className="inline-flex min-h-12 items-center justify-center rounded-sm border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
             >
-              {t(locale, "cta_schedule")}
-            </Link>
+              {t(locale, "cta_know")}
+            </a>
           </div>
+          <ChevronDown className="mt-12 h-6 w-6 animate-bounce text-accent" aria-hidden />
         </div>
       </section>
 
-      <Section>
-        <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
-          <div>
-            <h2 className="text-2xl sm:text-3xl">{t(locale, "next_events")}</h2>
-            <ul className="mt-6 space-y-3">
-              {upcoming.length === 0 && (
-                <li className="text-muted-foreground">{t(locale, "calendar_empty")}</li>
-              )}
-              {upcoming.map((event) => (
-                <li key={event.id} className="card-elevated flex flex-wrap items-center gap-4 p-4">
-                  <span className="grid h-14 w-14 shrink-0 place-items-center rounded-sm bg-secondary font-display text-xl">
-                    {new Date(`${event.event_date}T00:00:00`).getDate()}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-base uppercase">
-                      {pick(locale, event.title_es, event.title_eu)}
-                    </span>
-                    <span className="block text-sm text-muted-foreground">
-                      {formatDate(locale, event.event_date)}
-                      {event.location ? ` · ${event.location}` : ""}
-                    </span>
-                  </span>
-                  <span className="rounded-sm bg-accent px-2 py-1 text-xs font-semibold uppercase text-accent-foreground">
-                    {t(locale, `cat_${event.category}`)}
-                  </span>
+      {/* KLUBA */}
+      <section id="kluba" className="scroll-mt-20">
+        <Section>
+          <SectionHead title={t(locale, "more_than_sport")} />
+          <div className="mt-12 grid items-center gap-10 lg:grid-cols-2">
+            <img
+              src={kidsImg}
+              alt={locale === "eu" ? "Haurren judo saioa" : "Clase de judo infantil"}
+              width={1280}
+              height={960}
+              loading="lazy"
+              className="w-full rounded-sm object-cover"
+            />
+            <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
+              <p>{content.texts.club_history?.[locale] ?? ""}</p>
+              <p>{content.texts.club_values?.[locale] ?? ""}</p>
+              <Link
+                to={to(locale, "/club")}
+                className="inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
+              >
+                {t(locale, "more_info")} <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </div>
+          </div>
+        </Section>
+      </section>
+
+      {/* EKIPO TEKNIKOA */}
+      {content.staff.length > 0 && (
+        <section id="taldea" className="scroll-mt-20 bg-secondary">
+          <Section>
+            <SectionHead title={t(locale, "staff_title")} subtitle={t(locale, "staff_intro")} />
+            <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {content.staff.map((person) => (
+                <li key={person.id} className="card-elevated overflow-hidden">
+                  {person.photo_url ? (
+                    <img
+                      src={person.photo_url}
+                      alt={person.name}
+                      loading="lazy"
+                      className="aspect-3/4 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="aspect-3/4 w-full bg-muted" aria-hidden />
+                  )}
+                  <div className="p-6">
+                    <h3 className="text-xl">{person.name}</h3>
+                    <p className="mt-1 font-display text-sm uppercase tracking-wide text-primary">
+                      {pick(locale, person.role_es, person.role_eu)}
+                    </p>
+                    {list(person.belt).length > 0 && (
+                      <div className="mt-4">
+                        <p className="eyebrow">{t(locale, "grading")}</p>
+                        <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+                          {list(person.belt).map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {list(person.qualifications).length > 0 && (
+                      <div className="mt-4">
+                        <p className="eyebrow">{t(locale, "qualification")}</p>
+                        <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+                          {list(person.qualifications).map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
+          </Section>
+        </section>
+      )}
+
+      {/* LOPIVI */}
+      <section id="lopivi" className="surface-ink scroll-mt-20">
+        <div className="mx-auto max-w-6xl px-4 py-16 text-center lg:px-6 lg:py-20">
+          <h2 className="text-3xl text-ink-foreground sm:text-4xl">{t(locale, "lopivi_title")}</h2>
+          <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
+          <p className="mx-auto mt-4 max-w-2xl text-ink-muted">{t(locale, "lopivi_docs")}</p>
+          {lopiviDocs.length > 0 && (
+            <ul className="mt-8 flex flex-wrap justify-center gap-3">
+              {lopiviDocs.map((doc) => (
+                <li key={doc.id}>
+                  <a
+                    href={doc.file_url}
+                    rel="noreferrer noopener"
+                    target="_blank"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-ink-border px-5 font-display text-xs uppercase tracking-wider text-ink-foreground"
+                  >
+                    <Download className="h-4 w-4" aria-hidden />
+                    {pick(locale, doc.title_es, doc.title_eu)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-8 text-sm text-ink-muted">{t(locale, "lopivi_mail")}</p>
+          <a
+            href="mailto:info@judolegazpi.com"
+            className="mt-2 inline-flex items-center gap-2 font-display text-base uppercase text-accent"
+          >
+            <Mail className="h-4 w-4" aria-hidden /> info@judolegazpi.com
+          </a>
+        </div>
+      </section>
+
+      {/* EGUTEGIA */}
+      <section id="egutegia" className="scroll-mt-20">
+        <Section>
+          <SectionHead title={t(locale, "calendar_title")} subtitle={t(locale, "season")} />
+          <ul className="mx-auto mt-12 max-w-3xl space-y-3">
+            {upcoming.length === 0 && (
+              <li className="text-center text-muted-foreground">{t(locale, "calendar_empty")}</li>
+            )}
+            {upcoming.map((event) => (
+              <li key={event.id} className="card-elevated flex flex-wrap items-center gap-4 p-4">
+                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-sm bg-secondary font-display text-xl">
+                  {new Date(`${event.event_date}T00:00:00`).getDate()}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-display text-base uppercase">
+                    {pick(locale, event.title_es, event.title_eu)}
+                  </span>
+                  <span className="block text-sm text-muted-foreground">
+                    {formatDate(locale, event.event_date)}
+                    {event.location ? ` · ${event.location}` : ""}
+                  </span>
+                </span>
+                <span className="rounded-sm bg-accent px-2 py-1 text-xs font-semibold uppercase text-accent-foreground">
+                  {t(locale, `cat_${event.category}`)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 text-center">
             <Link
               to={to(locale, "/calendario")}
-              className="mt-6 inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
+              className="inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
             >
               {t(locale, "see_all")} <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
-
-          <aside className="card-elevated p-6">
-            <h2 className="text-xl">{t(locale, "nav_schedule")}</h2>
-            <ul className="mt-4 space-y-3 text-sm">
-              {groups.map((group) => (
-                <li key={group.name} className="flex items-baseline justify-between gap-3 border-b border-border pb-2">
-                  <span className="font-semibold">{group.name}</span>
-                  <span className="text-muted-foreground">{group.age}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              to={to(locale, "/horarios")}
-              className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
-            >
-              {t(locale, "cta_schedule")}
-            </Link>
-          </aside>
-        </div>
-      </Section>
-
-      <section className="surface-ink">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:grid-cols-3 lg:px-6">
-          {[
-            { icon: Users, key: "nav_staff", path: "/cuerpo-tecnico", textKey: "staff_intro" },
-            { icon: CalendarDays, key: "nav_tournaments", path: "/torneos", textKey: "tournaments_intro" },
-            { icon: ShieldCheck, key: "nav_lopivi", path: "/lopivi", textKey: "lopivi_title" },
-          ].map((item) => (
-            <Link key={item.path} to={to(locale, item.path)} className="group block">
-              <item.icon className="h-6 w-6 text-primary" aria-hidden />
-              <h2 className="mt-3 text-xl text-ink-foreground">{t(locale, item.key)}</h2>
-              <p className="mt-2 text-sm text-ink-muted">{t(locale, item.textKey)}</p>
-            </Link>
-          ))}
-        </div>
+        </Section>
       </section>
 
-      <Section>
-        <div className="grid items-center gap-8 lg:grid-cols-2">
-          <img
-            src={kidsImg}
-            alt={locale === "eu" ? "Haurren judo saioa" : "Clase de judo infantil"}
-            width={1280}
-            height={960}
-            loading="lazy"
-            className="w-full rounded-sm object-cover"
-          />
-          <div>
-            <p className="eyebrow">{t(locale, "club_title")}</p>
-            <h2 className="mt-2 text-2xl sm:text-3xl">{t(locale, "club_name")}</h2>
-            <p className="mt-4 text-muted-foreground">{content.texts.club_history?.[locale] ?? ""}</p>
+      {/* ORDUTEGIA */}
+      <section id="ordutegia" className="scroll-mt-20 bg-secondary">
+        <Section>
+          <SectionHead title={t(locale, "nav_schedule")} subtitle={t(locale, "season")} />
+          {slots.length > 0 && (
+            <div className="mt-12 overflow-x-auto">
+              <table className="w-full min-w-[640px] border-collapse text-sm">
+                <thead>
+                  <tr className="surface-ink">
+                    <th scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
+                      {t(locale, "hour")}
+                    </th>
+                    {days.map((day) => (
+                      <th key={day} scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
+                        {dayName(locale, day)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {slots.map((slot) => {
+                    const [start, end] = slot.split("|");
+                    return (
+                      <tr key={slot} className="border-b border-border bg-card">
+                        <th scope="row" className="p-3 text-left font-display text-xs whitespace-nowrap tabular-nums">
+                          {start}–{end}
+                        </th>
+                        {days.map((day) => {
+                          const cells = content.schedules.filter(
+                            (s) =>
+                              s.day_of_week === day &&
+                              `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}` === slot,
+                          );
+                          return (
+                            <td key={day} className="p-3 align-top">
+                              {cells.map((cell) => (
+                                <span key={cell.id} className="block">
+                                  <span className="block font-semibold">
+                                    {pick(locale, cell.group_es, cell.group_eu)}
+                                  </span>
+                                  {cell.age_range && (
+                                    <span className="block text-xs text-muted-foreground">{cell.age_range}</span>
+                                  )}
+                                </span>
+                              ))}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-6 text-sm text-muted-foreground">{t(locale, "schedule_place")}</p>
+          <div className="mt-6">
             <Link
-              to={to(locale, "/club")}
-              className="mt-6 inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
+              to={to(locale, "/horarios")}
+              className="inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
             >
               {t(locale, "more_info")} <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
+        </Section>
+      </section>
+
+      {/* BATU GURE TALDERA */}
+      <section id="izena" className="scroll-mt-20 bg-accent">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center lg:px-6">
+          <h2 className="text-3xl text-accent-foreground sm:text-4xl">{t(locale, "join_title")}</h2>
+          <p className="mt-4 text-accent-foreground/80">{t(locale, "join_text")}</p>
+          <a
+            href={JOIN_URL}
+            rel="noreferrer noopener"
+            target="_blank"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-sm bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+          >
+            {t(locale, "join_short")}
+          </a>
         </div>
-      </Section>
+      </section>
     </SiteLayout>
   );
 }
