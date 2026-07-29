@@ -202,10 +202,11 @@ function Footer({ locale }: { locale: Locale }) {
         <nav aria-label={t(locale, "menu")}>
           <ul className="space-y-2 text-sm">
             {[...NAV, ...SECONDARY].map((item) => (
-              <li key={item.path}>
-                <Link to={to(locale, item.path)} className="text-ink-muted hover:text-ink-foreground">
+              <li key={`${item.path}${item.hash ?? ""}${item.labelKey}`}>
+                <Link to={to(locale, item.path)} hash={item.hash} className="text-ink-muted hover:text-ink-foreground">
                   {t(locale, item.labelKey)}
                 </Link>
+
               </li>
             ))}
           </ul>
