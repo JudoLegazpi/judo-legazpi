@@ -46,7 +46,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
       {/* HERO a pantalla completa */}
       <section className="relative isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
         <img
-          src={heroImg}
+          src={content.images.hero ?? heroImg}
           alt={locale === "eu" ? "Judokak tatamian entrenatzen" : "Judokas entrenando sobre el tatami"}
           width={1920}
           height={1280}
@@ -85,7 +85,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           <SectionHead title={t(locale, "more_than_sport")} />
           <div className="mt-12 grid items-center gap-10 lg:grid-cols-2">
             <img
-              src={kidsImg}
+              src={content.images.club ?? kidsImg}
               alt={locale === "eu" ? "Haurren judo saioa" : "Clase de judo infantil"}
               width={1280}
               height={960}
@@ -326,7 +326,7 @@ export function ClubPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
             <p>{content.texts.club_values?.[locale]}</p>
           </div>
           <img
-            src={kidsImg}
+            src={content.images.club ?? kidsImg}
             alt={locale === "eu" ? "Klubaren entrenamendua" : "Entrenamiento del club"}
             width={1280}
             height={960}

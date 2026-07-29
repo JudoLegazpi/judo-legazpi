@@ -9,4 +9,5 @@ export const EMPTY_SITE_CONTENT: SiteContent = {
   documents: [],
   gallery: [],
   texts: {},
+  images: {},
 };

@@ -18,6 +18,7 @@ export type SiteContent = {
   documents: ClubDocument[];
   gallery: GalleryImage[];
   texts: Record<string, { es: string; eu: string }>;
+  images: Record<string, string>;
 };
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(
@@ -37,7 +38,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts] = await Promise.all([
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images] = await Promise.all([
       supabase.from("schedules").select("*").order("sort_order"),
       supabase.from("events").select("*").eq("published", true).order("event_date"),
       supabase.from("staff").select("*").order("sort_order"),
@@ -45,11 +46,17 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       supabase.from("documents").select("*").eq("published", true).order("sort_order"),
       supabase.from("gallery_images").select("*").order("sort_order"),
       supabase.from("site_texts").select("*"),
+      supabase.from("site_images").select("*"),
     ]);
 
     const textMap: SiteContent["texts"] = {};
     for (const row of texts.data ?? []) {
       textMap[row.key] = { es: row.value_es, eu: row.value_eu };
+    }
+
+    const imageMap: SiteContent["images"] = {};
+    for (const row of images.data ?? []) {
+      if (row.image_url) imageMap[row.key] = row.image_url;
     }
 
     return {
@@ -60,6 +67,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       documents: documents.data ?? [],
       gallery: gallery.data ?? [],
       texts: textMap,
+      images: imageMap,
     };
   },
 );
