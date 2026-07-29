@@ -170,6 +170,27 @@ export type Database = {
         }
         Relationships: []
       }
+      site_images: {
+        Row: {
+          image_url: string | null
+          key: string
+          label: string
+          updated_at: string
+        }
+        Insert: {
+          image_url?: string | null
+          key: string
+          label: string
+          updated_at?: string
+        }
+        Update: {
+          image_url?: string | null
+          key?: string
+          label?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_texts: {
         Row: {
           key: string
