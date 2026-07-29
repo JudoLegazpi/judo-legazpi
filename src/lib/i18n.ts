@@ -90,7 +90,25 @@ const dict: Dict = {
   cat_examen: { es: "Examen", eu: "Azterketa" },
   cat_curso: { es: "Curso", eu: "Ikastaroa" },
   cat_club: { es: "Club", eu: "Kluba" },
+  hero_tagline: { es: "Club de Judo de Legazpi — desde 1986", eu: "Legazpi Judo taldea — 1986az geroztik" },
+  cta_join: { es: "Inscripción 26/27", eu: "26/27 Izen Ematea" },
+  cta_know: { es: "Conoce el club", eu: "Kluba ezagutu" },
+  join_short: { es: "Inscripción", eu: "Izen Ematea" },
+  more_than_sport: { es: "¡Mucho más que un deporte!", eu: "Kirola baino askoz gehiago!" },
+  grading: { es: "Graduación", eu: "Graduazioa" },
+  qualification: { es: "Titulación", eu: "Titulazioa" },
+  lopivi_docs: { es: "Documentación en materia de protección de la infancia y la adolescencia", eu: "Haurren eta nerabeen babesaren arloko dokumentazioa" },
+  lopivi_mail: { es: "Correo de contacto para asuntos relacionados con la LOPIVI:", eu: "LOPIVI Legearekin lotutako gaietarako harremanetarako emaila:" },
+  season: { es: "Temporada 2026 - 2027", eu: "2026 - 2027 Denboraldia" },
+  schedule_place: { es: "Lugar: gimnasio de Haztegi Ikastola — Legazpi", eu: "Lekua: Haztegi Ikastolako gimnasioa - Legazpi" },
+  join_title: { es: "Únete a nuestro equipo", eu: "Batu gure taldera" },
+  join_text: {
+    es: "El plazo de inscripción para la temporada 2026/2027 está abierto. ¡No pierdas la oportunidad!",
+    eu: "2026/2027 denboraldirako izena emateko epea irekita dago. Ez galdu aukera!",
+  },
+  hour: { es: "Horario", eu: "Ordutegia" },
 };
+
 
 export function t(locale: Locale, key: keyof typeof dict | string): string {
   const entry = dict[key as string];
