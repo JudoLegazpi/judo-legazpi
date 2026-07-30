@@ -201,7 +201,12 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4" aria-label="Secciones">
-          {[...CONFIGS.map((c) => ({ key: c.key, label: c.label })), { key: "imagenes", label: "Imágenes" }, { key: "textos", label: "Textos" }].map(
+          {[
+            ...CONFIGS.map((c) => ({ key: c.key, label: c.label })),
+            { key: "calendario", label: "Calendario" },
+            { key: "imagenes", label: "Imágenes" },
+            { key: "textos", label: "Textos" },
+          ].map(
             (item) => (
               <button
                 key={item.key}
@@ -223,10 +228,13 @@ function AdminPage() {
           <TextsEditor />
         ) : tab === "imagenes" ? (
           <ImagesEditor />
+        ) : tab === "calendario" ? (
+          <CalendarEditor />
         ) : (
           <CrudSection config={CONFIGS.find((c) => c.key === tab)!} />
         )}
       </main>
+
     </div>
   );
 }
