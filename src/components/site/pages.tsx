@@ -194,40 +194,10 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
       <section id="egutegia" className="scroll-mt-20">
         <Section>
           <SectionHead title={t(locale, "calendar_title")} subtitle={t(locale, "season")} />
-          <ul className="mx-auto mt-12 max-w-3xl space-y-3">
-            {upcoming.length === 0 && (
-              <li className="text-center text-muted-foreground">{t(locale, "calendar_empty")}</li>
-            )}
-            {upcoming.map((event) => (
-              <li key={event.id} className="card-elevated flex flex-wrap items-center gap-4 p-4">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-sm bg-secondary font-display text-xl">
-                  {new Date(`${event.event_date}T00:00:00`).getDate()}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-display text-base uppercase">
-                    {pick(locale, event.title_es, event.title_eu)}
-                  </span>
-                  <span className="block text-sm text-muted-foreground">
-                    {formatDate(locale, event.event_date)}
-                    {event.location ? ` · ${event.location}` : ""}
-                  </span>
-                </span>
-                <span className="rounded-sm bg-accent px-2 py-1 text-xs font-semibold uppercase text-accent-foreground">
-                  {t(locale, `cat_${event.category}`)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-8 text-center">
-            <Link
-              to={to(locale, "/calendario")}
-              className="inline-flex items-center gap-2 font-display text-sm uppercase text-primary"
-            >
-              {t(locale, "see_all")} <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-          </div>
+          <CalendarBlock locale={locale} content={content} />
         </Section>
       </section>
+
 
       {/* ORDUTEGIA */}
       <section id="ordutegia" className="scroll-mt-20 bg-secondary">
