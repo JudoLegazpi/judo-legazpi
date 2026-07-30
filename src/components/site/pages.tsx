@@ -418,11 +418,50 @@ export function StaffPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Lo
   );
 }
 
-export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  const today = new Date(new Date().toDateString());
-  const upcoming = content.events.filter((e) => new Date(`${e.event_date}T00:00:00`) >= today);
-  const past = content.events.filter((e) => new Date(`${e.event_date}T00:00:00`) < today).reverse();
+function CalendarBlock({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const image = content.images.calendar;
+  const pdf = content.texts.calendar_pdf_url?.es?.trim();
+  const updated = pick(locale, content.texts.calendar_updated?.es, content.texts.calendar_updated?.eu);
 
+  if (!image && !pdf) {
+    return <p className="mt-8 text-center text-muted-foreground">{t(locale, "calendar_empty")}</p>;
+  }
+
+  return (
+    <div className="mx-auto mt-10 max-w-4xl">
+      {image && (
+        <img
+          src={image}
+          alt={locale === "eu" ? "Denboraldiko egutegia" : "Calendario de la temporada"}
+          loading="lazy"
+          className="w-full rounded-sm border border-border bg-background"
+        />
+      )}
+      {(pdf || updated) && (
+        <div className="mt-8 rounded-sm bg-secondary px-6 py-8 text-center">
+          <p className="text-base text-muted-foreground">{t(locale, "calendar_download_intro")}</p>
+          {updated && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t(locale, "calendar_updated_label")}: {updated}
+            </p>
+          )}
+          {pdf && (
+            <a
+              href={pdf}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+            >
+              <Download className="h-4 w-4" aria-hidden /> {t(locale, "calendar_download")}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/calendario">
       <PageHeader
@@ -431,43 +470,12 @@ export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale:
         intro={t(locale, "calendar_intro")}
       />
       <Section>
-        {upcoming.length === 0 ? (
-          <p className="text-muted-foreground">{t(locale, "calendar_empty")}</p>
-        ) : (
-          <ul className="space-y-3">
-            {upcoming.map((event) => (
-              <li key={event.id} className="card-elevated p-5">
-                <p className="eyebrow">{t(locale, `cat_${event.category}`)}</p>
-                <h2 className="mt-1 text-xl">{pick(locale, event.title_es, event.title_eu)}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(locale, event.event_date)}
-                  {event.location ? ` · ${event.location}` : ""}
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {pick(locale, event.description_es, event.description_eu)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {past.length > 0 && (
-          <>
-            <h2 className="mt-12 text-xl">{t(locale, "past_events")}</h2>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              {past.map((event) => (
-                <li key={event.id} className="flex flex-wrap justify-between gap-2 border-b border-border pb-2">
-                  <span>{pick(locale, event.title_es, event.title_eu)}</span>
-                  <span>{formatDate(locale, event.event_date)}</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+        <CalendarBlock locale={locale} content={content} />
       </Section>
     </SiteLayout>
   );
 }
+
 
 export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
