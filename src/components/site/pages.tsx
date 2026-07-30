@@ -28,10 +28,8 @@ function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) 
 }
 
 export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  const today = new Date(new Date().toDateString());
-  const upcoming = content.events
-    .filter((e) => new Date(`${e.event_date}T00:00:00`) >= today)
-    .slice(0, 6);
+
+
 
   const lopiviDocs = content.documents.filter((d) => d.category === "lopivi");
 
