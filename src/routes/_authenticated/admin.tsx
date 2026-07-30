@@ -487,7 +487,7 @@ function ImagesEditor() {
   const [status, setStatus] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("site_images").select("key,label,image_url").order("key");
+    const { data } = await supabase.from("site_images").select("key,label,image_url").neq("key", "calendar").order("key");
     setRows((data ?? []) as ImageRow[]);
   }, []);
 
@@ -615,6 +615,125 @@ function TextsEditor() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function CalendarEditor() {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [updated, setUpdated] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const [{ data: img }, { data: texts }] = await Promise.all([
+      supabase.from("site_images").select("image_url").eq("key", "calendar").maybeSingle(),
+      supabase.from("site_texts").select("key,value_es").in("key", ["calendar_pdf_url", "calendar_updated"]),
+    ]);
+    setImageUrl(img?.image_url ?? null);
+    for (const row of texts ?? []) {
+      if (row.key === "calendar_pdf_url") setPdfUrl(row.value_es ?? "");
+      if (row.key === "calendar_updated") setUpdated(row.value_es ?? "");
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function saveText(key: string, value: string) {
+    const { error } = await supabase.from("site_texts").update({ value_es: value, value_eu: value }).eq("key", key);
+    setStatus(error ? error.message : "Guardado");
+  }
+
+  async function upload(kind: "image" | "pdf", file: File) {
+    setStatus(`Subiendo ${file.name}…`);
+    try {
+      const url = await uploadFile(file);
+      if (kind === "image") {
+        const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", "calendar");
+        setStatus(error ? error.message : "Imagen actualizada");
+        setImageUrl(url);
+      } else {
+        setPdfUrl(url);
+        await saveText("calendar_pdf_url", url);
+        setStatus("PDF actualizado");
+      }
+    } catch (uploadError) {
+      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
+    }
+  }
+
+  return (
+    <section>
+      <h2 className="text-2xl">Calendario de temporada</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        La sección pública muestra solo esta imagen, la fecha de actualización y el botón de descarga del PDF.
+      </p>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+
+      <div className="card-elevated mt-6 space-y-6 p-6">
+        <div>
+          <h3 className="text-base">Imagen del calendario</h3>
+          {imageUrl && (
+            <img src={imageUrl} alt="Calendario" className="mt-3 w-full max-w-xl rounded-sm border border-border" />
+          )}
+          <label htmlFor="cal-img" className="mt-3 block text-xs font-semibold">
+            Sustituir imagen
+          </label>
+          <input
+            id="cal-img"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void upload("image", file);
+            }}
+            className="mt-1 block w-full text-sm"
+          />
+        </div>
+
+        <div>
+          <h3 className="text-base">Calendario en PDF</h3>
+          {pdfUrl && (
+            <a href={pdfUrl} target="_blank" rel="noreferrer noopener" className="mt-1 block truncate text-xs underline">
+              Ver PDF actual
+            </a>
+          )}
+          <label htmlFor="cal-pdf" className="mt-3 block text-xs font-semibold">
+            Sustituir PDF
+          </label>
+          <input
+            id="cal-pdf"
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void upload("pdf", file);
+            }}
+            className="mt-1 block w-full text-sm"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="cal-updated" className="block text-xs font-semibold">
+            Fecha de actualización (por ejemplo 19/06/2026)
+          </label>
+          <input
+            id="cal-updated"
+            type="text"
+            value={updated}
+            onChange={(e) => setUpdated(e.target.value)}
+            className="mt-1 min-h-11 w-full max-w-xs rounded-sm border border-input bg-background px-3"
+          />
+          <button
+            onClick={() => void saveText("calendar_updated", updated)}
+            className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+          >
+            Guardar fecha
+          </button>
+        </div>
+      </div>
     </section>
   );
 }
