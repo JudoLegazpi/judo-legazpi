@@ -552,6 +552,7 @@ function TextsEditor() {
     supabase
       .from("site_texts")
       .select("key,label,value_es,value_eu")
+      .not("key", "in", "(calendar_pdf_url,calendar_updated)")
       .order("key")
       .then(({ data }) => setRows((data ?? []) as TextRow[]));
   }, []);
