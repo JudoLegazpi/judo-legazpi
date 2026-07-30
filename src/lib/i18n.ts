@@ -55,7 +55,13 @@ const dict: Dict = {
     es: "Competiciones, exámenes y actividades del club.",
     eu: "Lehiaketak, azterketak eta klubaren jarduerak.",
   },
-  calendar_empty: { es: "No hay citas publicadas ahora mismo.", eu: "Ez dago hitzordurik argitaratuta." },
+  calendar_empty: { es: "El calendario aún no está publicado.", eu: "Egutegia oraindik ez dago argitaratuta." },
+  calendar_download: { es: "Descargar calendario", eu: "Egutegia deskargatu" },
+  calendar_download_intro: {
+    es: "Puedes descargar el calendario en formato PDF",
+    eu: "Egutegia PDF formatuan deskarga dezakezu",
+  },
+  calendar_updated_label: { es: "Actualizado", eu: "Eguneratua" },
   past_events: { es: "Ya celebrado", eu: "Jada egindakoa" },
   tournaments_title: { es: "Torneos del club", eu: "Klubaren txapelketak" },
   tournaments_intro: {
