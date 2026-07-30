@@ -417,9 +417,12 @@ export function StaffPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Lo
 }
 
 function CalendarBlock({ locale, content }: { locale: Locale; content: SiteContent }) {
-  const image = content.images.calendar;
-  const pdf = content.texts.calendar_pdf_url?.es?.trim();
+  const image = locale === "eu" ? (content.images.calendar_eu ?? content.images.calendar) : content.images.calendar;
+  const pdf =
+    (locale === "eu" ? content.texts.calendar_pdf_url?.eu : content.texts.calendar_pdf_url?.es)?.trim() ||
+    content.texts.calendar_pdf_url?.es?.trim();
   const updated = pick(locale, content.texts.calendar_updated?.es, content.texts.calendar_updated?.eu);
+
 
   if (!image && !pdf) {
     return <p className="mt-8 text-center text-muted-foreground">{t(locale, "calendar_empty")}</p>;

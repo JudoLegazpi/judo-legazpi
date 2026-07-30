@@ -487,7 +487,12 @@ function ImagesEditor() {
   const [status, setStatus] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("site_images").select("key,label,image_url").neq("key", "calendar").order("key");
+    const { data } = await supabase
+      .from("site_images")
+      .select("key,label,image_url")
+      .not("key", "in", "(calendar,calendar_eu)")
+      .order("key");
+
     setRows((data ?? []) as ImageRow[]);
   }, []);
 
@@ -621,20 +626,32 @@ function TextsEditor() {
 }
 
 function CalendarEditor() {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [pdfUrl, setPdfUrl] = useState("");
-  const [updated, setUpdated] = useState("");
+  const [imageEs, setImageEs] = useState<string | null>(null);
+  const [imageEu, setImageEu] = useState<string | null>(null);
+  const [pdfEs, setPdfEs] = useState("");
+  const [pdfEu, setPdfEu] = useState("");
+  const [updatedEs, setUpdatedEs] = useState("");
+  const [updatedEu, setUpdatedEu] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [{ data: img }, { data: texts }] = await Promise.all([
-      supabase.from("site_images").select("image_url").eq("key", "calendar").maybeSingle(),
-      supabase.from("site_texts").select("key,value_es").in("key", ["calendar_pdf_url", "calendar_updated"]),
+    const [{ data: imgs }, { data: texts }] = await Promise.all([
+      supabase.from("site_images").select("key,image_url").in("key", ["calendar", "calendar_eu"]),
+      supabase.from("site_texts").select("key,value_es,value_eu").in("key", ["calendar_pdf_url", "calendar_updated"]),
     ]);
-    setImageUrl(img?.image_url ?? null);
+    for (const row of imgs ?? []) {
+      if (row.key === "calendar") setImageEs(row.image_url ?? null);
+      if (row.key === "calendar_eu") setImageEu(row.image_url ?? null);
+    }
     for (const row of texts ?? []) {
-      if (row.key === "calendar_pdf_url") setPdfUrl(row.value_es ?? "");
-      if (row.key === "calendar_updated") setUpdated(row.value_es ?? "");
+      if (row.key === "calendar_pdf_url") {
+        setPdfEs(row.value_es ?? "");
+        setPdfEu(row.value_eu ?? "");
+      }
+      if (row.key === "calendar_updated") {
+        setUpdatedEs(row.value_es ?? "");
+        setUpdatedEu(row.value_eu ?? "");
+      }
     }
   }, []);
 
@@ -642,24 +659,23 @@ function CalendarEditor() {
     void load();
   }, [load]);
 
-  async function saveText(key: string, value: string) {
-    const { error } = await supabase.from("site_texts").update({ value_es: value, value_eu: value }).eq("key", key);
+  async function saveText(key: string, valueEs: string, valueEu: string) {
+    const { error } = await supabase.from("site_texts").update({ value_es: valueEs, value_eu: valueEu }).eq("key", key);
     setStatus(error ? error.message : "Guardado");
   }
 
-  async function upload(kind: "image" | "pdf", file: File) {
+  async function uploadImage(key: "calendar" | "calendar_eu", file: File) {
     setStatus(`Subiendo ${file.name}…`);
     try {
       const url = await uploadFile(file);
-      if (kind === "image") {
-        const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", "calendar");
-        setStatus(error ? error.message : "Imagen actualizada");
-        setImageUrl(url);
-      } else {
-        setPdfUrl(url);
-        await saveText("calendar_pdf_url", url);
-        setStatus("PDF actualizado");
+      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", key);
+      if (error) {
+        setStatus(error.message);
+        return;
       }
+      if (key === "calendar") setImageEs(url);
+      else setImageEu(url);
+      setStatus("Imagen actualizada");
     } catch (uploadError) {
       setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
     }
@@ -669,72 +685,112 @@ function CalendarEditor() {
     <section>
       <h2 className="text-2xl">Calendario de temporada</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        La sección pública muestra solo esta imagen, la fecha de actualización y el botón de descarga del PDF.
+        La sección pública muestra la imagen del idioma correspondiente, la fecha de actualización y el botón de
+        descarga con la URL del calendario.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
-      <div className="card-elevated mt-6 space-y-6 p-6">
-        <div>
-          <h3 className="text-base">Imagen del calendario</h3>
-          {imageUrl && (
-            <img src={imageUrl} alt="Calendario" className="mt-3 w-full max-w-xl rounded-sm border border-border" />
-          )}
-          <label htmlFor="cal-img" className="mt-3 block text-xs font-semibold">
-            Sustituir imagen
-          </label>
-          <input
-            id="cal-img"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void upload("image", file);
-            }}
-            className="mt-1 block w-full text-sm"
-          />
+      <div className="card-elevated mt-6 space-y-8 p-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          {([
+            ["calendar", "Imagen del calendario (castellano)", imageEs, "cal-img-es"] as const,
+            ["calendar_eu", "Imagen del calendario (euskera)", imageEu, "cal-img-eu"] as const,
+          ]).map(([key, label, url, id]) => (
+            <div key={key}>
+              <h3 className="text-base">{label}</h3>
+              {url && <img src={url} alt={label} className="mt-3 w-full rounded-sm border border-border" />}
+              <label htmlFor={id} className="mt-3 block text-xs font-semibold">
+                Sustituir imagen
+              </label>
+              <input
+                id={id}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void uploadImage(key, file);
+                }}
+                className="mt-1 block w-full text-sm"
+              />
+            </div>
+          ))}
         </div>
 
         <div>
-          <h3 className="text-base">Calendario en PDF</h3>
-          {pdfUrl && (
-            <a href={pdfUrl} target="_blank" rel="noreferrer noopener" className="mt-1 block truncate text-xs underline">
-              Ver PDF actual
-            </a>
-          )}
-          <label htmlFor="cal-pdf" className="mt-3 block text-xs font-semibold">
-            Sustituir PDF
-          </label>
-          <input
-            id="cal-pdf"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void upload("pdf", file);
-            }}
-            className="mt-1 block w-full text-sm"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="cal-updated" className="block text-xs font-semibold">
-            Fecha de actualización (por ejemplo 19/06/2026)
-          </label>
-          <input
-            id="cal-updated"
-            type="text"
-            value={updated}
-            onChange={(e) => setUpdated(e.target.value)}
-            className="mt-1 min-h-11 w-full max-w-xs rounded-sm border border-input bg-background px-3"
-          />
+          <h3 className="text-base">URLs de descarga del calendario</h3>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <div>
+              <label htmlFor="cal-url-es" className="block text-xs font-semibold">
+                URL calendario (castellano)
+              </label>
+              <input
+                id="cal-url-es"
+                type="url"
+                placeholder="https://…"
+                value={pdfEs}
+                onChange={(e) => setPdfEs(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
+            </div>
+            <div>
+              <label htmlFor="cal-url-eu" className="block text-xs font-semibold">
+                URL calendario (euskera)
+              </label>
+              <input
+                id="cal-url-eu"
+                type="url"
+                placeholder="https://…"
+                value={pdfEu}
+                onChange={(e) => setPdfEu(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
+            </div>
+          </div>
           <button
-            onClick={() => void saveText("calendar_updated", updated)}
+            onClick={() => void saveText("calendar_pdf_url", pdfEs, pdfEu)}
             className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
           >
-            Guardar fecha
+            Guardar URLs
+          </button>
+        </div>
+
+        <div>
+          <h3 className="text-base">Fecha de actualización</h3>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <div>
+              <label htmlFor="cal-updated-es" className="block text-xs font-semibold">
+                Castellano (por ejemplo 19/06/2026)
+              </label>
+              <input
+                id="cal-updated-es"
+                type="text"
+                value={updatedEs}
+                onChange={(e) => setUpdatedEs(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
+            </div>
+            <div>
+              <label htmlFor="cal-updated-eu" className="block text-xs font-semibold">
+                Euskera
+              </label>
+              <input
+                id="cal-updated-eu"
+                type="text"
+                value={updatedEu}
+                onChange={(e) => setUpdatedEu(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
+            </div>
+          </div>
+          <button
+            onClick={() => void saveText("calendar_updated", updatedEs, updatedEu)}
+            className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+          >
+            Guardar fechas
           </button>
         </div>
       </div>
     </section>
   );
 }
+
