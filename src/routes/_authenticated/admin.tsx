@@ -59,33 +59,7 @@ const CONFIGS: TableConfig[] = [
     ],
   },
   {
-    key: "calendario",
-    table: "events",
-    label: "Calendario",
-    orderBy: "event_date",
-    titleField: "title_es",
-    fields: [
-      { name: "title_es", label: "Título (castellano)", type: "text", required: true },
-      { name: "title_eu", label: "Título (euskera)", type: "text" },
-      { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
-      { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
-      { name: "event_date", label: "Fecha", type: "date", required: true },
-      { name: "location", label: "Lugar", type: "text" },
-      {
-        name: "category",
-        label: "Categoría",
-        type: "select",
-        options: [
-          { value: "competicion", label: "Competición" },
-          { value: "torneo", label: "Torneo" },
-          { value: "examen", label: "Examen" },
-          { value: "curso", label: "Curso" },
-        ],
-      },
-      { name: "published", label: "Publicado", type: "boolean" },
-    ],
-  },
-  {
+
     key: "cuerpo-tecnico",
     table: "staff",
     label: "Cuerpo técnico",
