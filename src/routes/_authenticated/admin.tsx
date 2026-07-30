@@ -487,7 +487,12 @@ function ImagesEditor() {
   const [status, setStatus] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("site_images").select("key,label,image_url").neq("key", "calendar").order("key");
+    const { data } = await supabase
+      .from("site_images")
+      .select("key,label,image_url")
+      .not("key", "in", "(calendar,calendar_eu)")
+      .order("key");
+
     setRows((data ?? []) as ImageRow[]);
   }, []);
 
