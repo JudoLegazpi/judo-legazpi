@@ -15,8 +15,6 @@ export const Route = createFileRoute("/sitemap.xml")({
     handlers: {
       GET: async () => {
         const paths = [
-          "/club",
-          "/horarios",
           "/calendario",
           "/torneos",
           "/cuerpo-tecnico",
