@@ -39,12 +39,12 @@ const dict: Dict = {
   cta_schedule: { es: "Ver horarios", eu: "Ikusi ordutegiak" },
   next_events: { es: "Próximas citas", eu: "Hurrengo hitzorduak" },
   see_all: { es: "Ver todo", eu: "Ikusi dena" },
-  schedule_title: { es: "Horarios y tarifas", eu: "Ordutegiak eta tarifak" },
+  schedule_title: { es: "Horarios", eu: "Ordutegiak" },
   schedule_intro: {
     es: "Grupos por edad, dos sesiones semanales. Puedes venir a probar cualquier día de entrenamiento.",
     eu: "Adinaren araberako taldeak, asteko bi saio. Edozein entrenamendu egunetan etor zaitezke probatzera.",
   },
-  fees: { es: "Tarifas", eu: "Tarifak" },
+
   staff_title: { es: "Cuerpo técnico", eu: "Talde teknikoa" },
   staff_intro: {
     es: "Entrenadores titulados y formados en protección a la infancia.",
