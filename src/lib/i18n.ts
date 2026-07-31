@@ -84,7 +84,6 @@ const dict: Dict = {
   gallery: { es: "Galería", eu: "Galeria" },
   admin: { es: "Administración", eu: "Administrazioa" },
   results: { es: "Resultados", eu: "Emaitzak" },
-  more_info: { es: "Más información", eu: "Informazio gehiago" },
   back: { es: "Volver", eu: "Itzuli" },
   days: { es: "L,M,X,J,V,S,D", eu: "A,A,A,O,O,L,I" },
   day_names: {
@@ -113,8 +112,44 @@ const dict: Dict = {
     eu: "2026/2027 denboraldirako izena emateko epea irekita dago. Ez galdu aukera!",
   },
   hour: { es: "Horario", eu: "Ordutegia" },
+  club_section_title: { es: "¡Mucho más que un deporte!", eu: "Kirola baino askoz gehiago!" },
+  calendar_season: { es: "Temporada 2026 - 2027", eu: "2026 - 2027 Denboraldia" },
+  calendar_download_label: { es: "Descargar calendario", eu: "Egutegia deskargatu" },
+  lopivi_docs_intro: {
+    es: "Documentación en materia de protección de la infancia y la adolescencia",
+    eu: "Haurren eta nerabeen babesaren arloko dokumentazioa",
+  },
+  lopivi_mail_label: {
+    es: "Correo de contacto para asuntos relacionados con la LOPIVI:",
+    eu: "LOPIVI Legearekin lotutako gaietarako harremanetarako emaila:",
+  },
+  lopivi_email: { es: "lopivi@judolegazpi.com", eu: "lopivi@judolegazpi.com" },
+  lopivi_item1_title: { es: "Proyecto Deportivo", eu: "Kirol Proiektua" },
+  lopivi_item2_title: { es: "Protocolo LOPIVI", eu: "LOPIVI Protokoloa" },
+  lopivi_item3_title: { es: "Acta de Responsable", eu: "Arduradunaren Akta" },
+  contact_email: { es: "info@judolegazpi.com", eu: "info@judolegazpi.com" },
+  footer_address: {
+    es: "Polideportivo Municipal · 20230 Legazpi (Gipuzkoa)",
+    eu: "Udal Kiroldegia · 20230 Legazpi (Gipuzkoa)",
+  },
+  join_url: {
+    es: "https://judolegazpi.playoffinformatica.com/preinscripcion/",
+    eu: "https://judolegazpi.playoffinformatica.com/preinscripcion/",
+  },
 };
 
+
+export type TextMap = Record<string, { es: string; eu: string }>;
+
+/** Texto editable desde administración con respaldo en el diccionario estático. */
+export function tx(texts: TextMap | undefined, locale: Locale, key: string): string {
+  const value = texts?.[key]?.[locale]?.trim();
+  if (value) return value;
+  return t(locale, key);
+}
+
+/** Idioma preferido guardado por el usuario (euskera por defecto). */
+export const LOCALE_STORAGE_KEY = "judolegazpi-locale";
 
 export function t(locale: Locale, key: keyof typeof dict | string): string {
   const entry = dict[key as string];
