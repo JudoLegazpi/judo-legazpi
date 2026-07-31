@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { Menu, X, CalendarDays, Clock, Mail, Instagram, Send } from "lucide-react";
 import { localePath, t, tx, LOCALE_STORAGE_KEY, type Locale, type TextMap } from "@/lib/i18n";
+import { useDefaultLocale } from "@/hooks/use-default-locale";
 import logoAsset from "@/assets/logo-judo-legazpi.png.asset.json";
 
 type NavItem = { path: string; labelKey: string; hash?: string };
@@ -86,6 +87,7 @@ export function SiteLayout({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  useDefaultLocale(locale, localePath("eu", path));
   const joinUrl = tx(texts, locale, "join_url");
 
   return (
