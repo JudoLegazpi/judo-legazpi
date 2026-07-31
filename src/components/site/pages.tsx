@@ -29,7 +29,8 @@ function LopiviItems({ locale, content, tone }: { locale: Locale; content: SiteC
       title: tx(content.texts, locale, `lopivi_item${n}_title`),
       url: (content.texts[`lopivi_item${n}_url`]?.[locale] ?? "").trim(),
     }))
-    .filter((item) => item.title && item.title !== `lopivi_item${1}_title`);
+    .filter((item) => Boolean(item.title));
+
 
   if (items.length === 0) return null;
 
