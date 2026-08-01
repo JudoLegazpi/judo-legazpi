@@ -3,6 +3,7 @@ import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
 import { dayName, formatDate, pick, t, tx, type Locale } from "@/lib/i18n";
+import { lopiviIcon } from "@/lib/lopivi-icons";
 import type { SiteContent } from "@/lib/site-content.functions";
 import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
@@ -22,40 +23,78 @@ function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) 
   );
 }
 
-/** Los tres apartados fijos de LOPIVI, cada uno con título y enlace editables por idioma. */
-function LopiviItems({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
-  const items = [1, 2, 3]
-    .map((n) => ({
-      title: tx(content.texts, locale, `lopivi_item${n}_title`),
-      url: (content.texts[`lopivi_item${n}_url`]?.[locale] ?? "").trim(),
+/** Tarjetas de LOPIVI: textos, enlaces, iconos, colores y orden se editan desde administración. */
+function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const items = content.lopiviButtons
+    .map((button) => ({
+      id: button.id,
+      title: pick(locale, button.title_es, button.title_eu),
+      description: pick(locale, button.description_es, button.description_eu),
+      url: (pick(locale, button.url_es, button.url_eu) || "").trim(),
+      Icon: lopiviIcon(button.icon),
+      iconColor: button.icon_color,
+      bgColor: button.bg_color,
+      textColor: button.text_color,
+      textSize: button.text_size,
+      newTab: button.new_tab,
     }))
     .filter((item) => Boolean(item.title));
 
-
   if (items.length === 0) return null;
 
-  const linkClass =
-    tone === "ink"
-      ? "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-ink-border px-5 font-display text-xs uppercase tracking-wider text-ink-foreground"
-      : "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-border px-5 font-display text-xs uppercase tracking-wider text-foreground";
-
   return (
-    <ul className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
-      {items.map((item) => (
-        <li key={item.title}>
-          {item.url ? (
-            <a href={item.url} rel="noreferrer noopener" target="_blank" className={linkClass}>
-              <Download className="h-4 w-4" aria-hidden />
+    <ul className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((item) => {
+        const inner = (
+          <>
+            <span
+              className="grid h-16 w-16 place-items-center rounded-full"
+              style={{ backgroundColor: `${item.iconColor}22` }}
+              aria-hidden
+            >
+              <item.Icon className="h-8 w-8" style={{ color: item.iconColor }} />
+            </span>
+            <span
+              className="mt-5 block font-display leading-snug font-semibold uppercase tracking-wide"
+              style={{ color: item.textColor, fontSize: item.textSize }}
+            >
               {item.title}
-            </a>
-          ) : (
-            <span className={`${linkClass} opacity-60`}>{item.title}</span>
-          )}
-        </li>
-      ))}
+            </span>
+            {item.description && (
+              <span className="mt-2 block text-sm opacity-80" style={{ color: item.textColor }}>
+                {item.description}
+              </span>
+            )}
+          </>
+        );
+
+        const cardClass =
+          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
+
+        return (
+          <li key={item.id} className="h-full">
+            {item.url ? (
+              <a
+                href={item.url}
+                target={item.newTab ? "_blank" : undefined}
+                rel={item.newTab ? "noreferrer noopener" : undefined}
+                className={cardClass}
+                style={{ backgroundColor: item.bgColor }}
+              >
+                {inner}
+              </a>
+            ) : (
+              <span className={`${cardClass} opacity-70`} style={{ backgroundColor: item.bgColor }}>
+                {inner}
+              </span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
+
 
 function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
   const email = tx(content.texts, locale, "lopivi_email").toLowerCase();
