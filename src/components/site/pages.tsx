@@ -201,11 +201,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
 }
 
 export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  // Tabla semanal: filas = franjas horarias, columnas = días con clase.
-  const days = Array.from(new Set(content.schedules.map((s) => s.day_of_week))).sort((a, b) => a - b);
-  const slots = Array.from(
-    new Set(content.schedules.map((s) => `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}`)),
-  ).sort();
+
 
   return (
     <SiteLayout locale={locale} path="/" texts={content.texts}>
