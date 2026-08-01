@@ -241,7 +241,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           <h2 className="text-3xl text-ink-foreground sm:text-4xl">{tx(content.texts, locale, "lopivi_title")}</h2>
           <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
           <p className="mx-auto mt-4 max-w-2xl text-ink-muted">{tx(content.texts, locale, "lopivi_docs_intro")}</p>
-          <LopiviItems locale={locale} content={content} tone="ink" />
+          <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="ink" />
         </div>
       </section>
@@ -496,7 +496,7 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
           <p className="text-base leading-relaxed text-muted-foreground">
             {tx(content.texts, locale, "lopivi_docs_intro")}
           </p>
-          <LopiviItems locale={locale} content={content} tone="light" />
+          <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="light" />
         </div>
       </Section>
