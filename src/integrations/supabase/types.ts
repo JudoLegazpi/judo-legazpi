@@ -128,6 +128,66 @@ export type Database = {
         }
         Relationships: []
       }
+      lopivi_buttons: {
+        Row: {
+          active: boolean
+          bg_color: string
+          created_at: string
+          description_es: string | null
+          description_eu: string | null
+          icon: string
+          icon_color: string
+          id: string
+          new_tab: boolean
+          sort_order: number
+          text_color: string
+          text_size: string
+          title_es: string
+          title_eu: string
+          updated_at: string
+          url_es: string | null
+          url_eu: string | null
+        }
+        Insert: {
+          active?: boolean
+          bg_color?: string
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          icon?: string
+          icon_color?: string
+          id?: string
+          new_tab?: boolean
+          sort_order?: number
+          text_color?: string
+          text_size?: string
+          title_es?: string
+          title_eu?: string
+          updated_at?: string
+          url_es?: string | null
+          url_eu?: string | null
+        }
+        Update: {
+          active?: boolean
+          bg_color?: string
+          created_at?: string
+          description_es?: string | null
+          description_eu?: string | null
+          icon?: string
+          icon_color?: string
+          id?: string
+          new_tab?: boolean
+          sort_order?: number
+          text_color?: string
+          text_size?: string
+          title_es?: string
+          title_eu?: string
+          updated_at?: string
+          url_es?: string | null
+          url_eu?: string | null
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           age_range: string | null
@@ -188,6 +248,27 @@ export type Database = {
           key?: string
           label?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          label: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          label?: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          label?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
