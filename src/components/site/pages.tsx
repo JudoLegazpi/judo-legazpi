@@ -3,6 +3,7 @@ import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
 import { dayName, formatDate, pick, t, tx, type Locale } from "@/lib/i18n";
+import { lopiviIcon } from "@/lib/lopivi-icons";
 import type { SiteContent } from "@/lib/site-content.functions";
 import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
@@ -22,40 +23,78 @@ function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) 
   );
 }
 
-/** Los tres apartados fijos de LOPIVI, cada uno con título y enlace editables por idioma. */
-function LopiviItems({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
-  const items = [1, 2, 3]
-    .map((n) => ({
-      title: tx(content.texts, locale, `lopivi_item${n}_title`),
-      url: (content.texts[`lopivi_item${n}_url`]?.[locale] ?? "").trim(),
+/** Tarjetas de LOPIVI: textos, enlaces, iconos, colores y orden se editan desde administración. */
+function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const items = content.lopiviButtons
+    .map((button) => ({
+      id: button.id,
+      title: pick(locale, button.title_es, button.title_eu),
+      description: pick(locale, button.description_es, button.description_eu),
+      url: (pick(locale, button.url_es, button.url_eu) || "").trim(),
+      Icon: lopiviIcon(button.icon),
+      iconColor: button.icon_color,
+      bgColor: button.bg_color,
+      textColor: button.text_color,
+      textSize: button.text_size,
+      newTab: button.new_tab,
     }))
     .filter((item) => Boolean(item.title));
 
-
   if (items.length === 0) return null;
 
-  const linkClass =
-    tone === "ink"
-      ? "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-ink-border px-5 font-display text-xs uppercase tracking-wider text-ink-foreground"
-      : "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-sm border border-border px-5 font-display text-xs uppercase tracking-wider text-foreground";
-
   return (
-    <ul className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
-      {items.map((item) => (
-        <li key={item.title}>
-          {item.url ? (
-            <a href={item.url} rel="noreferrer noopener" target="_blank" className={linkClass}>
-              <Download className="h-4 w-4" aria-hidden />
+    <ul className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map((item) => {
+        const inner = (
+          <>
+            <span
+              className="grid h-16 w-16 place-items-center rounded-full"
+              style={{ backgroundColor: `${item.iconColor}22` }}
+              aria-hidden
+            >
+              <item.Icon className="h-8 w-8" style={{ color: item.iconColor }} />
+            </span>
+            <span
+              className="mt-5 block font-display leading-snug font-semibold uppercase tracking-wide"
+              style={{ color: item.textColor, fontSize: item.textSize }}
+            >
               {item.title}
-            </a>
-          ) : (
-            <span className={`${linkClass} opacity-60`}>{item.title}</span>
-          )}
-        </li>
-      ))}
+            </span>
+            {item.description && (
+              <span className="mt-2 block text-sm opacity-80" style={{ color: item.textColor }}>
+                {item.description}
+              </span>
+            )}
+          </>
+        );
+
+        const cardClass =
+          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
+
+        return (
+          <li key={item.id} className="h-full">
+            {item.url ? (
+              <a
+                href={item.url}
+                target={item.newTab ? "_blank" : undefined}
+                rel={item.newTab ? "noreferrer noopener" : undefined}
+                className={cardClass}
+                style={{ backgroundColor: item.bgColor }}
+              >
+                {inner}
+              </a>
+            ) : (
+              <span className={`${cardClass} opacity-70`} style={{ backgroundColor: item.bgColor }}>
+                {inner}
+              </span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
+
 
 function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
   const email = tx(content.texts, locale, "lopivi_email").toLowerCase();
@@ -76,12 +115,93 @@ function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteC
   );
 }
 
-export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  // Tabla semanal: filas = franjas horarias, columnas = días con clase.
-  const days = Array.from(new Set(content.schedules.map((s) => s.day_of_week))).sort((a, b) => a - b);
+/** Tabla semanal de horarios con estilos (colores, tamaños, bordes) editables desde administración. */
+export function ScheduleTable({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const s = content.scheduleStyle;
+  const days = Array.from(new Set(content.schedules.map((x) => x.day_of_week))).sort((a, b) => a - b);
   const slots = Array.from(
-    new Set(content.schedules.map((s) => `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}`)),
+    new Set(content.schedules.map((x) => `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}`)),
   ).sort();
+
+  if (slots.length === 0) return null;
+
+  const cellBorder = `${s.borderWidth} solid ${s.borderColor}`;
+
+  return (
+    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
+      <table
+        className="w-full min-w-[640px] border-collapse overflow-hidden text-left"
+        style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
+      >
+        <thead>
+          <tr className="surface-ink">
+            <th
+              scope="col"
+              className="font-display uppercase tracking-wider"
+              style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
+            >
+              {t(locale, "hour")}
+            </th>
+            {days.map((day) => (
+              <th
+                key={day}
+                scope="col"
+                className="font-display uppercase tracking-wider"
+                style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
+              >
+                {dayName(locale, day)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {slots.map((slot) => {
+            const [start, end] = slot.split("|");
+            return (
+              <tr key={slot}>
+                <th
+                  scope="row"
+                  className="font-display whitespace-nowrap tabular-nums"
+                  style={{ padding: s.gap, fontSize: s.hourSize, color: s.hourColor, border: cellBorder }}
+                >
+                  {start}–{end}
+                </th>
+                {days.map((day) => {
+                  const cells = content.schedules.filter(
+                    (x) =>
+                      x.day_of_week === day && `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}` === slot,
+                  );
+                  return (
+                    <td key={day} className="align-top" style={{ padding: s.gap, border: cellBorder }}>
+                      {cells.map((cell) => (
+                        <span key={cell.id} className="block">
+                          <span
+                            className="block font-semibold"
+                            style={{ fontSize: s.groupSize, color: s.groupColor }}
+                          >
+                            {pick(locale, cell.group_es, cell.group_eu)}
+                          </span>
+                          {cell.age_range && (
+                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                              {cell.age_range}
+                            </span>
+                          )}
+                        </span>
+                      ))}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
+
 
   return (
     <SiteLayout locale={locale} path="/" texts={content.texts}>
@@ -202,7 +322,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           <h2 className="text-3xl text-ink-foreground sm:text-4xl">{tx(content.texts, locale, "lopivi_title")}</h2>
           <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
           <p className="mx-auto mt-4 max-w-2xl text-ink-muted">{tx(content.texts, locale, "lopivi_docs_intro")}</p>
-          <LopiviItems locale={locale} content={content} tone="ink" />
+          <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="ink" />
         </div>
       </section>
@@ -219,66 +339,25 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
       </section>
 
       {/* ORDUTEGIA */}
-      <section id="ordutegia" className="scroll-mt-20 bg-secondary">
+      <section id="ordutegia" className="scroll-mt-20" style={{ backgroundColor: content.scheduleStyle.sectionBg }}>
         <Section>
-          <SectionHead
-            title={tx(content.texts, locale, "schedule_title")}
-            subtitle={tx(content.texts, locale, "calendar_season")}
-          />
-          {slots.length > 0 && (
-            <div className="mt-12 overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-sm">
-                <thead>
-                  <tr className="surface-ink">
-                    <th scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
-                      {t(locale, "hour")}
-                    </th>
-                    {days.map((day) => (
-                      <th key={day} scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
-                        {dayName(locale, day)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {slots.map((slot) => {
-                    const [start, end] = slot.split("|");
-                    return (
-                      <tr key={slot} className="border-b border-border bg-card">
-                        <th scope="row" className="p-3 text-left font-display text-xs whitespace-nowrap tabular-nums">
-                          {start}–{end}
-                        </th>
-                        {days.map((day) => {
-                          const cells = content.schedules.filter(
-                            (s) =>
-                              s.day_of_week === day &&
-                              `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}` === slot,
-                          );
-                          return (
-                            <td key={day} className="p-3 align-top">
-                              {cells.map((cell) => (
-                                <span key={cell.id} className="block">
-                                  <span className="block font-semibold">
-                                    {pick(locale, cell.group_es, cell.group_eu)}
-                                  </span>
-                                  {cell.age_range && (
-                                    <span className="block text-xs text-muted-foreground">{cell.age_range}</span>
-                                  )}
-                                </span>
-                              ))}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <header className="text-center">
+            <h2
+              style={{ fontSize: content.scheduleStyle.titleSize, color: content.scheduleStyle.titleColor }}
+              className="leading-tight"
+            >
+              {tx(content.texts, locale, "schedule_title")}
+            </h2>
+            <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+              {tx(content.texts, locale, "calendar_season")}
+            </p>
+          </header>
+          <ScheduleTable locale={locale} content={content} />
           <p className="mt-6 text-sm text-muted-foreground">{tx(content.texts, locale, "schedule_place")}</p>
         </Section>
       </section>
+
 
       {/* BATU GURE TALDERA */}
       <section id="izena" className="scroll-mt-20 bg-accent">
@@ -457,7 +536,7 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
           <p className="text-base leading-relaxed text-muted-foreground">
             {tx(content.texts, locale, "lopivi_docs_intro")}
           </p>
-          <LopiviItems locale={locale} content={content} tone="light" />
+          <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="light" />
         </div>
       </Section>

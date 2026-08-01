@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
+import { DEFAULT_SCHEDULE_STYLE, type ScheduleStyle } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 type Field = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "file";
+  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "file" | "color";
   options?: { value: string; label: string }[];
   accept?: string;
   required?: boolean;
@@ -28,7 +30,7 @@ type Field = {
 
 type TableConfig = {
   key: string;
-  table: "schedules" | "events" | "staff" | "tournaments" | "documents" | "gallery_images";
+  table: "schedules" | "staff" | "tournaments" | "lopivi_buttons";
   label: string;
   orderBy: string;
   titleField: string;
@@ -40,98 +42,193 @@ const DAYS = [1, 2, 3, 4, 5, 6, 7].map((d) => ({
   label: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"][d - 1],
 }));
 
-const CONFIGS: TableConfig[] = [
+const SCHEDULES_CONFIG: TableConfig = {
+  key: "horarios",
+  table: "schedules",
+  label: "Grupos y horarios",
+  orderBy: "sort_order",
+  titleField: "group_es",
+  fields: [
+    { name: "group_es", label: "Grupo (castellano)", type: "text", required: true },
+    { name: "group_eu", label: "Grupo (euskera)", type: "text" },
+    { name: "age_range", label: "Edades", type: "text" },
+    { name: "day_of_week", label: "Día", type: "select", options: DAYS, required: true },
+    { name: "start_time", label: "Hora inicio", type: "time", required: true },
+    { name: "end_time", label: "Hora fin", type: "time", required: true },
+    { name: "location", label: "Lugar", type: "text" },
+    { name: "sort_order", label: "Orden", type: "number" },
+  ],
+};
+
+const STAFF_CONFIG: TableConfig = {
+  key: "staff",
+  table: "staff",
+  label: "Personas del cuerpo técnico",
+  orderBy: "sort_order",
+  titleField: "name",
+  fields: [
+    { name: "name", label: "Nombre", type: "text", required: true },
+    { name: "role_es", label: "Cargo (castellano)", type: "text" },
+    { name: "role_eu", label: "Cargo (euskera)", type: "text" },
+    { name: "belt", label: "Cinturón", type: "text" },
+    { name: "qualifications", label: "Titulación", type: "text" },
+    { name: "bio_es", label: "Biografía (castellano)", type: "textarea" },
+    { name: "bio_eu", label: "Biografía (euskera)", type: "textarea" },
+    { name: "photo_url", label: "Foto", type: "file", accept: "image/*" },
+    { name: "sort_order", label: "Orden", type: "number" },
+  ],
+};
+
+const TOURNAMENTS_CONFIG: TableConfig = {
+  key: "torneos",
+  table: "tournaments",
+  label: "Torneos organizados",
+  orderBy: "event_date",
+  titleField: "title_es",
+  fields: [
+    { name: "slug", label: "Identificador (sin espacios)", type: "text", required: true },
+    { name: "title_es", label: "Título (castellano)", type: "text", required: true },
+    { name: "title_eu", label: "Título (euskera)", type: "text" },
+    { name: "edition", label: "Edición", type: "text" },
+    { name: "event_date", label: "Fecha", type: "date" },
+    { name: "location", label: "Lugar", type: "text" },
+    { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
+    { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
+    { name: "poster_url", label: "Cartel", type: "file", accept: "image/*" },
+    { name: "results_url", label: "Resultados (PDF)", type: "file", accept: "application/pdf" },
+    { name: "published", label: "Publicado", type: "boolean" },
+  ],
+};
+
+const LOPIVI_CONFIG: TableConfig = {
+  key: "lopivi-buttons",
+  table: "lopivi_buttons",
+  label: "Botones de LOPIVI",
+  orderBy: "sort_order",
+  titleField: "title_es",
+  fields: [
+    { name: "title_es", label: "Título (castellano)", type: "text", required: true },
+    { name: "title_eu", label: "Título (euskera)", type: "text" },
+    { name: "description_es", label: "Descripción corta (castellano)", type: "text" },
+    { name: "description_eu", label: "Descripción corta (euskera)", type: "text" },
+    { name: "url_es", label: "Enlace (castellano)", type: "text" },
+    { name: "url_eu", label: "Enlace (euskera)", type: "text" },
+    {
+      name: "icon",
+      label: "Icono",
+      type: "select",
+      options: LOPIVI_ICON_NAMES.map((name) => ({ value: name, label: name })),
+    },
+    { name: "icon_color", label: "Color del icono", type: "color" },
+    { name: "bg_color", label: "Color de fondo de la tarjeta", type: "color" },
+    { name: "text_color", label: "Color del texto", type: "color" },
+    {
+      name: "text_size",
+      label: "Tamaño del texto",
+      type: "select",
+      options: [
+        { value: "0.875rem", label: "Pequeño" },
+        { value: "1rem", label: "Normal" },
+        { value: "1.125rem", label: "Grande" },
+        { value: "1.375rem", label: "Muy grande" },
+      ],
+    },
+    { name: "new_tab", label: "Abrir en pestaña nueva", type: "boolean" },
+    { name: "sort_order", label: "Orden", type: "number" },
+    { name: "active", label: "Visible en la web", type: "boolean" },
+  ],
+};
+
+/** Cada pestaña corresponde a una sección pública de la web. */
+type SectionTab = {
+  key: string;
+  label: string;
+  title: string;
+  help?: string;
+  textKeys?: string[];
+  imageKeys?: string[];
+  crud?: TableConfig;
+  extra?: "calendar" | "scheduleStyle";
+};
+
+const SECTIONS: SectionTab[] = [
   {
-    key: "horarios",
-    table: "schedules",
-    label: "Horarios",
-    orderBy: "sort_order",
-    titleField: "group_es",
-    fields: [
-      { name: "group_es", label: "Grupo (castellano)", type: "text", required: true },
-      { name: "group_eu", label: "Grupo (euskera)", type: "text" },
-      { name: "age_range", label: "Edades", type: "text" },
-      { name: "day_of_week", label: "Día", type: "select", options: DAYS, required: true },
-      { name: "start_time", label: "Hora inicio", type: "time", required: true },
-      { name: "end_time", label: "Hora fin", type: "time", required: true },
-      { name: "location", label: "Lugar", type: "text" },
-      { name: "sort_order", label: "Orden", type: "number" },
-    ],
+    key: "inicio",
+    label: "Inicio",
+    title: "Portada",
+    help: "Imagen principal, lema y botones de la portada.",
+    imageKeys: ["hero"],
+    textKeys: ["hero_tagline", "home_intro", "cta_join", "cta_know", "join_title", "join_text", "join_url"],
   },
   {
-
+    key: "club",
+    label: "El club",
+    title: "Sección «El club»",
+    imageKeys: ["club"],
+    textKeys: ["club_section_title", "club_history", "club_values"],
+  },
+  {
     key: "cuerpo-tecnico",
-    table: "staff",
     label: "Cuerpo técnico",
-    orderBy: "sort_order",
-    titleField: "name",
-    fields: [
-      { name: "name", label: "Nombre", type: "text", required: true },
-      { name: "role_es", label: "Cargo (castellano)", type: "text" },
-      { name: "role_eu", label: "Cargo (euskera)", type: "text" },
-      { name: "belt", label: "Cinturón", type: "text" },
-      { name: "qualifications", label: "Titulación", type: "text" },
-      { name: "bio_es", label: "Biografía (castellano)", type: "textarea" },
-      { name: "bio_eu", label: "Biografía (euskera)", type: "textarea" },
-      { name: "photo_url", label: "Foto", type: "file", accept: "image/*" },
-      { name: "sort_order", label: "Orden", type: "number" },
-    ],
+    title: "Cuerpo técnico",
+    crud: STAFF_CONFIG,
+    textKeys: ["staff_title", "staff_intro"],
+  },
+  {
+    key: "lopivi",
+    label: "LOPIVI",
+    title: "LOPIVI y protección de la infancia",
+    help: "Los botones se muestran como tarjetas pulsables; puedes elegir icono, colores, tamaño del texto y orden.",
+    imageKeys: ["lopivi"],
+    crud: LOPIVI_CONFIG,
+    textKeys: ["lopivi_title", "lopivi_docs_intro", "lopivi_intro", "lopivi_mail_label", "lopivi_email", "lopivi_contact"],
+  },
+  {
+    key: "horarios",
+    label: "Horarios",
+    title: "Horarios",
+    crud: SCHEDULES_CONFIG,
+    extra: "scheduleStyle",
+    textKeys: ["schedule_title", "schedule_place", "calendar_season"],
+  },
+  {
+    key: "calendario",
+    label: "Calendario",
+    title: "Calendario de temporada",
+    extra: "calendar",
+    textKeys: ["calendar_title", "calendar_download_intro", "calendar_download_label"],
   },
   {
     key: "torneos",
-    table: "tournaments",
     label: "Torneos",
-    orderBy: "event_date",
-    titleField: "title_es",
-    fields: [
-      { name: "slug", label: "Identificador (sin espacios)", type: "text", required: true },
-      { name: "title_es", label: "Título (castellano)", type: "text", required: true },
-      { name: "title_eu", label: "Título (euskera)", type: "text" },
-      { name: "edition", label: "Edición", type: "text" },
-      { name: "event_date", label: "Fecha", type: "date" },
-      { name: "location", label: "Lugar", type: "text" },
-      { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
-      { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
-      { name: "poster_url", label: "Cartel", type: "file", accept: "image/*" },
-      { name: "results_url", label: "Resultados (PDF)", type: "file", accept: "application/pdf" },
-      { name: "published", label: "Publicado", type: "boolean" },
-    ],
+    title: "Torneos",
+    crud: TOURNAMENTS_CONFIG,
+    textKeys: ["tournaments_title", "tournaments_intro"],
   },
   {
-    key: "documentos",
-    table: "documents",
-    label: "Documentos",
-    orderBy: "sort_order",
-    titleField: "title_es",
-    fields: [
-      { name: "title_es", label: "Título (castellano)", type: "text", required: true },
-      { name: "title_eu", label: "Título (euskera)", type: "text" },
-      {
-        name: "category",
-        label: "Categoría",
-        type: "select",
-        options: [
-          { value: "club", label: "Club" },
-          { value: "inscripcion", label: "Inscripción" },
-          { value: "lopivi", label: "LOPIVI" },
-        ],
-      },
-      { name: "file_url", label: "Archivo PDF", type: "file", accept: "application/pdf", required: true },
-      { name: "sort_order", label: "Orden", type: "number" },
-      { name: "published", label: "Publicado", type: "boolean" },
-    ],
+    key: "contacto",
+    label: "Contacto",
+    title: "Contacto",
+    textKeys: ["contact_title", "contact_intro", "contact_email", "contact_info", "footer_address"],
   },
   {
-    key: "galeria",
-    table: "gallery_images",
-    label: "Galería",
-    orderBy: "sort_order",
-    titleField: "caption_es",
-    fields: [
-      { name: "image_url", label: "Imagen", type: "file", accept: "image/*", required: true },
-      { name: "caption_es", label: "Pie de foto (castellano)", type: "text" },
-      { name: "caption_eu", label: "Pie de foto (euskera)", type: "text" },
-      { name: "sort_order", label: "Orden", type: "number" },
+    key: "general",
+    label: "Configuración general",
+    title: "Configuración general",
+    help: "Elementos comunes a toda la web: nombre del club, redes sociales y etiquetas del menú. El idioma por defecto es el euskera.",
+    textKeys: [
+      "club_name",
+      "social_instagram",
+      "social_telegram",
+      "join_short",
+      "nav_home",
+      "nav_club",
+      "nav_staff",
+      "nav_calendar",
+      "nav_schedule",
+      "nav_lopivi",
+      "nav_tournaments",
+      "nav_contact",
     ],
   },
 ];
@@ -142,9 +239,7 @@ async function uploadFile(file: File): Promise<string> {
   const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
   const { error } = await supabase.storage.from("media").upload(path, file);
   if (error) throw error;
-  const { data, error: signError } = await supabase.storage
-    .from("media")
-    .createSignedUrl(path, TEN_YEARS);
+  const { data, error: signError } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
   if (signError || !data) throw signError ?? new Error("No se pudo generar el enlace");
   return data.signedUrl;
 }
@@ -152,7 +247,7 @@ async function uploadFile(file: File): Promise<string> {
 function AdminPage() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<string>("horarios");
+  const [tab, setTab] = useState<string>("inicio");
 
   useEffect(() => {
     supabase
@@ -176,15 +271,15 @@ function AdminPage() {
     return (
       <div className="mx-auto max-w-md p-8">
         <h1 className="text-2xl">Sin permisos</h1>
-        <p className="mt-2 text-muted-foreground">
-          Esta cuenta no tiene permisos de administración del club.
-        </p>
+        <p className="mt-2 text-muted-foreground">Esta cuenta no tiene permisos de administración del club.</p>
         <button onClick={signOut} className="mt-6 min-h-11 rounded-sm border border-border px-4">
           Cerrar sesión
         </button>
       </div>
     );
   }
+
+  const section = SECTIONS.find((s) => s.key === tab) ?? SECTIONS[0];
 
   return (
     <div className="min-h-dvh bg-secondary">
@@ -201,40 +296,33 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4" aria-label="Secciones">
-          {[
-            ...CONFIGS.map((c) => ({ key: c.key, label: c.label })),
-            { key: "calendario", label: "Calendario" },
-            { key: "imagenes", label: "Imágenes" },
-            { key: "textos", label: "Textos" },
-          ].map(
-            (item) => (
-              <button
-                key={item.key}
-                onClick={() => setTab(item.key)}
-                aria-current={tab === item.key}
-                className={`min-h-10 rounded-sm px-3 font-display text-sm uppercase ${
-                  tab === item.key ? "bg-primary text-primary-foreground" : "border border-border"
-                }`}
-              >
-                {item.label}
-              </button>
-            ),
-          )}
+          {SECTIONS.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setTab(item.key)}
+              aria-current={tab === item.key}
+              className={`min-h-10 rounded-sm px-3 font-display text-sm uppercase ${
+                tab === item.key ? "bg-primary text-primary-foreground" : "border border-border"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        {tab === "textos" ? (
-          <TextsEditor />
-        ) : tab === "imagenes" ? (
-          <ImagesEditor />
-        ) : tab === "calendario" ? (
-          <CalendarEditor />
-        ) : (
-          <CrudSection config={CONFIGS.find((c) => c.key === tab)!} />
-        )}
-      </main>
+      <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
+        <div>
+          <h2 className="text-2xl">{section.title}</h2>
+          {section.help && <p className="mt-1 text-sm text-muted-foreground">{section.help}</p>}
+        </div>
 
+        {section.crud && <CrudSection config={section.crud} />}
+        {section.extra === "calendar" && <CalendarEditor />}
+        {section.extra === "scheduleStyle" && <ScheduleStyleEditor />}
+        {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
+        {section.textKeys && section.textKeys.length > 0 && <TextsEditor keys={section.textKeys} />}
+      </main>
     </div>
   );
 }
@@ -247,10 +335,7 @@ function CrudSection({ config }: { config: TableConfig }) {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const { data, error: loadError } = await supabase
-      .from(config.table)
-      .select("*")
-      .order(config.orderBy);
+    const { data, error: loadError } = await supabase.from(config.table).select("*").order(config.orderBy);
     if (loadError) setError(loadError.message);
     setRows((data ?? []) as Row[]);
   }, [config.table, config.orderBy]);
@@ -270,7 +355,7 @@ function CrudSection({ config }: { config: TableConfig }) {
   return (
     <section>
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-        <h2 className="truncate text-2xl">{config.label}</h2>
+        <h3 className="truncate text-xl">{config.label}</h3>
         <button
           onClick={() => setEditing("new")}
           className="min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
@@ -296,17 +381,10 @@ function CrudSection({ config }: { config: TableConfig }) {
 
       <ul className="mt-6 space-y-2">
         {rows.map((row) => (
-          <li
-            key={row.id}
-            className="card-elevated grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4"
-          >
+          <li key={row.id} className="card-elevated grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4">
             <span className="min-w-0">
-              <span className="block truncate font-semibold">
-                {String(row[config.titleField] ?? "(sin título)")}
-              </span>
-              <span className="block text-xs text-muted-foreground">
-                {String(row[config.orderBy] ?? "")}
-              </span>
+              <span className="block truncate font-semibold">{String(row[config.titleField] ?? "(sin título)")}</span>
+              <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
             </span>
             <span className="flex gap-2">
               <button onClick={() => setEditing(row)} className="min-h-10 rounded-sm border border-border px-3 text-sm">
@@ -371,14 +449,16 @@ function RecordForm({
     for (const field of config.fields) {
       const value = values[field.name];
       if (field.type === "number") payload[field.name] = value === "" ? 0 : Number(value);
-      else if (field.type === "boolean") payload[field.name] = value === "true";
+      else if (field.type === "boolean") payload[field.name] = value !== "false";
       else if (field.type === "select" && field.name === "day_of_week") payload[field.name] = Number(value);
       else payload[field.name] = value === "" ? null : value;
     }
 
     // Los campos son dinámicos por tabla, por eso el tipado genérico aquí es laxo.
     const table = supabase.from(config.table) as unknown as {
-      update: (payload: Record<string, unknown>) => { eq: (col: string, val: string) => PromiseLike<{ error: { message: string } | null }> };
+      update: (payload: Record<string, unknown>) => {
+        eq: (col: string, val: string) => PromiseLike<{ error: { message: string } | null }>;
+      };
       insert: (payload: Record<string, unknown>) => PromiseLike<{ error: { message: string } | null }>;
     };
     const query = row ? table.update(payload).eq("id", row.id) : table.insert(payload);
@@ -389,8 +469,34 @@ function RecordForm({
     else await onSaved();
   }
 
+  const preview = config.table === "lopivi_buttons";
+  const PreviewIcon = lopiviIcon(values.icon);
+
   return (
     <form onSubmit={save} className="card-elevated mt-6 space-y-4 p-6">
+      {preview && (
+        <div className="rounded-sm border border-border bg-muted p-6">
+          <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Previsualización</p>
+          <span
+            className="mx-auto flex min-h-48 max-w-64 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)]"
+            style={{ backgroundColor: values.bg_color || "#FFFFFF" }}
+          >
+            <span
+              className="grid h-16 w-16 place-items-center rounded-full"
+              style={{ backgroundColor: `${values.icon_color || "#A6ED19"}22` }}
+            >
+              <PreviewIcon className="h-8 w-8" style={{ color: values.icon_color || "#A6ED19" }} />
+            </span>
+            <span
+              className="mt-5 block font-display leading-snug font-semibold uppercase tracking-wide"
+              style={{ color: values.text_color || "#14305C", fontSize: values.text_size || "1rem" }}
+            >
+              {values.title_es || "Título"}
+            </span>
+          </span>
+        </div>
+      )}
+
       {config.fields.map((field) => {
         const id = `${config.key}-${field.name}`;
         return (
@@ -433,6 +539,24 @@ function RecordForm({
                 <option value="false">No</option>
               </select>
             )}
+            {field.type === "color" && (
+              <div className="mt-1 flex items-center gap-3">
+                <input
+                  id={id}
+                  type="color"
+                  value={values[field.name] || "#FFFFFF"}
+                  onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
+                  className="h-11 w-16 rounded-sm border border-input bg-background"
+                />
+                <input
+                  type="text"
+                  aria-label={`${field.label} (código)`}
+                  value={values[field.name]}
+                  onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
+                  className="min-h-11 w-32 rounded-sm border border-input bg-background px-3"
+                />
+              </div>
+            )}
             {field.type === "file" && (
               <div className="mt-1 space-y-2">
                 <input
@@ -445,9 +569,7 @@ function RecordForm({
                   }}
                   className="block w-full text-sm"
                 />
-                {values[field.name] && (
-                  <p className="truncate text-xs text-muted-foreground">{values[field.name]}</p>
-                )}
+                {values[field.name] && <p className="truncate text-xs text-muted-foreground">{values[field.name]}</p>}
               </div>
             )}
             {["text", "number", "date", "time"].includes(field.type) && (
@@ -482,19 +604,19 @@ function RecordForm({
 
 type ImageRow = { key: string; label: string; image_url: string | null };
 
-function ImagesEditor() {
+function ImagesEditor({ keys }: { keys: string[] }) {
   const [rows, setRows] = useState<ImageRow[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  const keyList = keys.join(",");
 
   const load = useCallback(async () => {
     const { data } = await supabase
       .from("site_images")
       .select("key,label,image_url")
-      .not("key", "in", "(calendar,calendar_eu)")
+      .in("key", keyList.split(","))
       .order("key");
-
     setRows((data ?? []) as ImageRow[]);
-  }, []);
+  }, [keyList]);
 
   useEffect(() => {
     void load();
@@ -512,20 +634,20 @@ function ImagesEditor() {
     }
   }
 
+  if (rows.length === 0) return null;
+
   return (
     <section>
-      <h2 className="text-2xl">Imágenes de la web</h2>
+      <h3 className="text-xl">Imágenes de esta sección</h3>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
-      <ul className="mt-6 space-y-4">
+      <ul className="mt-4 space-y-4">
         {rows.map((row) => (
           <li key={row.key} className="card-elevated grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
             <div className="aspect-[3/2] overflow-hidden rounded-sm bg-muted">
-              {row.image_url && (
-                <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />
-              )}
+              {row.image_url && <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />}
             </div>
             <div>
-              <h3 className="text-base">{row.label}</h3>
+              <h4 className="text-base">{row.label}</h4>
               <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
                 Sustituir imagen
               </label>
@@ -549,18 +671,23 @@ function ImagesEditor() {
 
 type TextRow = { key: string; label: string; value_es: string; value_eu: string };
 
-function TextsEditor() {
+function TextsEditor({ keys }: { keys: string[] }) {
   const [rows, setRows] = useState<TextRow[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  const keyList = keys.join(",");
 
   useEffect(() => {
+    const order = keyList.split(",");
     supabase
       .from("site_texts")
       .select("key,label,value_es,value_eu")
-      .not("key", "in", "(calendar_pdf_url,calendar_updated)")
-      .order("key")
-      .then(({ data }) => setRows((data ?? []) as TextRow[]));
-  }, []);
+      .in("key", order)
+      .then(({ data }) => {
+        const list = (data ?? []) as TextRow[];
+        list.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+        setRows(list);
+      });
+  }, [keyList]);
 
   async function save(row: TextRow) {
     const { error } = await supabase
@@ -570,14 +697,17 @@ function TextsEditor() {
     setStatus(error ? error.message : `Guardado: ${row.label}`);
   }
 
+  if (rows.length === 0) return null;
+
   return (
     <section>
-      <h2 className="text-2xl">Textos de la web</h2>
+      <h3 className="text-xl">Textos de esta sección</h3>
+      <p className="mt-1 text-sm text-muted-foreground">Castellano y euskera se editan y guardan de forma independiente.</p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
-      <ul className="mt-6 space-y-4">
+      <ul className="mt-4 space-y-4">
         {rows.map((row, index) => (
           <li key={row.key} className="card-elevated p-5">
-            <h3 className="text-base">{row.label}</h3>
+            <h4 className="text-base">{row.label}</h4>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor={`${row.key}-es`} className="block text-xs font-semibold">
@@ -585,7 +715,7 @@ function TextsEditor() {
                 </label>
                 <textarea
                   id={`${row.key}-es`}
-                  rows={4}
+                  rows={3}
                   value={row.value_es}
                   onChange={(e) => {
                     const next = [...rows];
@@ -601,7 +731,7 @@ function TextsEditor() {
                 </label>
                 <textarea
                   id={`${row.key}-eu`}
-                  rows={4}
+                  rows={3}
                   value={row.value_eu}
                   onChange={(e) => {
                     const next = [...rows];
@@ -621,6 +751,151 @@ function TextsEditor() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+const STYLE_FIELDS: { name: keyof ScheduleStyle; label: string; kind: "color" | "size" }[] = [
+  { name: "titleSize", label: "Tamaño del título", kind: "size" },
+  { name: "titleColor", label: "Color del título", kind: "color" },
+  { name: "daySize", label: "Tamaño de los días", kind: "size" },
+  { name: "dayColor", label: "Color de los días", kind: "color" },
+  { name: "hourSize", label: "Tamaño de las horas", kind: "size" },
+  { name: "hourColor", label: "Color de las horas", kind: "color" },
+  { name: "groupSize", label: "Tamaño de los grupos", kind: "size" },
+  { name: "groupColor", label: "Color de los grupos", kind: "color" },
+  { name: "sectionBg", label: "Fondo de la sección", kind: "color" },
+  { name: "cardBg", label: "Fondo de la tabla", kind: "color" },
+  { name: "borderColor", label: "Color de los bordes", kind: "color" },
+  { name: "borderWidth", label: "Grosor de los bordes", kind: "size" },
+  { name: "borderRadius", label: "Redondeo de la tabla", kind: "size" },
+  { name: "gap", label: "Espaciado interior", kind: "size" },
+];
+
+function ScheduleStyleEditor() {
+  const [style, setStyle] = useState<ScheduleStyle>(DEFAULT_SCHEDULE_STYLE);
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "schedule_style")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setStyle({ ...DEFAULT_SCHEDULE_STYLE, ...(data.value as Partial<ScheduleStyle>) });
+      });
+  }, []);
+
+  async function save() {
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: "schedule_style", label: "Estilos de la sección de horarios", value: style });
+    setStatus(error ? error.message : "Estilos guardados");
+  }
+
+  return (
+    <section>
+      <h3 className="text-xl">Aspecto de la tabla de horarios</h3>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+
+      <div
+        className="mt-4 rounded-sm p-6"
+        style={{ backgroundColor: style.sectionBg }}
+        aria-label="Previsualización de horarios"
+      >
+        <p style={{ fontSize: style.titleSize, color: style.titleColor }} className="font-display uppercase">
+          Horarios
+        </p>
+        <table
+          className="mt-4 w-full border-collapse text-left"
+          style={{
+            backgroundColor: style.cardBg,
+            border: `${style.borderWidth} solid ${style.borderColor}`,
+            borderRadius: style.borderRadius,
+          }}
+        >
+          <tbody>
+            <tr>
+              <th
+                className="font-display uppercase surface-ink"
+                style={{
+                  padding: style.gap,
+                  fontSize: style.daySize,
+                  color: style.dayColor,
+                  border: `${style.borderWidth} solid ${style.borderColor}`,
+                }}
+              >
+                Lunes
+              </th>
+              <td
+                style={{
+                  padding: style.gap,
+                  fontSize: style.hourSize,
+                  color: style.hourColor,
+                  border: `${style.borderWidth} solid ${style.borderColor}`,
+                }}
+              >
+                17:30–18:30
+              </td>
+              <td
+                style={{
+                  padding: style.gap,
+                  fontSize: style.groupSize,
+                  color: style.groupColor,
+                  border: `${style.borderWidth} solid ${style.borderColor}`,
+                }}
+              >
+                Benjamín
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card-elevated mt-4 grid gap-4 p-6 sm:grid-cols-2">
+        {STYLE_FIELDS.map((field) => (
+          <div key={field.name}>
+            <label htmlFor={`style-${field.name}`} className="block text-xs font-semibold">
+              {field.label}
+            </label>
+            {field.kind === "color" ? (
+              <div className="mt-1 flex items-center gap-3">
+                <input
+                  id={`style-${field.name}`}
+                  type="color"
+                  value={style[field.name]}
+                  onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
+                  className="h-11 w-16 rounded-sm border border-input bg-background"
+                />
+                <input
+                  type="text"
+                  aria-label={`${field.label} (código)`}
+                  value={style[field.name]}
+                  onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
+                  className="min-h-11 w-32 rounded-sm border border-input bg-background px-3"
+                />
+              </div>
+            ) : (
+              <input
+                id={`style-${field.name}`}
+                type="text"
+                value={style[field.name]}
+                onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
+                placeholder="1rem"
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => void save()}
+        className="mt-4 min-h-11 rounded-sm bg-primary px-5 font-display text-sm uppercase text-primary-foreground"
+      >
+        Guardar estilos
+      </button>
     </section>
   );
 }
@@ -683,21 +958,23 @@ function CalendarEditor() {
 
   return (
     <section>
-      <h2 className="text-2xl">Calendario de temporada</h2>
+      <h3 className="text-xl">Imagen, enlaces y fechas del calendario</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         La sección pública muestra la imagen del idioma correspondiente, la fecha de actualización y el botón de
         descarga con la URL del calendario.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
-      <div className="card-elevated mt-6 space-y-8 p-6">
+      <div className="card-elevated mt-4 space-y-8 p-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {([
-            ["calendar", "Imagen del calendario (castellano)", imageEs, "cal-img-es"] as const,
-            ["calendar_eu", "Imagen del calendario (euskera)", imageEu, "cal-img-eu"] as const,
-          ]).map(([key, label, url, id]) => (
+          {(
+            [
+              ["calendar", "Imagen del calendario (castellano)", imageEs, "cal-img-es"] as const,
+              ["calendar_eu", "Imagen del calendario (euskera)", imageEu, "cal-img-eu"] as const,
+            ]
+          ).map(([key, label, url, id]) => (
             <div key={key}>
-              <h3 className="text-base">{label}</h3>
+              <h4 className="text-base">{label}</h4>
               {url && <img src={url} alt={label} className="mt-3 w-full rounded-sm border border-border" />}
               <label htmlFor={id} className="mt-3 block text-xs font-semibold">
                 Sustituir imagen
@@ -717,7 +994,7 @@ function CalendarEditor() {
         </div>
 
         <div>
-          <h3 className="text-base">URLs de descarga del calendario</h3>
+          <h4 className="text-base">URLs de descarga del calendario</h4>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="cal-url-es" className="block text-xs font-semibold">
@@ -755,7 +1032,7 @@ function CalendarEditor() {
         </div>
 
         <div>
-          <h3 className="text-base">Fecha de actualización</h3>
+          <h4 className="text-base">Fecha de actualización</h4>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <div>
               <label htmlFor="cal-updated-es" className="block text-xs font-semibold">
@@ -793,4 +1070,3 @@ function CalendarEditor() {
     </section>
   );
 }
-
