@@ -19,7 +19,6 @@ const NAV: NavItem[] = [
 ];
 
 const SECONDARY: NavItem[] = [
-  { path: "/documentos", labelKey: "nav_documents" },
   { path: "/contacto", labelKey: "nav_contact" },
 ];
 
