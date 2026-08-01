@@ -115,6 +115,91 @@ function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteC
   );
 }
 
+/** Tabla semanal de horarios con estilos (colores, tamaños, bordes) editables desde administración. */
+export function ScheduleTable({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const s = content.scheduleStyle;
+  const days = Array.from(new Set(content.schedules.map((x) => x.day_of_week))).sort((a, b) => a - b);
+  const slots = Array.from(
+    new Set(content.schedules.map((x) => `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}`)),
+  ).sort();
+
+  if (slots.length === 0) return null;
+
+  const cellBorder = `${s.borderWidth} solid ${s.borderColor}`;
+
+  return (
+    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
+      <table
+        className="w-full min-w-[640px] border-collapse overflow-hidden text-left"
+        style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
+      >
+        <thead>
+          <tr className="surface-ink">
+            <th
+              scope="col"
+              className="font-display uppercase tracking-wider"
+              style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
+            >
+              {t(locale, "hour")}
+            </th>
+            {days.map((day) => (
+              <th
+                key={day}
+                scope="col"
+                className="font-display uppercase tracking-wider"
+                style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
+              >
+                {dayName(locale, day)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {slots.map((slot) => {
+            const [start, end] = slot.split("|");
+            return (
+              <tr key={slot}>
+                <th
+                  scope="row"
+                  className="font-display whitespace-nowrap tabular-nums"
+                  style={{ padding: s.gap, fontSize: s.hourSize, color: s.hourColor, border: cellBorder }}
+                >
+                  {start}–{end}
+                </th>
+                {days.map((day) => {
+                  const cells = content.schedules.filter(
+                    (x) =>
+                      x.day_of_week === day && `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}` === slot,
+                  );
+                  return (
+                    <td key={day} className="align-top" style={{ padding: s.gap, border: cellBorder }}>
+                      {cells.map((cell) => (
+                        <span key={cell.id} className="block">
+                          <span
+                            className="block font-semibold"
+                            style={{ fontSize: s.groupSize, color: s.groupColor }}
+                          >
+                            {pick(locale, cell.group_es, cell.group_eu)}
+                          </span>
+                          {cell.age_range && (
+                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                              {cell.age_range}
+                            </span>
+                          )}
+                        </span>
+                      ))}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   // Tabla semanal: filas = franjas horarias, columnas = días con clase.
   const days = Array.from(new Set(content.schedules.map((s) => s.day_of_week))).sort((a, b) => a - b);
