@@ -258,66 +258,25 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
       </section>
 
       {/* ORDUTEGIA */}
-      <section id="ordutegia" className="scroll-mt-20 bg-secondary">
+      <section id="ordutegia" className="scroll-mt-20" style={{ backgroundColor: content.scheduleStyle.sectionBg }}>
         <Section>
-          <SectionHead
-            title={tx(content.texts, locale, "schedule_title")}
-            subtitle={tx(content.texts, locale, "calendar_season")}
-          />
-          {slots.length > 0 && (
-            <div className="mt-12 overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-sm">
-                <thead>
-                  <tr className="surface-ink">
-                    <th scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
-                      {t(locale, "hour")}
-                    </th>
-                    {days.map((day) => (
-                      <th key={day} scope="col" className="p-3 text-left font-display text-xs uppercase tracking-wider">
-                        {dayName(locale, day)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {slots.map((slot) => {
-                    const [start, end] = slot.split("|");
-                    return (
-                      <tr key={slot} className="border-b border-border bg-card">
-                        <th scope="row" className="p-3 text-left font-display text-xs whitespace-nowrap tabular-nums">
-                          {start}–{end}
-                        </th>
-                        {days.map((day) => {
-                          const cells = content.schedules.filter(
-                            (s) =>
-                              s.day_of_week === day &&
-                              `${s.start_time.slice(0, 5)}|${s.end_time.slice(0, 5)}` === slot,
-                          );
-                          return (
-                            <td key={day} className="p-3 align-top">
-                              {cells.map((cell) => (
-                                <span key={cell.id} className="block">
-                                  <span className="block font-semibold">
-                                    {pick(locale, cell.group_es, cell.group_eu)}
-                                  </span>
-                                  {cell.age_range && (
-                                    <span className="block text-xs text-muted-foreground">{cell.age_range}</span>
-                                  )}
-                                </span>
-                              ))}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <header className="text-center">
+            <h2
+              style={{ fontSize: content.scheduleStyle.titleSize, color: content.scheduleStyle.titleColor }}
+              className="leading-tight"
+            >
+              {tx(content.texts, locale, "schedule_title")}
+            </h2>
+            <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+              {tx(content.texts, locale, "calendar_season")}
+            </p>
+          </header>
+          <ScheduleTable locale={locale} content={content} />
           <p className="mt-6 text-sm text-muted-foreground">{tx(content.texts, locale, "schedule_place")}</p>
         </Section>
       </section>
+
 
       {/* BATU GURE TALDERA */}
       <section id="izena" className="scroll-mt-20 bg-accent">
