@@ -77,16 +77,19 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts, images] = await Promise.all([
-      supabase.from("schedules").select("*").order("sort_order"),
-      supabase.from("events").select("*").eq("published", true).order("event_date"),
-      supabase.from("staff").select("*").order("sort_order"),
-      supabase.from("tournaments").select("*").eq("published", true).order("event_date", { ascending: false }),
-      supabase.from("documents").select("*").eq("published", true).order("sort_order"),
-      supabase.from("gallery_images").select("*").order("sort_order"),
-      supabase.from("site_texts").select("*"),
-      supabase.from("site_images").select("*"),
-    ]);
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings] =
+      await Promise.all([
+        supabase.from("schedules").select("*").order("sort_order"),
+        supabase.from("events").select("*").eq("published", true).order("event_date"),
+        supabase.from("staff").select("*").order("sort_order"),
+        supabase.from("tournaments").select("*").eq("published", true).order("event_date", { ascending: false }),
+        supabase.from("documents").select("*").eq("published", true).order("sort_order"),
+        supabase.from("gallery_images").select("*").order("sort_order"),
+        supabase.from("site_texts").select("*"),
+        supabase.from("site_images").select("*"),
+        supabase.from("lopivi_buttons").select("*").eq("active", true).order("sort_order"),
+        supabase.from("site_settings").select("*"),
+      ]);
 
     const textMap: SiteContent["texts"] = {};
     for (const row of texts.data ?? []) {
@@ -98,6 +101,12 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       if (row.image_url) imageMap[row.key] = row.image_url;
     }
 
+    const scheduleRow = (settings.data ?? []).find((row) => row.key === "schedule_style");
+    const scheduleStyle: ScheduleStyle = {
+      ...DEFAULT_SCHEDULE_STYLE,
+      ...((scheduleRow?.value as Partial<ScheduleStyle> | null) ?? {}),
+    };
+
     return {
       schedules: schedules.data ?? [],
       events: events.data ?? [],
@@ -107,6 +116,9 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       gallery: gallery.data ?? [],
       texts: textMap,
       images: imageMap,
+      lopiviButtons: lopivi.data ?? [],
+      scheduleStyle,
     };
+
   },
 );
