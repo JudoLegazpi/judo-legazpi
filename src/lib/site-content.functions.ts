@@ -9,6 +9,42 @@ export type Tournament = Database["public"]["Tables"]["tournaments"]["Row"];
 export type ClubDocument = Database["public"]["Tables"]["documents"]["Row"];
 export type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"];
 export type SiteText = Database["public"]["Tables"]["site_texts"]["Row"];
+export type LopiviButton = Database["public"]["Tables"]["lopivi_buttons"]["Row"];
+
+/** Ajustes visuales editables de la sección de horarios. */
+export type ScheduleStyle = {
+  titleSize: string;
+  titleColor: string;
+  daySize: string;
+  dayColor: string;
+  hourSize: string;
+  hourColor: string;
+  groupSize: string;
+  groupColor: string;
+  sectionBg: string;
+  cardBg: string;
+  borderColor: string;
+  borderWidth: string;
+  borderRadius: string;
+  gap: string;
+};
+
+export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
+  titleSize: "2.25rem",
+  titleColor: "#14305C",
+  daySize: "0.75rem",
+  dayColor: "#FFFFFF",
+  hourSize: "0.75rem",
+  hourColor: "#14305C",
+  groupSize: "0.875rem",
+  groupColor: "#14305C",
+  sectionBg: "#F5F7FA",
+  cardBg: "#FFFFFF",
+  borderColor: "#DDE3EC",
+  borderWidth: "1px",
+  borderRadius: "0.75rem",
+  gap: "0.75rem",
+};
 
 export type SiteContent = {
   schedules: Schedule[];
@@ -19,7 +55,10 @@ export type SiteContent = {
   gallery: GalleryImage[];
   texts: Record<string, { es: string; eu: string }>;
   images: Record<string, string>;
+  lopiviButtons: LopiviButton[];
+  scheduleStyle: ScheduleStyle;
 };
+
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(
   async (): Promise<SiteContent> => {
