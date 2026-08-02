@@ -939,21 +939,10 @@ function CalendarEditor() {
     setStatus(error ? error.message : "Guardado");
   }
 
-  async function uploadImage(key: "calendar" | "calendar_eu", file: File) {
-    setStatus(`Subiendo ${file.name}…`);
-    try {
-      const url = await uploadFile(file);
-      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", key);
-      if (error) {
-        setStatus(error.message);
-        return;
-      }
-      if (key === "calendar") setImageEs(url);
-      else setImageEu(url);
-      setStatus("Imagen actualizada");
-    } catch (uploadError) {
-      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
-    }
+  async function saveImage(key: "calendar" | "calendar_eu", url: string) {
+    const value = url.trim() || null;
+    const { error } = await supabase.from("site_images").update({ image_url: value }).eq("key", key);
+    setStatus(error ? error.message : "Imagen actualizada");
   }
 
   return (
@@ -961,7 +950,7 @@ function CalendarEditor() {
       <h3 className="text-xl">Imagen, enlaces y fechas del calendario</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         La sección pública muestra la imagen del idioma correspondiente, la fecha de actualización y el botón de
-        descarga con la URL del calendario.
+        descarga con la URL del calendario. Las imágenes se indican mediante enlaces externos.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
@@ -969,29 +958,34 @@ function CalendarEditor() {
         <div className="grid gap-6 md:grid-cols-2">
           {(
             [
-              ["calendar", "Imagen del calendario (castellano)", imageEs, "cal-img-es"] as const,
-              ["calendar_eu", "Imagen del calendario (euskera)", imageEu, "cal-img-eu"] as const,
+              ["calendar", "Imagen del calendario (castellano)", imageEs, setImageEs, "cal-img-es"] as const,
+              ["calendar_eu", "Imagen del calendario (euskera)", imageEu, setImageEu, "cal-img-eu"] as const,
             ]
-          ).map(([key, label, url, id]) => (
+          ).map(([key, label, url, setUrl, id]) => (
             <div key={key}>
               <h4 className="text-base">{label}</h4>
               {url && <img src={url} alt={label} className="mt-3 w-full rounded-sm border border-border" />}
               <label htmlFor={id} className="mt-3 block text-xs font-semibold">
-                Sustituir imagen
+                URL de la imagen
               </label>
               <input
                 id={id}
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void uploadImage(key, file);
-                }}
-                className="mt-1 block w-full text-sm"
+                type="url"
+                placeholder="https://…"
+                value={url ?? ""}
+                onChange={(e) => setUrl(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
               />
+              <button
+                onClick={() => void saveImage(key, url ?? "")}
+                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+              >
+                Guardar imagen
+              </button>
             </div>
           ))}
         </div>
+
 
         <div>
           <h4 className="text-base">URLs de descarga del calendario</h4>
