@@ -432,16 +432,8 @@ function RecordForm({
 
   useEffect(() => setValues(initial), [initial]);
 
-  async function handleFile(field: Field, file: File) {
-    setBusy(true);
-    try {
-      const url = await uploadFile(file);
-      setValues((v) => ({ ...v, [field.name]: url }));
-    } catch (uploadError) {
-      onError(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
-    }
-    setBusy(false);
-  }
+
+
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
