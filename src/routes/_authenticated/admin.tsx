@@ -317,6 +317,8 @@ function AdminPage() {
         {section.crud && <CrudSection config={section.crud} />}
         {section.extra === "calendar" && <CalendarEditor />}
         {section.extra === "scheduleStyle" && <ScheduleStyleEditor />}
+        {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
+
         {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
         {section.textKeys && section.textKeys.length > 0 && <TextsEditor keys={section.textKeys} />}
       </main>
