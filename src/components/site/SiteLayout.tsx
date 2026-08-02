@@ -194,10 +194,16 @@ export function SiteLayout({
           <CalendarDays className="h-5 w-5" aria-hidden />
           {tx(texts, locale, "nav_calendar")}
         </Link>
-        <Link to={to(locale, "/contacto")} className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs" activeProps={{ className: "text-primary" }}>
-          <Mail className="h-5 w-5" aria-hidden />
-          {tx(texts, locale, "nav_contact")}
-        </Link>
+        <a
+          href={intranetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs"
+        >
+          <ExternalLink className="h-5 w-5" aria-hidden />
+          {tx(texts, locale, "nav_intranet")}
+        </a>
+
       </nav>
     </div>
   );
