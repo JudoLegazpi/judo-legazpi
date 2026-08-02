@@ -83,7 +83,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings] =
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs] =
       await Promise.all([
         supabase.from("schedules").select("*").order("sort_order"),
         supabase.from("events").select("*").eq("published", true).order("event_date"),
@@ -95,7 +95,9 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
         supabase.from("site_images").select("*"),
         supabase.from("lopivi_buttons").select("*").eq("active", true).order("sort_order"),
         supabase.from("site_settings").select("*"),
+        supabase.from("tournament_documents").select("*").eq("visible", true).order("sort_order"),
       ]);
+
 
     const textMap: SiteContent["texts"] = {};
     for (const row of texts.data ?? []) {
