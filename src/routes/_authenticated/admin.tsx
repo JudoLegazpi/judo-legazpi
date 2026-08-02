@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 type Field = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "file" | "color";
+  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "url" | "color";
   options?: { value: string; label: string }[];
   accept?: string;
   required?: boolean;
