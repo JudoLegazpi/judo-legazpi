@@ -60,8 +60,10 @@ export type SiteContent = {
   texts: Record<string, { es: string; eu: string }>;
   images: Record<string, string>;
   lopiviButtons: LopiviButton[];
+  tournamentDocuments: TournamentDocument[];
   scheduleStyle: ScheduleStyle;
 };
+
 
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(
