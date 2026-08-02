@@ -764,6 +764,8 @@ const STYLE_FIELDS: { name: keyof ScheduleStyle; label: string; kind: "color" | 
   { name: "hourColor", label: "Color de las horas", kind: "color" },
   { name: "groupSize", label: "Tamaño de los grupos", kind: "size" },
   { name: "groupColor", label: "Color de los grupos", kind: "color" },
+  { name: "ageColor", label: "Color del texto de EDADES", kind: "color" },
+
   { name: "sectionBg", label: "Fondo de la sección", kind: "color" },
   { name: "cardBg", label: "Fondo de la tabla", kind: "color" },
   { name: "borderColor", label: "Color de los bordes", kind: "color" },
