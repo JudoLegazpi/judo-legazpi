@@ -159,7 +159,19 @@ export function SiteLayout({
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={intranetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="block border-b border-ink-border py-3 font-display text-base uppercase text-ink-foreground"
+                >
+                  {tx(texts, locale, "nav_intranet")}
+                </a>
+              </li>
             </ul>
+
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
               <LanguageSwitch locale={locale} path={path} />
               <a
