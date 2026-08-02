@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 type Field = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "file" | "color";
+  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "url" | "color";
   options?: { value: string; label: string }[];
   accept?: string;
   required?: boolean;
@@ -74,7 +74,7 @@ const STAFF_CONFIG: TableConfig = {
     { name: "qualifications", label: "Titulación", type: "text" },
     { name: "bio_es", label: "Biografía (castellano)", type: "textarea" },
     { name: "bio_eu", label: "Biografía (euskera)", type: "textarea" },
-    { name: "photo_url", label: "Foto", type: "file", accept: "image/*" },
+    { name: "photo_url", label: "Foto (URL externa)", type: "url" },
     { name: "sort_order", label: "Orden", type: "number" },
   ],
 };
@@ -94,8 +94,9 @@ const TOURNAMENTS_CONFIG: TableConfig = {
     { name: "location", label: "Lugar", type: "text" },
     { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
     { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
-    { name: "poster_url", label: "Cartel", type: "file", accept: "image/*" },
-    { name: "results_url", label: "Resultados (PDF)", type: "file", accept: "application/pdf" },
+    { name: "poster_url", label: "Cartel (URL externa)", type: "url" },
+    { name: "results_url", label: "Resultados (URL externa)", type: "url" },
+
     { name: "published", label: "Publicado", type: "boolean" },
   ],
 };
@@ -148,7 +149,7 @@ type SectionTab = {
   textKeys?: string[];
   imageKeys?: string[];
   crud?: TableConfig;
-  extra?: "calendar" | "scheduleStyle";
+  extra?: "calendar" | "scheduleStyle" | "tournamentDocs";
 };
 
 const SECTIONS: SectionTab[] = [
@@ -202,24 +203,27 @@ const SECTIONS: SectionTab[] = [
     key: "torneos",
     label: "Torneos",
     title: "Torneos",
+    help: "Cada torneo puede tener enlaces ilimitados a documentos externos.",
     crud: TOURNAMENTS_CONFIG,
+    extra: "tournamentDocs",
     textKeys: ["tournaments_title", "tournaments_intro"],
-  },
-  {
-    key: "contacto",
-    label: "Contacto",
-    title: "Contacto",
-    textKeys: ["contact_title", "contact_intro", "contact_email", "contact_info", "footer_address"],
   },
   {
     key: "general",
     label: "Configuración general",
     title: "Configuración general",
-    help: "Elementos comunes a toda la web: nombre del club, redes sociales y etiquetas del menú. El idioma por defecto es el euskera.",
+    help: "Elementos comunes a toda la web: datos de contacto del pie, redes sociales, enlaces externos y etiquetas del menú. El idioma por defecto es el euskera.",
     textKeys: [
       "club_name",
+      "footer_address",
+      "contact_email",
+      "contact_phone",
+      "contact_phone_label",
       "social_instagram",
       "social_telegram",
+      "intranet_url",
+      "footer_unsubscribe",
+      "footer_unsubscribe_url",
       "join_short",
       "nav_home",
       "nav_club",
@@ -228,21 +232,14 @@ const SECTIONS: SectionTab[] = [
       "nav_schedule",
       "nav_lopivi",
       "nav_tournaments",
-      "nav_contact",
+      "nav_intranet",
     ],
   },
 ];
 
-const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
-async function uploadFile(file: File): Promise<string> {
-  const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  const { error } = await supabase.storage.from("media").upload(path, file);
-  if (error) throw error;
-  const { data, error: signError } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
-  if (signError || !data) throw signError ?? new Error("No se pudo generar el enlace");
-  return data.signedUrl;
-}
+
+
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -320,6 +317,8 @@ function AdminPage() {
         {section.crud && <CrudSection config={section.crud} />}
         {section.extra === "calendar" && <CalendarEditor />}
         {section.extra === "scheduleStyle" && <ScheduleStyleEditor />}
+        {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
+
         {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
         {section.textKeys && section.textKeys.length > 0 && <TextsEditor keys={section.textKeys} />}
       </main>
@@ -431,16 +430,8 @@ function RecordForm({
 
   useEffect(() => setValues(initial), [initial]);
 
-  async function handleFile(field: Field, file: File) {
-    setBusy(true);
-    try {
-      const url = await uploadFile(file);
-      setValues((v) => ({ ...v, [field.name]: url }));
-    } catch (uploadError) {
-      onError(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
-    }
-    setBusy(false);
-  }
+
+
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -557,21 +548,17 @@ function RecordForm({
                 />
               </div>
             )}
-            {field.type === "file" && (
-              <div className="mt-1 space-y-2">
-                <input
-                  id={id}
-                  type="file"
-                  accept={field.accept}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleFile(field, file);
-                  }}
-                  className="block w-full text-sm"
-                />
-                {values[field.name] && <p className="truncate text-xs text-muted-foreground">{values[field.name]}</p>}
-              </div>
+            {field.type === "url" && (
+              <input
+                id={id}
+                type="url"
+                placeholder="https://…"
+                value={values[field.name]}
+                onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
             )}
+
             {["text", "number", "date", "time"].includes(field.type) && (
               <input
                 id={id}
@@ -622,16 +609,13 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     void load();
   }, [load]);
 
-  async function replace(row: ImageRow, file: File) {
-    setStatus(`Subiendo ${file.name}…`);
-    try {
-      const url = await uploadFile(file);
-      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", row.key);
-      setStatus(error ? error.message : `Actualizada: ${row.label}`);
-      await load();
-    } catch (uploadError) {
-      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
-    }
+  async function save(row: ImageRow, url: string) {
+    const { error } = await supabase
+      .from("site_images")
+      .update({ image_url: url.trim() || null })
+      .eq("key", row.key);
+    setStatus(error ? error.message : `Actualizada: ${row.label}`);
+    await load();
   }
 
   if (rows.length === 0) return null;
@@ -639,6 +623,9 @@ function ImagesEditor({ keys }: { keys: string[] }) {
   return (
     <section>
       <h3 className="text-xl">Imágenes de esta sección</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Las imágenes se gestionan mediante enlaces externos (URL).
+      </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
       <ul className="mt-4 space-y-4">
         {rows.map((row) => (
@@ -649,18 +636,26 @@ function ImagesEditor({ keys }: { keys: string[] }) {
             <div>
               <h4 className="text-base">{row.label}</h4>
               <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
-                Sustituir imagen
+                URL de la imagen
               </label>
               <input
                 id={`img-${row.key}`}
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void replace(row, file);
-                }}
-                className="mt-1 block w-full text-sm"
+                type="url"
+                placeholder="https://…"
+                value={row.image_url ?? ""}
+                onChange={(e) =>
+                  setRows((list) =>
+                    list.map((item) => (item.key === row.key ? { ...item, image_url: e.target.value } : item)),
+                  )
+                }
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
               />
+              <button
+                onClick={() => void save(row, row.image_url ?? "")}
+                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+              >
+                Guardar
+              </button>
             </div>
           </li>
         ))}
@@ -668,6 +663,7 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     </section>
   );
 }
+
 
 type TextRow = { key: string; label: string; value_es: string; value_eu: string };
 
@@ -764,6 +760,8 @@ const STYLE_FIELDS: { name: keyof ScheduleStyle; label: string; kind: "color" | 
   { name: "hourColor", label: "Color de las horas", kind: "color" },
   { name: "groupSize", label: "Tamaño de los grupos", kind: "size" },
   { name: "groupColor", label: "Color de los grupos", kind: "color" },
+  { name: "ageColor", label: "Color del texto de EDADES", kind: "color" },
+
   { name: "sectionBg", label: "Fondo de la sección", kind: "color" },
   { name: "cardBg", label: "Fondo de la tabla", kind: "color" },
   { name: "borderColor", label: "Color de los bordes", kind: "color" },
@@ -939,21 +937,10 @@ function CalendarEditor() {
     setStatus(error ? error.message : "Guardado");
   }
 
-  async function uploadImage(key: "calendar" | "calendar_eu", file: File) {
-    setStatus(`Subiendo ${file.name}…`);
-    try {
-      const url = await uploadFile(file);
-      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", key);
-      if (error) {
-        setStatus(error.message);
-        return;
-      }
-      if (key === "calendar") setImageEs(url);
-      else setImageEu(url);
-      setStatus("Imagen actualizada");
-    } catch (uploadError) {
-      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir el archivo");
-    }
+  async function saveImage(key: "calendar" | "calendar_eu", url: string) {
+    const value = url.trim() || null;
+    const { error } = await supabase.from("site_images").update({ image_url: value }).eq("key", key);
+    setStatus(error ? error.message : "Imagen actualizada");
   }
 
   return (
@@ -961,7 +948,7 @@ function CalendarEditor() {
       <h3 className="text-xl">Imagen, enlaces y fechas del calendario</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         La sección pública muestra la imagen del idioma correspondiente, la fecha de actualización y el botón de
-        descarga con la URL del calendario.
+        descarga con la URL del calendario. Las imágenes se indican mediante enlaces externos.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
@@ -969,29 +956,34 @@ function CalendarEditor() {
         <div className="grid gap-6 md:grid-cols-2">
           {(
             [
-              ["calendar", "Imagen del calendario (castellano)", imageEs, "cal-img-es"] as const,
-              ["calendar_eu", "Imagen del calendario (euskera)", imageEu, "cal-img-eu"] as const,
+              ["calendar", "Imagen del calendario (castellano)", imageEs, setImageEs, "cal-img-es"] as const,
+              ["calendar_eu", "Imagen del calendario (euskera)", imageEu, setImageEu, "cal-img-eu"] as const,
             ]
-          ).map(([key, label, url, id]) => (
+          ).map(([key, label, url, setUrl, id]) => (
             <div key={key}>
               <h4 className="text-base">{label}</h4>
               {url && <img src={url} alt={label} className="mt-3 w-full rounded-sm border border-border" />}
               <label htmlFor={id} className="mt-3 block text-xs font-semibold">
-                Sustituir imagen
+                URL de la imagen
               </label>
               <input
                 id={id}
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void uploadImage(key, file);
-                }}
-                className="mt-1 block w-full text-sm"
+                type="url"
+                placeholder="https://…"
+                value={url ?? ""}
+                onChange={(e) => setUrl(e.target.value)}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
               />
+              <button
+                onClick={() => void saveImage(key, url ?? "")}
+                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+              >
+                Guardar imagen
+              </button>
             </div>
           ))}
         </div>
+
 
         <div>
           <h4 className="text-base">URLs de descarga del calendario</h4>
@@ -1064,6 +1056,296 @@ function CalendarEditor() {
             className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
           >
             Guardar fechas
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type TournamentOption = { id: string; title_es: string };
+type DocRow = {
+  id: string;
+  tournament_id: string;
+  title_es: string;
+  title_eu: string | null;
+  url_es: string | null;
+  url_eu: string | null;
+  locale: string;
+  sort_order: number;
+  visible: boolean;
+};
+
+const EMPTY_DOC = {
+  title_es: "",
+  title_eu: "",
+  url_es: "",
+  url_eu: "",
+  locale: "both",
+  sort_order: 0,
+  visible: true,
+};
+
+/** Enlaces ilimitados a documentos externos para cada torneo. */
+function TournamentDocsEditor() {
+  const [tournaments, setTournaments] = useState<TournamentOption[]>([]);
+  const [tournamentId, setTournamentId] = useState("");
+  const [docs, setDocs] = useState<DocRow[]>([]);
+  const [draft, setDraft] = useState(EMPTY_DOC);
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("tournaments")
+      .select("id,title_es")
+      .order("event_date", { ascending: false })
+      .then(({ data }) => {
+        const list = (data ?? []) as TournamentOption[];
+        setTournaments(list);
+        setTournamentId((current) => current || (list[0]?.id ?? ""));
+      });
+  }, []);
+
+  const load = useCallback(async () => {
+    if (!tournamentId) {
+      setDocs([]);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("tournament_documents")
+      .select("*")
+      .eq("tournament_id", tournamentId)
+      .order("sort_order");
+    if (error) setStatus(error.message);
+    setDocs((data ?? []) as DocRow[]);
+  }, [tournamentId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function add() {
+    if (!tournamentId || !draft.title_es.trim()) {
+      setStatus("Indica al menos el título en castellano");
+      return;
+    }
+    const { error } = await supabase.from("tournament_documents").insert({
+      tournament_id: tournamentId,
+      title_es: draft.title_es.trim(),
+      title_eu: draft.title_eu.trim() || null,
+      url_es: draft.url_es.trim() || null,
+      url_eu: draft.url_eu.trim() || null,
+      locale: draft.locale,
+      sort_order: Number(draft.sort_order) || 0,
+      visible: draft.visible,
+    });
+    setStatus(error ? error.message : "Documento añadido");
+    if (!error) setDraft(EMPTY_DOC);
+    await load();
+  }
+
+  async function update(doc: DocRow) {
+    const { error } = await supabase
+      .from("tournament_documents")
+      .update({
+        title_es: doc.title_es,
+        title_eu: doc.title_eu,
+        url_es: doc.url_es,
+        url_eu: doc.url_eu,
+        locale: doc.locale,
+        sort_order: doc.sort_order,
+        visible: doc.visible,
+      })
+      .eq("id", doc.id);
+    setStatus(error ? error.message : "Documento guardado");
+    await load();
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm("¿Borrar este documento?")) return;
+    const { error } = await supabase.from("tournament_documents").delete().eq("id", id);
+    setStatus(error ? error.message : "Documento borrado");
+    await load();
+  }
+
+  function patch(id: string, changes: Partial<DocRow>) {
+    setDocs((list) => list.map((item) => (item.id === id ? { ...item, ...changes } : item)));
+  }
+
+  const localeOptions = [
+    { value: "both", label: "Los dos idiomas" },
+    { value: "es", label: "Solo castellano" },
+    { value: "eu", label: "Solo euskera" },
+  ];
+
+  return (
+    <section>
+      <h3 className="text-xl">Documentos de los torneos</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Enlaces externos (URL) por torneo: título, idioma, orden y visibilidad.
+      </p>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+
+      <div className="card-elevated mt-4 space-y-6 p-6">
+        <div>
+          <label htmlFor="doc-tournament" className="block text-xs font-semibold">
+            Torneo
+          </label>
+          <select
+            id="doc-tournament"
+            value={tournamentId}
+            onChange={(e) => setTournamentId(e.target.value)}
+            className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-2"
+          >
+            {tournaments.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title_es}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <ul className="space-y-4">
+          {docs.map((doc) => (
+            <li key={doc.id} className="rounded-sm border border-border p-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  aria-label="Título (castellano)"
+                  placeholder="Título (castellano)"
+                  value={doc.title_es}
+                  onChange={(e) => patch(doc.id, { title_es: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="Título (euskera)"
+                  placeholder="Título (euskera)"
+                  value={doc.title_eu ?? ""}
+                  onChange={(e) => patch(doc.id, { title_eu: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="URL (castellano)"
+                  type="url"
+                  placeholder="URL (castellano)"
+                  value={doc.url_es ?? ""}
+                  onChange={(e) => patch(doc.id, { url_es: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="URL (euskera)"
+                  type="url"
+                  placeholder="URL (euskera)"
+                  value={doc.url_eu ?? ""}
+                  onChange={(e) => patch(doc.id, { url_eu: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <select
+                  aria-label="Idioma"
+                  value={doc.locale}
+                  onChange={(e) => patch(doc.id, { locale: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-2"
+                >
+                  {localeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex gap-3">
+                  <input
+                    aria-label="Orden"
+                    type="number"
+                    value={doc.sort_order}
+                    onChange={(e) => patch(doc.id, { sort_order: Number(e.target.value) })}
+                    className="min-h-11 w-24 rounded-sm border border-input bg-background px-3"
+                  />
+                  <select
+                    aria-label="Visible"
+                    value={doc.visible ? "true" : "false"}
+                    onChange={(e) => patch(doc.id, { visible: e.target.value === "true" })}
+                    className="min-h-11 flex-1 rounded-sm border border-input bg-background px-2"
+                  >
+                    <option value="true">Visible</option>
+                    <option value="false">Oculto</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-3">
+                <button
+                  onClick={() => void update(doc)}
+                  className="min-h-10 rounded-sm bg-primary px-4 font-display text-sm uppercase text-primary-foreground"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => void remove(doc.id)}
+                  className="min-h-10 rounded-sm border border-destructive px-4 text-sm text-destructive"
+                >
+                  Borrar
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="rounded-sm border border-dashed border-border p-4">
+          <h4 className="text-base">Añadir documento</h4>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <input
+              aria-label="Nuevo título (castellano)"
+              placeholder="Título (castellano)"
+              value={draft.title_es}
+              onChange={(e) => setDraft({ ...draft, title_es: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nuevo título (euskera)"
+              placeholder="Título (euskera)"
+              value={draft.title_eu}
+              onChange={(e) => setDraft({ ...draft, title_eu: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nueva URL (castellano)"
+              type="url"
+              placeholder="URL (castellano)"
+              value={draft.url_es}
+              onChange={(e) => setDraft({ ...draft, url_es: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nueva URL (euskera)"
+              type="url"
+              placeholder="URL (euskera)"
+              value={draft.url_eu}
+              onChange={(e) => setDraft({ ...draft, url_eu: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <select
+              aria-label="Idioma del nuevo documento"
+              value={draft.locale}
+              onChange={(e) => setDraft({ ...draft, locale: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-2"
+            >
+              {localeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <input
+              aria-label="Orden del nuevo documento"
+              type="number"
+              value={draft.sort_order}
+              onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+          </div>
+          <button
+            onClick={() => void add()}
+            className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+          >
+            Añadir
           </button>
         </div>
       </div>

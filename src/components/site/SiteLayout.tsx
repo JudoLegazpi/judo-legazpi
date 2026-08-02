@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { Menu, X, CalendarDays, Clock, Mail, Instagram, Send } from "lucide-react";
+import { Menu, X, CalendarDays, Clock, Mail, Phone, Instagram, Send, ExternalLink, ShieldCheck } from "lucide-react";
 import { localePath, t, tx, LOCALE_STORAGE_KEY, type Locale, type TextMap } from "@/lib/i18n";
 import { useDefaultLocale } from "@/hooks/use-default-locale";
 import logoAsset from "@/assets/logo-judo-legazpi.png.asset.json";
@@ -18,9 +18,11 @@ const NAV: NavItem[] = [
   { path: "/torneos", labelKey: "nav_tournaments" },
 ];
 
-const SECONDARY: NavItem[] = [
-  { path: "/contacto", labelKey: "nav_contact" },
-];
+const SECONDARY: NavItem[] = [];
+
+const MENU_LINK_CLASS =
+  "font-display text-sm font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent";
+
 
 // El router tipa `to` con las rutas literales; construimos la ruta por idioma.
 function to(locale: Locale, path: string) {
@@ -88,6 +90,8 @@ export function SiteLayout({
   const [open, setOpen] = useState(false);
   useDefaultLocale(locale, localePath("eu", path));
   const joinUrl = tx(texts, locale, "join_url");
+  const intranetUrl = tx(texts, locale, "intranet_url");
+
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -107,16 +111,18 @@ export function SiteLayout({
               <ul className="flex items-center gap-5">
                 {NAV.map((item) => (
                   <li key={item.labelKey}>
-                    <Link
-                      to={to(locale, item.path)}
-                      hash={item.hash}
-                      className="font-display text-sm font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent"
-                    >
+                    <Link to={to(locale, item.path)} hash={item.hash} className={MENU_LINK_CLASS}>
                       {tx(texts, locale, item.labelKey)}
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <a href={intranetUrl} target="_blank" rel="noopener noreferrer" className={MENU_LINK_CLASS}>
+                    {tx(texts, locale, "nav_intranet")}
+                  </a>
+                </li>
               </ul>
+
             </nav>
             <a
               href={joinUrl}
@@ -157,7 +163,19 @@ export function SiteLayout({
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={intranetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="block border-b border-ink-border py-3 font-display text-base uppercase text-ink-foreground"
+                >
+                  {tx(texts, locale, "nav_intranet")}
+                </a>
+              </li>
             </ul>
+
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
               <LanguageSwitch locale={locale} path={path} />
               <a
@@ -192,22 +210,49 @@ export function SiteLayout({
           <CalendarDays className="h-5 w-5" aria-hidden />
           {tx(texts, locale, "nav_calendar")}
         </Link>
-        <Link to={to(locale, "/contacto")} className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs" activeProps={{ className: "text-primary" }}>
-          <Mail className="h-5 w-5" aria-hidden />
-          {tx(texts, locale, "nav_contact")}
-        </Link>
+        <a
+          href={intranetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-14 flex-col items-center justify-center gap-1 text-xs"
+        >
+          <ExternalLink className="h-5 w-5" aria-hidden />
+          {tx(texts, locale, "nav_intranet")}
+        </a>
+
       </nav>
     </div>
   );
 }
 
 function Footer({ locale, texts }: { locale: Locale; texts?: TextMap }) {
+  const email = tx(texts, locale, "contact_email").trim().toLowerCase();
+  const phone = tx(texts, locale, "contact_phone").trim();
+  const phoneLabel = tx(texts, locale, "contact_phone_label").trim() || phone;
+  const unsubscribeUrl = tx(texts, locale, "footer_unsubscribe_url").trim();
+
   return (
     <footer className="surface-ink mt-16">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-3 lg:px-6">
+        {/* Datos de contacto del club (editables desde administración) */}
         <div>
           <p className="font-display text-lg uppercase">{tx(texts, locale, "club_name")}</p>
-          <p className="mt-2 text-sm text-ink-muted">{tx(texts, locale, "footer_address")}</p>
+          <address className="mt-2 space-y-2 text-sm text-ink-muted not-italic">
+            <p>{tx(texts, locale, "footer_address")}</p>
+            {email && (
+              <a href={`mailto:${email}`} className="flex items-center gap-2 hover:text-ink-foreground">
+                <Mail className="h-4 w-4" aria-hidden /> {email}
+              </a>
+            )}
+            {phone && (
+              <a
+                href={`tel:${phone.replace(/[^+0-9]/g, "")}`}
+                className="flex items-center gap-2 hover:text-ink-foreground"
+              >
+                <Phone className="h-4 w-4" aria-hidden /> {phoneLabel}
+              </a>
+            )}
+          </address>
         </div>
         <nav aria-label={t(locale, "menu")}>
           <ul className="space-y-2 text-sm">
@@ -218,6 +263,28 @@ function Footer({ locale, texts }: { locale: Locale; texts?: TextMap }) {
                 </Link>
               </li>
             ))}
+            <li>
+              <a
+                href={tx(texts, locale, "intranet_url")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink-muted hover:text-ink-foreground"
+              >
+                {tx(texts, locale, "nav_intranet")}
+              </a>
+            </li>
+            {unsubscribeUrl && (
+              <li>
+                <a
+                  href={unsubscribeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-ink-muted hover:text-ink-foreground"
+                >
+                  {tx(texts, locale, "footer_unsubscribe")}
+                </a>
+              </li>
+            )}
           </ul>
         </nav>
         <div className="space-y-3 text-sm">
@@ -237,8 +304,8 @@ function Footer({ locale, texts }: { locale: Locale; texts?: TextMap }) {
           >
             <Send className="h-4 w-4" aria-hidden /> Telegram
           </a>
-          <Link to="/auth" className="block text-xs text-ink-muted underline">
-            {t(locale, "admin")}
+          <Link to="/auth" className="flex items-center gap-2 text-xs text-ink-muted underline">
+            <ShieldCheck className="h-3.5 w-3.5" aria-hidden /> {t(locale, "admin")}
           </Link>
         </div>
       </div>
@@ -249,6 +316,7 @@ function Footer({ locale, texts }: { locale: Locale; texts?: TextMap }) {
       </div>
     </footer>
   );
+
 }
 
 export function PageHeader({

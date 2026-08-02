@@ -1,4 +1,4 @@
-import { Download, ChevronDown, Mail } from "lucide-react";
+import { Download, ChevronDown, Mail, FileText } from "lucide-react";
 import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
@@ -45,23 +45,26 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
   return (
     <ul className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => {
+        // Las tarjetas públicas de LOPIVI son siempre blancas: el texto usa un tono legible.
+        const textColor = isLight(item.textColor) ? "#14305C" : item.textColor;
+        const iconColor = isLight(item.iconColor) ? "#14305C" : item.iconColor;
         const inner = (
           <>
             <span
               className="grid h-16 w-16 place-items-center rounded-full"
-              style={{ backgroundColor: `${item.iconColor}22` }}
+              style={{ backgroundColor: `${iconColor}1F` }}
               aria-hidden
             >
-              <item.Icon className="h-8 w-8" style={{ color: item.iconColor }} />
+              <item.Icon className="h-8 w-8" style={{ color: iconColor }} />
             </span>
             <span
               className="mt-5 block font-display leading-snug font-semibold uppercase tracking-wide"
-              style={{ color: item.textColor, fontSize: item.textSize }}
+              style={{ color: textColor, fontSize: item.textSize }}
             >
               {item.title}
             </span>
             {item.description && (
-              <span className="mt-2 block text-sm opacity-80" style={{ color: item.textColor }}>
+              <span className="mt-2 block text-sm opacity-80" style={{ color: textColor }}>
                 {item.description}
               </span>
             )}
@@ -69,7 +72,7 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
         );
 
         const cardClass =
-          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
+          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl border border-border bg-white p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
 
         return (
           <li key={item.id} className="h-full">
@@ -77,16 +80,13 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
               <a
                 href={item.url}
                 target={item.newTab ? "_blank" : undefined}
-                rel={item.newTab ? "noreferrer noopener" : undefined}
+                rel={item.newTab ? "noopener noreferrer" : undefined}
                 className={cardClass}
-                style={{ backgroundColor: item.bgColor }}
               >
                 {inner}
               </a>
             ) : (
-              <span className={`${cardClass} opacity-70`} style={{ backgroundColor: item.bgColor }}>
-                {inner}
-              </span>
+              <span className={`${cardClass} opacity-70`}>{inner}</span>
             )}
           </li>
         );
@@ -94,6 +94,31 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
     </ul>
   );
 }
+
+/** Detecta colores casi blancos para sustituirlos por el azul del club sobre fondo blanco. */
+function isLight(hex?: string | null): boolean {
+  const value = (hex ?? "").trim().replace("#", "");
+  if (value.length !== 6) return false;
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 210;
+}
+
+/** Imagen de la sección LOPIVI: se toma de la URL configurada en administración. */
+function LopiviImage({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const url = (locale === "eu" ? (content.images.lopivi_eu ?? content.images.lopivi) : content.images.lopivi)?.trim();
+  if (!url) return null;
+  return (
+    <img
+      src={url}
+      alt={tx(content.texts, locale, "lopivi_title")}
+      loading="lazy"
+      className="mx-auto mt-10 w-full max-w-3xl rounded-3xl border border-border/40 object-cover"
+    />
+  );
+}
+
 
 
 function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
@@ -130,14 +155,14 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
   return (
     <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
       <table
-        className="w-full min-w-[640px] border-collapse overflow-hidden text-left"
+        className="w-full min-w-[640px] border-collapse overflow-hidden text-center align-middle"
         style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
       >
         <thead>
           <tr className="surface-ink">
             <th
               scope="col"
-              className="font-display uppercase tracking-wider"
+              className="font-display uppercase tracking-wider text-center align-middle"
               style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
             >
               {t(locale, "hour")}
@@ -146,7 +171,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
               <th
                 key={day}
                 scope="col"
-                className="font-display uppercase tracking-wider"
+                className="font-display uppercase tracking-wider text-center align-middle"
                 style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
               >
                 {dayName(locale, day)}
@@ -161,7 +186,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
               <tr key={slot}>
                 <th
                   scope="row"
-                  className="font-display whitespace-nowrap tabular-nums"
+                  className="font-display whitespace-nowrap tabular-nums text-center align-middle"
                   style={{ padding: s.gap, fontSize: s.hourSize, color: s.hourColor, border: cellBorder }}
                 >
                   {start}–{end}
@@ -172,9 +197,9 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                       x.day_of_week === day && `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}` === slot,
                   );
                   return (
-                    <td key={day} className="align-top" style={{ padding: s.gap, border: cellBorder }}>
+                    <td key={day} className="text-center align-middle" style={{ padding: s.gap, border: cellBorder }}>
                       {cells.map((cell) => (
-                        <span key={cell.id} className="block">
+                        <span key={cell.id} className="block text-center">
                           <span
                             className="block font-semibold"
                             style={{ fontSize: s.groupSize, color: s.groupColor }}
@@ -182,8 +207,13 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                             {pick(locale, cell.group_es, cell.group_eu)}
                           </span>
                           {cell.age_range && (
-                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                            <span className="block text-xs" style={{ color: s.ageColor }}>
                               {cell.age_range}
+                            </span>
+                          )}
+                          {cell.location && (
+                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                              {cell.location}
                             </span>
                           )}
                         </span>
@@ -195,6 +225,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
             );
           })}
         </tbody>
+
       </table>
     </div>
   );
@@ -322,8 +353,10 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           <h2 className="text-3xl text-ink-foreground sm:text-4xl">{tx(content.texts, locale, "lopivi_title")}</h2>
           <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
           <p className="mx-auto mt-4 max-w-2xl text-ink-muted">{tx(content.texts, locale, "lopivi_docs_intro")}</p>
+          <LopiviImage locale={locale} content={content} />
           <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="ink" />
+
         </div>
       </section>
 
@@ -512,18 +545,59 @@ export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { loca
                   <a
                     href={tournament.results_url}
                     className="mt-4 inline-flex font-display text-sm uppercase text-primary"
-                    rel="noreferrer noopener"
+                    rel="noopener noreferrer"
                     target="_blank"
                   >
                     {t(locale, "results")}
                   </a>
                 )}
+                <TournamentDocs locale={locale} content={content} tournamentId={tournament.id} />
+
               </div>
             </li>
           ))}
         </ul>
       </Section>
     </SiteLayout>
+  );
+}
+
+/** Enlaces externos a documentos de un torneo, filtrados por idioma. */
+function TournamentDocs({
+  locale,
+  content,
+  tournamentId,
+}: {
+  locale: Locale;
+  content: SiteContent;
+  tournamentId: string;
+}) {
+  const docs = content.tournamentDocuments
+    .filter((doc) => doc.tournament_id === tournamentId && doc.visible)
+    .filter((doc) => doc.locale === "both" || doc.locale === locale)
+    .sort((a, b) => a.sort_order - b.sort_order);
+  if (docs.length === 0) return null;
+
+  return (
+    <ul className="mt-4 space-y-2 border-t border-border pt-4">
+      {docs.map((doc) => {
+        const url = (locale === "eu" ? (doc.url_eu ?? doc.url_es) : (doc.url_es ?? doc.url_eu))?.trim();
+        if (!url) return null;
+        return (
+          <li key={doc.id}>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              <FileText className="h-4 w-4" aria-hidden />
+              {pick(locale, doc.title_es, doc.title_eu)}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -536,6 +610,7 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
           <p className="text-base leading-relaxed text-muted-foreground">
             {tx(content.texts, locale, "lopivi_docs_intro")}
           </p>
+          <LopiviImage locale={locale} content={content} />
           <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="light" />
         </div>
@@ -544,95 +619,3 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
   );
 }
 
-export function DocumentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  const categories = Array.from(new Set(content.documents.map((d) => d.category)));
-  return (
-    <SiteLayout locale={locale} path="/documentos" texts={content.texts}>
-      <PageHeader
-        eyebrow={tx(content.texts, locale, "club_name")}
-        title={tx(content.texts, locale, "documents_title")}
-        intro={tx(content.texts, locale, "documents_intro")}
-      />
-      <Section>
-        {categories.map((category) => (
-          <div key={category} className="mb-10">
-            <h2 className="text-xl">{t(locale, `cat_${category}`)}</h2>
-            <ul className="mt-4 space-y-3">
-              {content.documents
-                .filter((d) => d.category === category)
-                .map((doc) => (
-                  <li key={doc.id} className="card-elevated flex flex-wrap items-center justify-between gap-3 p-4">
-                    <span>{pick(locale, doc.title_es, doc.title_eu)}</span>
-                    <a
-                      href={doc.file_url}
-                      className="font-display text-sm uppercase text-primary"
-                      rel="noreferrer noopener"
-                      target="_blank"
-                    >
-                      {t(locale, "download")}
-                    </a>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ))}
-      </Section>
-    </SiteLayout>
-  );
-}
-
-export function ContactPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
-  const email = tx(content.texts, locale, "contact_email");
-  return (
-    <SiteLayout locale={locale} path="/contacto" texts={content.texts}>
-      <PageHeader
-        eyebrow={tx(content.texts, locale, "club_name")}
-        title={tx(content.texts, locale, "contact_title")}
-        intro={tx(content.texts, locale, "contact_intro")}
-      />
-      <Section>
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div className="card-elevated p-6">
-            <h2 className="text-xl">{tx(content.texts, locale, "contact_title")}</h2>
-            <p className="mt-3 text-muted-foreground">{content.texts.contact_info?.[locale]}</p>
-            <ul className="mt-6 space-y-2 text-sm">
-              <li>
-                <a className="text-primary underline" href={`mailto:${email}`}>
-                  {email}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-primary underline"
-                  href={content.texts.social_instagram?.[locale] ?? "#"}
-                  rel="noreferrer noopener"
-                  target="_blank"
-                >
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a
-                  className="text-primary underline"
-                  href={content.texts.social_telegram?.[locale] ?? "#"}
-                  rel="noreferrer noopener"
-                  target="_blank"
-                >
-                  Telegram
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div className="overflow-hidden rounded-sm border border-border">
-            <iframe
-              title={locale === "eu" ? "Legazpiko kiroldegiaren mapa" : "Mapa del polideportivo de Legazpi"}
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-2.3450%2C43.0530%2C-2.3230%2C43.0640&layer=mapnik"
-              className="h-80 w-full"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </Section>
-    </SiteLayout>
-  );
-}

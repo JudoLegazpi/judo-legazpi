@@ -10,6 +10,7 @@ export type ClubDocument = Database["public"]["Tables"]["documents"]["Row"];
 export type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"];
 export type SiteText = Database["public"]["Tables"]["site_texts"]["Row"];
 export type LopiviButton = Database["public"]["Tables"]["lopivi_buttons"]["Row"];
+export type TournamentDocument = Database["public"]["Tables"]["tournament_documents"]["Row"];
 
 /** Ajustes visuales editables de la sección de horarios. */
 export type ScheduleStyle = {
@@ -21,6 +22,7 @@ export type ScheduleStyle = {
   hourColor: string;
   groupSize: string;
   groupColor: string;
+  ageColor: string;
   sectionBg: string;
   cardBg: string;
   borderColor: string;
@@ -38,6 +40,7 @@ export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
   hourColor: "#14305C",
   groupSize: "0.875rem",
   groupColor: "#14305C",
+  ageColor: "#14305C",
   sectionBg: "#F5F7FA",
   cardBg: "#FFFFFF",
   borderColor: "#DDE3EC",
@@ -45,6 +48,7 @@ export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
   borderRadius: "0.75rem",
   gap: "0.75rem",
 };
+
 
 export type SiteContent = {
   schedules: Schedule[];
@@ -56,8 +60,10 @@ export type SiteContent = {
   texts: Record<string, { es: string; eu: string }>;
   images: Record<string, string>;
   lopiviButtons: LopiviButton[];
+  tournamentDocuments: TournamentDocument[];
   scheduleStyle: ScheduleStyle;
 };
+
 
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(
@@ -77,7 +83,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings] =
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs] =
       await Promise.all([
         supabase.from("schedules").select("*").order("sort_order"),
         supabase.from("events").select("*").eq("published", true).order("event_date"),
@@ -89,7 +95,9 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
         supabase.from("site_images").select("*"),
         supabase.from("lopivi_buttons").select("*").eq("active", true).order("sort_order"),
         supabase.from("site_settings").select("*"),
+        supabase.from("tournament_documents").select("*").eq("visible", true).order("sort_order"),
       ]);
+
 
     const textMap: SiteContent["texts"] = {};
     for (const row of texts.data ?? []) {
@@ -117,8 +125,10 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       texts: textMap,
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
+      tournamentDocuments: tournamentDocs.data ?? [],
       scheduleStyle,
     };
+
 
   },
 );
