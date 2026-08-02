@@ -136,7 +136,22 @@ const dict: Dict = {
     es: "https://judolegazpi.playoffinformatica.com/preinscripcion/",
     eu: "https://judolegazpi.playoffinformatica.com/preinscripcion/",
   },
+  nav_intranet: { es: "Intranet", eu: "Intranet" },
+  intranet_url: {
+    es: "https://judolegazpi.playoffinformatica.com/",
+    eu: "https://judolegazpi.playoffinformatica.com/",
+  },
+  footer_unsubscribe: { es: "Darse de baja", eu: "Baja eman" },
+  footer_unsubscribe_url: {
+    es: "https://judolegazpi.playoffinformatica.com/baja?idConfiguracioFormulariColegi=14",
+    eu: "https://judolegazpi.playoffinformatica.com/baja?idConfiguracioFormulariColegi=14",
+  },
+  footer_contact_title: { es: "Contacto", eu: "Kontaktua" },
+  contact_phone: { es: "+34600000000", eu: "+34600000000" },
+  contact_phone_label: { es: "600 00 00 00", eu: "600 00 00 00" },
+  documents: { es: "Documentos", eu: "Dokumentuak" },
 };
+
 
 
 export type TextMap = Record<string, { es: string; eu: string }>;
