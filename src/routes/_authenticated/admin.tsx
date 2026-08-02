@@ -557,21 +557,17 @@ function RecordForm({
                 />
               </div>
             )}
-            {field.type === "file" && (
-              <div className="mt-1 space-y-2">
-                <input
-                  id={id}
-                  type="file"
-                  accept={field.accept}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleFile(field, file);
-                  }}
-                  className="block w-full text-sm"
-                />
-                {values[field.name] && <p className="truncate text-xs text-muted-foreground">{values[field.name]}</p>}
-              </div>
+            {field.type === "url" && (
+              <input
+                id={id}
+                type="url"
+                placeholder="https://…"
+                value={values[field.name]}
+                onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+              />
             )}
+
             {["text", "number", "date", "time"].includes(field.type) && (
               <input
                 id={id}
