@@ -19,7 +19,6 @@ export const Route = createFileRoute("/sitemap.xml")({
           "/torneos",
           "/cuerpo-tecnico",
           "/lopivi",
-          "/contacto",
         ];
 
         const entries: SitemapEntry[] = [
