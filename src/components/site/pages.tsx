@@ -155,14 +155,14 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
   return (
     <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
       <table
-        className="w-full min-w-[640px] border-collapse overflow-hidden text-left"
+        className="w-full min-w-[640px] border-collapse overflow-hidden text-center align-middle"
         style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
       >
         <thead>
           <tr className="surface-ink">
             <th
               scope="col"
-              className="font-display uppercase tracking-wider"
+              className="font-display uppercase tracking-wider text-center align-middle"
               style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
             >
               {t(locale, "hour")}
@@ -171,7 +171,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
               <th
                 key={day}
                 scope="col"
-                className="font-display uppercase tracking-wider"
+                className="font-display uppercase tracking-wider text-center align-middle"
                 style={{ padding: s.gap, fontSize: s.daySize, color: s.dayColor, border: cellBorder }}
               >
                 {dayName(locale, day)}
@@ -186,7 +186,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
               <tr key={slot}>
                 <th
                   scope="row"
-                  className="font-display whitespace-nowrap tabular-nums"
+                  className="font-display whitespace-nowrap tabular-nums text-center align-middle"
                   style={{ padding: s.gap, fontSize: s.hourSize, color: s.hourColor, border: cellBorder }}
                 >
                   {start}–{end}
@@ -197,9 +197,9 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                       x.day_of_week === day && `${x.start_time.slice(0, 5)}|${x.end_time.slice(0, 5)}` === slot,
                   );
                   return (
-                    <td key={day} className="align-top" style={{ padding: s.gap, border: cellBorder }}>
+                    <td key={day} className="text-center align-middle" style={{ padding: s.gap, border: cellBorder }}>
                       {cells.map((cell) => (
-                        <span key={cell.id} className="block">
+                        <span key={cell.id} className="block text-center">
                           <span
                             className="block font-semibold"
                             style={{ fontSize: s.groupSize, color: s.groupColor }}
@@ -207,8 +207,13 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                             {pick(locale, cell.group_es, cell.group_eu)}
                           </span>
                           {cell.age_range && (
-                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                            <span className="block text-xs" style={{ color: s.ageColor }}>
                               {cell.age_range}
+                            </span>
+                          )}
+                          {cell.location && (
+                            <span className="block text-xs opacity-70" style={{ color: s.groupColor }}>
+                              {cell.location}
                             </span>
                           )}
                         </span>
@@ -220,6 +225,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
             );
           })}
         </tbody>
+
       </table>
     </div>
   );
