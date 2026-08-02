@@ -10,6 +10,7 @@ export type ClubDocument = Database["public"]["Tables"]["documents"]["Row"];
 export type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"];
 export type SiteText = Database["public"]["Tables"]["site_texts"]["Row"];
 export type LopiviButton = Database["public"]["Tables"]["lopivi_buttons"]["Row"];
+export type TournamentDocument = Database["public"]["Tables"]["tournament_documents"]["Row"];
 
 /** Ajustes visuales editables de la sección de horarios. */
 export type ScheduleStyle = {
@@ -21,6 +22,7 @@ export type ScheduleStyle = {
   hourColor: string;
   groupSize: string;
   groupColor: string;
+  ageColor: string;
   sectionBg: string;
   cardBg: string;
   borderColor: string;
@@ -38,6 +40,7 @@ export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
   hourColor: "#14305C",
   groupSize: "0.875rem",
   groupColor: "#14305C",
+  ageColor: "#14305C",
   sectionBg: "#F5F7FA",
   cardBg: "#FFFFFF",
   borderColor: "#DDE3EC",
@@ -45,6 +48,7 @@ export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
   borderRadius: "0.75rem",
   gap: "0.75rem",
 };
+
 
 export type SiteContent = {
   schedules: Schedule[];

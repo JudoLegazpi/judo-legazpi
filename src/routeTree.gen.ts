@@ -13,7 +13,6 @@ import { Route as TorneosRouteImport } from './routes/torneos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LopiviRouteImport } from './routes/lopivi'
 import { Route as CuerpoTecnicoRouteImport } from './routes/cuerpo-tecnico'
-import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -22,7 +21,6 @@ import { Route as EuIndexRouteImport } from './routes/eu.index'
 import { Route as EuTorneosRouteImport } from './routes/eu.torneos'
 import { Route as EuLopiviRouteImport } from './routes/eu.lopivi'
 import { Route as EuCuerpoTecnicoRouteImport } from './routes/eu.cuerpo-tecnico'
-import { Route as EuContactoRouteImport } from './routes/eu.contacto'
 import { Route as EuCalendarioRouteImport } from './routes/eu.calendario'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
@@ -44,11 +42,6 @@ const LopiviRoute = LopiviRouteImport.update({
 const CuerpoTecnicoRoute = CuerpoTecnicoRouteImport.update({
   id: '/cuerpo-tecnico',
   path: '/cuerpo-tecnico',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactoRoute = ContactoRouteImport.update({
-  id: '/contacto',
-  path: '/contacto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarioRoute = CalendarioRouteImport.update({
@@ -90,11 +83,6 @@ const EuCuerpoTecnicoRoute = EuCuerpoTecnicoRouteImport.update({
   path: '/eu/cuerpo-tecnico',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EuContactoRoute = EuContactoRouteImport.update({
-  id: '/eu/contacto',
-  path: '/eu/contacto',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EuCalendarioRoute = EuCalendarioRouteImport.update({
   id: '/eu/calendario',
   path: '/eu/calendario',
@@ -110,14 +98,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
-  '/contacto': typeof ContactoRoute
   '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
   '/lopivi': typeof LopiviRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/torneos': typeof TorneosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/eu/calendario': typeof EuCalendarioRoute
-  '/eu/contacto': typeof EuContactoRoute
   '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
   '/eu/lopivi': typeof EuLopiviRoute
   '/eu/torneos': typeof EuTorneosRoute
@@ -127,14 +113,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
-  '/contacto': typeof ContactoRoute
   '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
   '/lopivi': typeof LopiviRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/torneos': typeof TorneosRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/eu/calendario': typeof EuCalendarioRoute
-  '/eu/contacto': typeof EuContactoRoute
   '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
   '/eu/lopivi': typeof EuLopiviRoute
   '/eu/torneos': typeof EuTorneosRoute
@@ -146,14 +130,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/calendario': typeof CalendarioRoute
-  '/contacto': typeof ContactoRoute
   '/cuerpo-tecnico': typeof CuerpoTecnicoRoute
   '/lopivi': typeof LopiviRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/torneos': typeof TorneosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/eu/calendario': typeof EuCalendarioRoute
-  '/eu/contacto': typeof EuContactoRoute
   '/eu/cuerpo-tecnico': typeof EuCuerpoTecnicoRoute
   '/eu/lopivi': typeof EuLopiviRoute
   '/eu/torneos': typeof EuTorneosRoute
@@ -165,14 +147,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/calendario'
-    | '/contacto'
     | '/cuerpo-tecnico'
     | '/lopivi'
     | '/sitemap.xml'
     | '/torneos'
     | '/admin'
     | '/eu/calendario'
-    | '/eu/contacto'
     | '/eu/cuerpo-tecnico'
     | '/eu/lopivi'
     | '/eu/torneos'
@@ -182,14 +162,12 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/calendario'
-    | '/contacto'
     | '/cuerpo-tecnico'
     | '/lopivi'
     | '/sitemap.xml'
     | '/torneos'
     | '/admin'
     | '/eu/calendario'
-    | '/eu/contacto'
     | '/eu/cuerpo-tecnico'
     | '/eu/lopivi'
     | '/eu/torneos'
@@ -200,14 +178,12 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/calendario'
-    | '/contacto'
     | '/cuerpo-tecnico'
     | '/lopivi'
     | '/sitemap.xml'
     | '/torneos'
     | '/_authenticated/admin'
     | '/eu/calendario'
-    | '/eu/contacto'
     | '/eu/cuerpo-tecnico'
     | '/eu/lopivi'
     | '/eu/torneos'
@@ -219,13 +195,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CalendarioRoute: typeof CalendarioRoute
-  ContactoRoute: typeof ContactoRoute
   CuerpoTecnicoRoute: typeof CuerpoTecnicoRoute
   LopiviRoute: typeof LopiviRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TorneosRoute: typeof TorneosRoute
   EuCalendarioRoute: typeof EuCalendarioRoute
-  EuContactoRoute: typeof EuContactoRoute
   EuCuerpoTecnicoRoute: typeof EuCuerpoTecnicoRoute
   EuLopiviRoute: typeof EuLopiviRoute
   EuTorneosRoute: typeof EuTorneosRoute
@@ -260,13 +234,6 @@ declare module '@tanstack/react-router' {
       path: '/cuerpo-tecnico'
       fullPath: '/cuerpo-tecnico'
       preLoaderRoute: typeof CuerpoTecnicoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contacto': {
-      id: '/contacto'
-      path: '/contacto'
-      fullPath: '/contacto'
-      preLoaderRoute: typeof ContactoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendario': {
@@ -325,13 +292,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EuCuerpoTecnicoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/eu/contacto': {
-      id: '/eu/contacto'
-      path: '/eu/contacto'
-      fullPath: '/eu/contacto'
-      preLoaderRoute: typeof EuContactoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/eu/calendario': {
       id: '/eu/calendario'
       path: '/eu/calendario'
@@ -365,13 +325,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CalendarioRoute: CalendarioRoute,
-  ContactoRoute: ContactoRoute,
   CuerpoTecnicoRoute: CuerpoTecnicoRoute,
   LopiviRoute: LopiviRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TorneosRoute: TorneosRoute,
   EuCalendarioRoute: EuCalendarioRoute,
-  EuContactoRoute: EuContactoRoute,
   EuCuerpoTecnicoRoute: EuCuerpoTecnicoRoute,
   EuLopiviRoute: EuLopiviRoute,
   EuTorneosRoute: EuTorneosRoute,
@@ -380,13 +338,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
