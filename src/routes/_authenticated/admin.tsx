@@ -234,16 +234,8 @@ const SECTIONS: SectionTab[] = [
   },
 ];
 
-const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
-async function uploadFile(file: File): Promise<string> {
-  const path = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  const { error } = await supabase.storage.from("media").upload(path, file);
-  if (error) throw error;
-  const { data, error: signError } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
-  if (signError || !data) throw signError ?? new Error("No se pudo generar el enlace");
-  return data.signedUrl;
-}
+
 
 function AdminPage() {
   const navigate = useNavigate();
