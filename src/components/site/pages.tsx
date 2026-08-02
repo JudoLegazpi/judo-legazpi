@@ -545,12 +545,14 @@ export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { loca
                   <a
                     href={tournament.results_url}
                     className="mt-4 inline-flex font-display text-sm uppercase text-primary"
-                    rel="noreferrer noopener"
+                    rel="noopener noreferrer"
                     target="_blank"
                   >
                     {t(locale, "results")}
                   </a>
                 )}
+                <TournamentDocs locale={locale} content={content} tournamentId={tournament.id} />
+
               </div>
             </li>
           ))}
