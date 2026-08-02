@@ -622,16 +622,13 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     void load();
   }, [load]);
 
-  async function replace(row: ImageRow, file: File) {
-    setStatus(`Subiendo ${file.name}…`);
-    try {
-      const url = await uploadFile(file);
-      const { error } = await supabase.from("site_images").update({ image_url: url }).eq("key", row.key);
-      setStatus(error ? error.message : `Actualizada: ${row.label}`);
-      await load();
-    } catch (uploadError) {
-      setStatus(uploadError instanceof Error ? uploadError.message : "Error al subir la imagen");
-    }
+  async function save(row: ImageRow, url: string) {
+    const { error } = await supabase
+      .from("site_images")
+      .update({ image_url: url.trim() || null })
+      .eq("key", row.key);
+    setStatus(error ? error.message : `Actualizada: ${row.label}`);
+    await load();
   }
 
   if (rows.length === 0) return null;
@@ -639,6 +636,9 @@ function ImagesEditor({ keys }: { keys: string[] }) {
   return (
     <section>
       <h3 className="text-xl">Imágenes de esta sección</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Las imágenes se gestionan mediante enlaces externos (URL).
+      </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
       <ul className="mt-4 space-y-4">
         {rows.map((row) => (
@@ -649,18 +649,26 @@ function ImagesEditor({ keys }: { keys: string[] }) {
             <div>
               <h4 className="text-base">{row.label}</h4>
               <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
-                Sustituir imagen
+                URL de la imagen
               </label>
               <input
                 id={`img-${row.key}`}
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void replace(row, file);
-                }}
-                className="mt-1 block w-full text-sm"
+                type="url"
+                placeholder="https://…"
+                value={row.image_url ?? ""}
+                onChange={(e) =>
+                  setRows((list) =>
+                    list.map((item) => (item.key === row.key ? { ...item, image_url: e.target.value } : item)),
+                  )
+                }
+                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
               />
+              <button
+                onClick={() => void save(row, row.image_url ?? "")}
+                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+              >
+                Guardar
+              </button>
             </div>
           </li>
         ))}
@@ -668,6 +676,7 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     </section>
   );
 }
+
 
 type TextRow = { key: string; label: string; value_es: string; value_eu: string };
 
