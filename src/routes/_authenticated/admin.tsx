@@ -149,7 +149,7 @@ type SectionTab = {
   textKeys?: string[];
   imageKeys?: string[];
   crud?: TableConfig;
-  extra?: "calendar" | "scheduleStyle";
+  extra?: "calendar" | "scheduleStyle" | "tournamentDocs";
 };
 
 const SECTIONS: SectionTab[] = [
