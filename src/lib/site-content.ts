@@ -11,5 +11,7 @@ export const EMPTY_SITE_CONTENT: SiteContent = {
   texts: {},
   images: {},
   lopiviButtons: [],
+  tournamentDocuments: [],
+
   scheduleStyle: DEFAULT_SCHEDULE_STYLE,
 };
