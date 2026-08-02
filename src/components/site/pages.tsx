@@ -1,4 +1,4 @@
-import { Download, ChevronDown, Mail } from "lucide-react";
+import { Download, ChevronDown, Mail, FileText } from "lucide-react";
 import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
