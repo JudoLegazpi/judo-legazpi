@@ -341,6 +341,56 @@ export type Database = {
         }
         Relationships: []
       }
+      tournament_documents: {
+        Row: {
+          created_at: string
+          id: string
+          locale: string
+          sort_order: number
+          title_es: string
+          title_eu: string | null
+          tournament_id: string
+          updated_at: string
+          url_es: string | null
+          url_eu: string | null
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          locale?: string
+          sort_order?: number
+          title_es?: string
+          title_eu?: string | null
+          tournament_id: string
+          updated_at?: string
+          url_es?: string | null
+          url_eu?: string | null
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          locale?: string
+          sort_order?: number
+          title_es?: string
+          title_eu?: string | null
+          tournament_id?: string
+          updated_at?: string
+          url_es?: string | null
+          url_eu?: string | null
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_documents_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tournaments: {
         Row: {
           created_at: string
