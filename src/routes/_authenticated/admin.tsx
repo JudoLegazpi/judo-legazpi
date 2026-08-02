@@ -94,8 +94,9 @@ const TOURNAMENTS_CONFIG: TableConfig = {
     { name: "location", label: "Lugar", type: "text" },
     { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
     { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
-    { name: "poster_url", label: "Cartel", type: "file", accept: "image/*" },
-    { name: "results_url", label: "Resultados (PDF)", type: "file", accept: "application/pdf" },
+    { name: "poster_url", label: "Cartel (URL externa)", type: "url" },
+    { name: "results_url", label: "Resultados (URL externa)", type: "url" },
+
     { name: "published", label: "Publicado", type: "boolean" },
   ],
 };
