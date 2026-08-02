@@ -203,24 +203,27 @@ const SECTIONS: SectionTab[] = [
     key: "torneos",
     label: "Torneos",
     title: "Torneos",
+    help: "Cada torneo puede tener enlaces ilimitados a documentos externos.",
     crud: TOURNAMENTS_CONFIG,
+    extra: "tournamentDocs",
     textKeys: ["tournaments_title", "tournaments_intro"],
-  },
-  {
-    key: "contacto",
-    label: "Contacto",
-    title: "Contacto",
-    textKeys: ["contact_title", "contact_intro", "contact_email", "contact_info", "footer_address"],
   },
   {
     key: "general",
     label: "Configuración general",
     title: "Configuración general",
-    help: "Elementos comunes a toda la web: nombre del club, redes sociales y etiquetas del menú. El idioma por defecto es el euskera.",
+    help: "Elementos comunes a toda la web: datos de contacto del pie, redes sociales, enlaces externos y etiquetas del menú. El idioma por defecto es el euskera.",
     textKeys: [
       "club_name",
+      "footer_address",
+      "contact_email",
+      "contact_phone",
+      "contact_phone_label",
       "social_instagram",
       "social_telegram",
+      "intranet_url",
+      "footer_unsubscribe",
+      "footer_unsubscribe_url",
       "join_short",
       "nav_home",
       "nav_club",
@@ -229,10 +232,11 @@ const SECTIONS: SectionTab[] = [
       "nav_schedule",
       "nav_lopivi",
       "nav_tournaments",
-      "nav_contact",
+      "nav_intranet",
     ],
   },
 ];
+
 
 
 
