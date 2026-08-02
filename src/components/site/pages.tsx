@@ -45,23 +45,26 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
   return (
     <ul className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => {
+        // Las tarjetas públicas de LOPIVI son siempre blancas: el texto usa un tono legible.
+        const textColor = isLight(item.textColor) ? "#14305C" : item.textColor;
+        const iconColor = isLight(item.iconColor) ? "#14305C" : item.iconColor;
         const inner = (
           <>
             <span
               className="grid h-16 w-16 place-items-center rounded-full"
-              style={{ backgroundColor: `${item.iconColor}22` }}
+              style={{ backgroundColor: `${iconColor}1F` }}
               aria-hidden
             >
-              <item.Icon className="h-8 w-8" style={{ color: item.iconColor }} />
+              <item.Icon className="h-8 w-8" style={{ color: iconColor }} />
             </span>
             <span
               className="mt-5 block font-display leading-snug font-semibold uppercase tracking-wide"
-              style={{ color: item.textColor, fontSize: item.textSize }}
+              style={{ color: textColor, fontSize: item.textSize }}
             >
               {item.title}
             </span>
             {item.description && (
-              <span className="mt-2 block text-sm opacity-80" style={{ color: item.textColor }}>
+              <span className="mt-2 block text-sm opacity-80" style={{ color: textColor }}>
                 {item.description}
               </span>
             )}
@@ -69,7 +72,7 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
         );
 
         const cardClass =
-          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
+          "flex h-full min-h-48 flex-col items-center justify-center rounded-3xl border border-border bg-white p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)] transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-[0_18px_40px_-16px_rgba(20,48,92,0.5)]";
 
         return (
           <li key={item.id} className="h-full">
@@ -77,16 +80,13 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
               <a
                 href={item.url}
                 target={item.newTab ? "_blank" : undefined}
-                rel={item.newTab ? "noreferrer noopener" : undefined}
+                rel={item.newTab ? "noopener noreferrer" : undefined}
                 className={cardClass}
-                style={{ backgroundColor: item.bgColor }}
               >
                 {inner}
               </a>
             ) : (
-              <span className={`${cardClass} opacity-70`} style={{ backgroundColor: item.bgColor }}>
-                {inner}
-              </span>
+              <span className={`${cardClass} opacity-70`}>{inner}</span>
             )}
           </li>
         );
@@ -94,6 +94,31 @@ function LopiviItems({ locale, content }: { locale: Locale; content: SiteContent
     </ul>
   );
 }
+
+/** Detecta colores casi blancos para sustituirlos por el azul del club sobre fondo blanco. */
+function isLight(hex?: string | null): boolean {
+  const value = (hex ?? "").trim().replace("#", "");
+  if (value.length !== 6) return false;
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 210;
+}
+
+/** Imagen de la sección LOPIVI: se toma de la URL configurada en administración. */
+function LopiviImage({ locale, content }: { locale: Locale; content: SiteContent }) {
+  const url = (locale === "eu" ? (content.images.lopivi_eu ?? content.images.lopivi) : content.images.lopivi)?.trim();
+  if (!url) return null;
+  return (
+    <img
+      src={url}
+      alt={tx(content.texts, locale, "lopivi_title")}
+      loading="lazy"
+      className="mx-auto mt-10 w-full max-w-3xl rounded-3xl border border-border/40 object-cover"
+    />
+  );
+}
+
 
 
 function LopiviEmail({ locale, content, tone }: { locale: Locale; content: SiteContent; tone: "ink" | "light" }) {
