@@ -74,7 +74,7 @@ const STAFF_CONFIG: TableConfig = {
     { name: "qualifications", label: "Titulación", type: "text" },
     { name: "bio_es", label: "Biografía (castellano)", type: "textarea" },
     { name: "bio_eu", label: "Biografía (euskera)", type: "textarea" },
-    { name: "photo_url", label: "Foto", type: "file", accept: "image/*" },
+    { name: "photo_url", label: "Foto (URL externa)", type: "url" },
     { name: "sort_order", label: "Orden", type: "number" },
   ],
 };
