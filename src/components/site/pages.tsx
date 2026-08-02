@@ -562,6 +562,45 @@ export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { loca
   );
 }
 
+/** Enlaces externos a documentos de un torneo, filtrados por idioma. */
+function TournamentDocs({
+  locale,
+  content,
+  tournamentId,
+}: {
+  locale: Locale;
+  content: SiteContent;
+  tournamentId: string;
+}) {
+  const docs = content.tournamentDocuments
+    .filter((doc) => doc.tournament_id === tournamentId && doc.visible)
+    .filter((doc) => doc.locale === "both" || doc.locale === locale)
+    .sort((a, b) => a.sort_order - b.sort_order);
+  if (docs.length === 0) return null;
+
+  return (
+    <ul className="mt-4 space-y-2 border-t border-border pt-4">
+      {docs.map((doc) => {
+        const url = (locale === "eu" ? (doc.url_eu ?? doc.url_es) : (doc.url_es ?? doc.url_eu))?.trim();
+        if (!url) return null;
+        return (
+          <li key={doc.id}>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              <FileText className="h-4 w-4" aria-hidden />
+              {pick(locale, doc.title_es, doc.title_eu)}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/lopivi" texts={content.texts}>
@@ -571,6 +610,7 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
           <p className="text-base leading-relaxed text-muted-foreground">
             {tx(content.texts, locale, "lopivi_docs_intro")}
           </p>
+          <LopiviImage locale={locale} content={content} />
           <LopiviItems locale={locale} content={content} />
           <LopiviEmail locale={locale} content={content} tone="light" />
         </div>
@@ -578,6 +618,7 @@ export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: L
     </SiteLayout>
   );
 }
+
 
 export function DocumentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   const categories = Array.from(new Set(content.documents.map((d) => d.category)));
