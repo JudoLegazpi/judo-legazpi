@@ -109,16 +109,18 @@ export function SiteLayout({
               <ul className="flex items-center gap-5">
                 {NAV.map((item) => (
                   <li key={item.labelKey}>
-                    <Link
-                      to={to(locale, item.path)}
-                      hash={item.hash}
-                      className="font-display text-sm font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent"
-                    >
+                    <Link to={to(locale, item.path)} hash={item.hash} className={MENU_LINK_CLASS}>
                       {tx(texts, locale, item.labelKey)}
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <a href={intranetUrl} target="_blank" rel="noopener noreferrer" className={MENU_LINK_CLASS}>
+                    {tx(texts, locale, "nav_intranet")}
+                  </a>
+                </li>
               </ul>
+
             </nav>
             <a
               href={joinUrl}
