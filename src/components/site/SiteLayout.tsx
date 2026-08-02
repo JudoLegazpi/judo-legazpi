@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
-import { Menu, X, CalendarDays, Clock, Mail, Instagram, Send } from "lucide-react";
+import { Menu, X, CalendarDays, Clock, Mail, Phone, Instagram, Send, ExternalLink, ShieldCheck } from "lucide-react";
 import { localePath, t, tx, LOCALE_STORAGE_KEY, type Locale, type TextMap } from "@/lib/i18n";
 import { useDefaultLocale } from "@/hooks/use-default-locale";
 import logoAsset from "@/assets/logo-judo-legazpi.png.asset.json";
@@ -18,9 +18,11 @@ const NAV: NavItem[] = [
   { path: "/torneos", labelKey: "nav_tournaments" },
 ];
 
-const SECONDARY: NavItem[] = [
-  { path: "/contacto", labelKey: "nav_contact" },
-];
+const SECONDARY: NavItem[] = [];
+
+const MENU_LINK_CLASS =
+  "font-display text-sm font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent";
+
 
 // El router tipa `to` con las rutas literales; construimos la ruta por idioma.
 function to(locale: Locale, path: string) {
