@@ -125,8 +125,10 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       texts: textMap,
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
+      tournamentDocuments: tournamentDocs.data ?? [],
       scheduleStyle,
     };
+
 
   },
 );
