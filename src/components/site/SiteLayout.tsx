@@ -90,6 +90,8 @@ export function SiteLayout({
   const [open, setOpen] = useState(false);
   useDefaultLocale(locale, localePath("eu", path));
   const joinUrl = tx(texts, locale, "join_url");
+  const intranetUrl = tx(texts, locale, "intranet_url");
+
 
   return (
     <div className="flex min-h-dvh flex-col">
