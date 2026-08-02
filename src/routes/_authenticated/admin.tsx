@@ -1062,3 +1062,293 @@ function CalendarEditor() {
     </section>
   );
 }
+
+type TournamentOption = { id: string; title_es: string };
+type DocRow = {
+  id: string;
+  tournament_id: string;
+  title_es: string;
+  title_eu: string | null;
+  url_es: string | null;
+  url_eu: string | null;
+  locale: string;
+  sort_order: number;
+  visible: boolean;
+};
+
+const EMPTY_DOC = {
+  title_es: "",
+  title_eu: "",
+  url_es: "",
+  url_eu: "",
+  locale: "both",
+  sort_order: 0,
+  visible: true,
+};
+
+/** Enlaces ilimitados a documentos externos para cada torneo. */
+function TournamentDocsEditor() {
+  const [tournaments, setTournaments] = useState<TournamentOption[]>([]);
+  const [tournamentId, setTournamentId] = useState("");
+  const [docs, setDocs] = useState<DocRow[]>([]);
+  const [draft, setDraft] = useState(EMPTY_DOC);
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("tournaments")
+      .select("id,title_es")
+      .order("event_date", { ascending: false })
+      .then(({ data }) => {
+        const list = (data ?? []) as TournamentOption[];
+        setTournaments(list);
+        setTournamentId((current) => current || (list[0]?.id ?? ""));
+      });
+  }, []);
+
+  const load = useCallback(async () => {
+    if (!tournamentId) {
+      setDocs([]);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("tournament_documents")
+      .select("*")
+      .eq("tournament_id", tournamentId)
+      .order("sort_order");
+    if (error) setStatus(error.message);
+    setDocs((data ?? []) as DocRow[]);
+  }, [tournamentId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function add() {
+    if (!tournamentId || !draft.title_es.trim()) {
+      setStatus("Indica al menos el título en castellano");
+      return;
+    }
+    const { error } = await supabase.from("tournament_documents").insert({
+      tournament_id: tournamentId,
+      title_es: draft.title_es.trim(),
+      title_eu: draft.title_eu.trim() || null,
+      url_es: draft.url_es.trim() || null,
+      url_eu: draft.url_eu.trim() || null,
+      locale: draft.locale,
+      sort_order: Number(draft.sort_order) || 0,
+      visible: draft.visible,
+    });
+    setStatus(error ? error.message : "Documento añadido");
+    if (!error) setDraft(EMPTY_DOC);
+    await load();
+  }
+
+  async function update(doc: DocRow) {
+    const { error } = await supabase
+      .from("tournament_documents")
+      .update({
+        title_es: doc.title_es,
+        title_eu: doc.title_eu,
+        url_es: doc.url_es,
+        url_eu: doc.url_eu,
+        locale: doc.locale,
+        sort_order: doc.sort_order,
+        visible: doc.visible,
+      })
+      .eq("id", doc.id);
+    setStatus(error ? error.message : "Documento guardado");
+    await load();
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm("¿Borrar este documento?")) return;
+    const { error } = await supabase.from("tournament_documents").delete().eq("id", id);
+    setStatus(error ? error.message : "Documento borrado");
+    await load();
+  }
+
+  function patch(id: string, changes: Partial<DocRow>) {
+    setDocs((list) => list.map((item) => (item.id === id ? { ...item, ...changes } : item)));
+  }
+
+  const localeOptions = [
+    { value: "both", label: "Los dos idiomas" },
+    { value: "es", label: "Solo castellano" },
+    { value: "eu", label: "Solo euskera" },
+  ];
+
+  return (
+    <section>
+      <h3 className="text-xl">Documentos de los torneos</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Enlaces externos (URL) por torneo: título, idioma, orden y visibilidad.
+      </p>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+
+      <div className="card-elevated mt-4 space-y-6 p-6">
+        <div>
+          <label htmlFor="doc-tournament" className="block text-xs font-semibold">
+            Torneo
+          </label>
+          <select
+            id="doc-tournament"
+            value={tournamentId}
+            onChange={(e) => setTournamentId(e.target.value)}
+            className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-2"
+          >
+            {tournaments.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title_es}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <ul className="space-y-4">
+          {docs.map((doc) => (
+            <li key={doc.id} className="rounded-sm border border-border p-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  aria-label="Título (castellano)"
+                  placeholder="Título (castellano)"
+                  value={doc.title_es}
+                  onChange={(e) => patch(doc.id, { title_es: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="Título (euskera)"
+                  placeholder="Título (euskera)"
+                  value={doc.title_eu ?? ""}
+                  onChange={(e) => patch(doc.id, { title_eu: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="URL (castellano)"
+                  type="url"
+                  placeholder="URL (castellano)"
+                  value={doc.url_es ?? ""}
+                  onChange={(e) => patch(doc.id, { url_es: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <input
+                  aria-label="URL (euskera)"
+                  type="url"
+                  placeholder="URL (euskera)"
+                  value={doc.url_eu ?? ""}
+                  onChange={(e) => patch(doc.id, { url_eu: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                />
+                <select
+                  aria-label="Idioma"
+                  value={doc.locale}
+                  onChange={(e) => patch(doc.id, { locale: e.target.value })}
+                  className="min-h-11 rounded-sm border border-input bg-background px-2"
+                >
+                  {localeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex gap-3">
+                  <input
+                    aria-label="Orden"
+                    type="number"
+                    value={doc.sort_order}
+                    onChange={(e) => patch(doc.id, { sort_order: Number(e.target.value) })}
+                    className="min-h-11 w-24 rounded-sm border border-input bg-background px-3"
+                  />
+                  <select
+                    aria-label="Visible"
+                    value={doc.visible ? "true" : "false"}
+                    onChange={(e) => patch(doc.id, { visible: e.target.value === "true" })}
+                    className="min-h-11 flex-1 rounded-sm border border-input bg-background px-2"
+                  >
+                    <option value="true">Visible</option>
+                    <option value="false">Oculto</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-3">
+                <button
+                  onClick={() => void update(doc)}
+                  className="min-h-10 rounded-sm bg-primary px-4 font-display text-sm uppercase text-primary-foreground"
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => void remove(doc.id)}
+                  className="min-h-10 rounded-sm border border-destructive px-4 text-sm text-destructive"
+                >
+                  Borrar
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="rounded-sm border border-dashed border-border p-4">
+          <h4 className="text-base">Añadir documento</h4>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <input
+              aria-label="Nuevo título (castellano)"
+              placeholder="Título (castellano)"
+              value={draft.title_es}
+              onChange={(e) => setDraft({ ...draft, title_es: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nuevo título (euskera)"
+              placeholder="Título (euskera)"
+              value={draft.title_eu}
+              onChange={(e) => setDraft({ ...draft, title_eu: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nueva URL (castellano)"
+              type="url"
+              placeholder="URL (castellano)"
+              value={draft.url_es}
+              onChange={(e) => setDraft({ ...draft, url_es: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <input
+              aria-label="Nueva URL (euskera)"
+              type="url"
+              placeholder="URL (euskera)"
+              value={draft.url_eu}
+              onChange={(e) => setDraft({ ...draft, url_eu: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+            <select
+              aria-label="Idioma del nuevo documento"
+              value={draft.locale}
+              onChange={(e) => setDraft({ ...draft, locale: e.target.value })}
+              className="min-h-11 rounded-sm border border-input bg-background px-2"
+            >
+              {localeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <input
+              aria-label="Orden del nuevo documento"
+              type="number"
+              value={draft.sort_order}
+              onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })}
+              className="min-h-11 rounded-sm border border-input bg-background px-3"
+            />
+          </div>
+          <button
+            onClick={() => void add()}
+            className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+          >
+            Añadir
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
