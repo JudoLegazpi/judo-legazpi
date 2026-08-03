@@ -75,7 +75,9 @@ export type SiteContent = {
   images: Record<string, string>;
   lopiviButtons: LopiviButton[];
   tournamentDocuments: TournamentDocument[];
+  tournamentStatuses: TournamentStatus[];
   scheduleStyle: ScheduleStyle;
+  calendarStyle: CalendarStyle;
 };
 
 
@@ -97,7 +99,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs] =
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs, tournamentStatuses] =
       await Promise.all([
         supabase.from("schedules").select("*").order("sort_order"),
         supabase.from("events").select("*").eq("published", true).order("event_date"),
@@ -110,6 +112,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
         supabase.from("lopivi_buttons").select("*").eq("active", true).order("sort_order"),
         supabase.from("site_settings").select("*"),
         supabase.from("tournament_documents").select("*").eq("visible", true).order("sort_order"),
+        supabase.from("tournament_statuses").select("*").eq("active", true).order("sort_order"),
       ]);
 
 
@@ -129,6 +132,12 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       ...((scheduleRow?.value as Partial<ScheduleStyle> | null) ?? {}),
     };
 
+    const calendarRow = (settings.data ?? []).find((row) => row.key === "calendar_style");
+    const calendarStyle: CalendarStyle = {
+      ...DEFAULT_CALENDAR_STYLE,
+      ...((calendarRow?.value as Partial<CalendarStyle> | null) ?? {}),
+    };
+
     return {
       schedules: schedules.data ?? [],
       events: events.data ?? [],
@@ -140,7 +149,9 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
       tournamentDocuments: tournamentDocs.data ?? [],
+      tournamentStatuses: tournamentStatuses.data ?? [],
       scheduleStyle,
+      calendarStyle,
     };
 
 
