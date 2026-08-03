@@ -22,7 +22,18 @@ export const Route = createFileRoute("/_authenticated/admin")({
 type Field = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "date" | "time" | "select" | "boolean" | "url" | "color";
+  type:
+    | "text"
+    | "textarea"
+    | "number"
+    | "date"
+    | "time"
+    | "select"
+    | "boolean"
+    | "url"
+    | "color"
+    | "poster"
+    | "status";
   options?: { value: string; label: string }[];
   accept?: string;
   required?: boolean;
@@ -30,7 +41,7 @@ type Field = {
 
 type TableConfig = {
   key: string;
-  table: "schedules" | "staff" | "tournaments" | "lopivi_buttons";
+  table: "schedules" | "staff" | "tournaments" | "lopivi_buttons" | "tournament_statuses";
   label: string;
   orderBy: string;
   titleField: string;
@@ -91,10 +102,14 @@ const TOURNAMENTS_CONFIG: TableConfig = {
     { name: "title_eu", label: "Título (euskera)", type: "text" },
     { name: "edition", label: "Edición", type: "text" },
     { name: "event_date", label: "Fecha", type: "date" },
-    { name: "location", label: "Lugar", type: "text" },
+    { name: "location", label: "Lugar (castellano)", type: "text" },
+    { name: "location_eu", label: "Lugar (euskera)", type: "text" },
+    { name: "categories_es", label: "Categorías o edades (castellano)", type: "text" },
+    { name: "categories_eu", label: "Categorías o edades (euskera)", type: "text" },
+    { name: "status_id", label: "Estado del torneo", type: "status" },
     { name: "description_es", label: "Descripción (castellano)", type: "textarea" },
     { name: "description_eu", label: "Descripción (euskera)", type: "textarea" },
-    { name: "poster_url", label: "Cartel (URL externa)", type: "url" },
+    { name: "poster_url", label: "Cartel del torneo", type: "poster" },
     { name: "results_url", label: "Resultados (URL externa)", type: "url" },
 
     { name: "published", label: "Publicado", type: "boolean" },
@@ -137,6 +152,28 @@ const LOPIVI_CONFIG: TableConfig = {
     { name: "new_tab", label: "Abrir en pestaña nueva", type: "boolean" },
     { name: "sort_order", label: "Orden", type: "number" },
     { name: "active", label: "Visible en la web", type: "boolean" },
+  ],
+};
+
+const STATUSES_CONFIG: TableConfig = {
+  key: "estados-torneos",
+  table: "tournament_statuses",
+  label: "Estados de los torneos",
+  orderBy: "sort_order",
+  titleField: "name_es",
+  fields: [
+    { name: "name_es", label: "Nombre (castellano)", type: "text", required: true },
+    { name: "name_eu", label: "Nombre (euskera)", type: "text" },
+    {
+      name: "icon",
+      label: "Icono",
+      type: "select",
+      options: LOPIVI_ICON_NAMES.map((name) => ({ value: name, label: name })),
+    },
+    { name: "bg_color", label: "Color de fondo", type: "color" },
+    { name: "text_color", label: "Color del texto", type: "color" },
+    { name: "sort_order", label: "Orden", type: "number" },
+    { name: "active", label: "Activo", type: "boolean" },
   ],
 };
 
@@ -207,6 +244,13 @@ const SECTIONS: SectionTab[] = [
     crud: TOURNAMENTS_CONFIG,
     extra: "tournamentDocs",
     textKeys: ["tournaments_title", "tournaments_intro"],
+  },
+  {
+    key: "estados-torneos",
+    label: "Estados de torneos",
+    title: "Estados de los torneos",
+    help: "Crea, edita, ordena, activa o desactiva los estados. No se puede borrar un estado asignado a algún torneo.",
+    crud: STATUSES_CONFIG,
   },
   {
     key: "general",
