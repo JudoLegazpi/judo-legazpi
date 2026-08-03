@@ -163,7 +163,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
   const cellBorder = `${s.borderWidth} solid ${s.borderColor}`;
 
   return (
-    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
+    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap, ...ageSizeVars(content) }}>
       <table
         className="w-full min-w-[640px] border-collapse overflow-hidden text-center align-middle"
         style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
@@ -217,7 +217,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                             {pick(locale, cell.group_es, cell.group_eu)}
                           </span>
                           {cell.age_range && (
-                            <span className="block text-xs" style={{ color: s.ageColor }}>
+                            <span className="age-text block" style={{ color: s.ageColor }}>
                               {cell.age_range}
                             </span>
                           )}
@@ -267,13 +267,13 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
               href={tx(content.texts, locale, "join_url")}
               rel="noreferrer noopener"
               target="_blank"
-              className="inline-flex min-h-12 items-center justify-center rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
             >
               {tx(content.texts, locale, "cta_join")}
             </a>
             <a
               href="#kluba"
-              className="inline-flex min-h-12 items-center justify-center rounded-sm border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
             >
               {tx(content.texts, locale, "cta_know")}
             </a>
@@ -293,7 +293,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
               width={1280}
               height={960}
               loading="lazy"
-              className="w-full rounded-sm object-cover"
+              className="w-full rounded-3xl object-cover"
             />
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>{content.texts.club_history?.[locale] ?? ""}</p>
@@ -411,7 +411,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
             href={tx(content.texts, locale, "join_url")}
             rel="noreferrer noopener"
             target="_blank"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-sm bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-2xl bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
           >
             {tx(content.texts, locale, "join_short")}
           </a>
@@ -479,11 +479,11 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
           src={image}
           alt={locale === "eu" ? "Denboraldiko egutegia" : "Calendario de la temporada"}
           loading="lazy"
-          className="w-full rounded-sm border border-border bg-background"
+          className="w-full rounded-3xl border border-border bg-background"
         />
       )}
       {(pdf || updated) && (
-        <div className="mt-8 rounded-sm bg-secondary px-6 py-8 text-center">
+        <div className="mt-8 rounded-3xl bg-secondary px-6 py-8 text-center">
           <p className="text-base text-muted-foreground">{tx(content.texts, locale, "calendar_download_intro")}</p>
           {updated && (
             <p className="mt-1 text-sm text-muted-foreground">
@@ -495,7 +495,7 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
               href={pdf}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
             >
               <Download className="h-4 w-4" aria-hidden /> {tx(content.texts, locale, "calendar_download_label")}
             </a>
