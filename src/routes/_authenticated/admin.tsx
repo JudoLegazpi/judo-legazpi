@@ -2,7 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
-import { DEFAULT_SCHEDULE_STYLE, type ScheduleStyle } from "@/lib/site-content.functions";
+import {
+  DEFAULT_CALENDAR_STYLE,
+  DEFAULT_SCHEDULE_STYLE,
+  type CalendarStyle,
+  type ScheduleStyle,
+} from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -359,7 +364,12 @@ function AdminPage() {
         </div>
 
         {section.crud && <CrudSection config={section.crud} />}
-        {section.extra === "calendar" && <CalendarEditor />}
+        {section.extra === "calendar" && (
+          <>
+            <CalendarEditor />
+            <CalendarAgeStyleEditor />
+          </>
+        )}
         {section.extra === "scheduleStyle" && <ScheduleStyleEditor />}
         {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
 
@@ -1234,6 +1244,91 @@ function CalendarEditor() {
             Guardar fechas
           </button>
         </div>
+      </div>
+    </section>
+  );
+}
+
+const AGE_SIZE_FIELDS: { name: keyof CalendarStyle; label: string }[] = [
+  { name: "ageSizeDesktop", label: "Ordenador" },
+  { name: "ageSizeTablet", label: "Tablet" },
+  { name: "ageSizeMobile", label: "Móvil" },
+];
+
+/** Tamaño del texto de edades y categorías, por dispositivo, con previsualización. */
+function CalendarAgeStyleEditor() {
+  const [style, setStyle] = useState<CalendarStyle>(DEFAULT_CALENDAR_STYLE);
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    void supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "calendar_style")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setStyle({ ...DEFAULT_CALENDAR_STYLE, ...(data.value as Partial<CalendarStyle>) });
+      });
+  }, []);
+
+  async function save() {
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "calendar_style",
+      label: "Tamaños del texto de edades y categorías",
+      value: style,
+    });
+    setStatus(error ? error.message : "Tamaños guardados");
+  }
+
+  function toPx(value: string): number {
+    const rem = parseFloat(value);
+    return Number.isFinite(rem) ? Math.round(rem * 16) : 14;
+  }
+
+  return (
+    <section>
+      <h3 className="text-xl">Tamaño del texto de edades y categorías</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Se aplica al texto de edades de los horarios y a las categorías de los torneos, sin afectar al resto de textos.
+      </p>
+      {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
+
+      <div className="card-elevated mt-4 space-y-6 p-6">
+        <div className="grid gap-6 md:grid-cols-3">
+          {AGE_SIZE_FIELDS.map((field) => (
+            <div key={field.name}>
+              <label htmlFor={`age-${field.name}`} className="block text-xs font-semibold">
+                {field.label}: {toPx(style[field.name])} px
+              </label>
+              <input
+                id={`age-${field.name}`}
+                type="range"
+                min={10}
+                max={28}
+                step={1}
+                value={toPx(style[field.name])}
+                onChange={(e) => setStyle({ ...style, [field.name]: `${Number(e.target.value) / 16}rem` })}
+                className="mt-2 w-full"
+              />
+              <div className="mt-3 rounded-2xl border border-border bg-muted p-3">
+                <p className="text-xs uppercase text-muted-foreground">Previsualización</p>
+                <p
+                  className="mt-1 font-semibold break-words text-foreground"
+                  style={{ fontSize: style[field.name] }}
+                >
+                  Benjamín · 8-10 urte
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => void save()}
+          className="min-h-11 rounded-2xl bg-primary px-5 font-display text-sm uppercase text-primary-foreground"
+        >
+          Guardar tamaños
+        </button>
       </div>
     </section>
   );
