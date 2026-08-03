@@ -150,6 +150,11 @@ const dict: Dict = {
   contact_phone: { es: "+34600000000", eu: "+34600000000" },
   contact_phone_label: { es: "600 00 00 00", eu: "600 00 00 00" },
   documents: { es: "Documentos", eu: "Dokumentuak" },
+  tournament_date: { es: "Fecha", eu: "Data" },
+  tournament_place: { es: "Lugar", eu: "Lekua" },
+  tournament_categories: { es: "Categorías", eu: "Kategoriak" },
+  tournament_links: { es: "Enlaces y documentos", eu: "Loturak eta dokumentuak" },
+  tournaments_empty: { es: "Pronto publicaremos los torneos.", eu: "Laster argitaratuko ditugu txapelketak." },
 };
 
 

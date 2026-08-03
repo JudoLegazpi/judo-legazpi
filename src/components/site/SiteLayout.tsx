@@ -57,7 +57,7 @@ function Wordmark({ locale, texts }: { locale: Locale; texts?: TextMap }) {
 function LanguageSwitch({ locale, path }: { locale: Locale; path: string }) {
   const base = "px-2 py-1 font-display text-xs uppercase";
   return (
-    <div className="flex items-center overflow-hidden rounded-sm border border-ink-border" aria-label="Hizkuntza / Idioma">
+    <div className="flex items-center overflow-hidden rounded-full border border-ink-border" aria-label="Hizkuntza / Idioma">
       <Link
         to={to("eu", path)}
         onClick={() => rememberLocale("eu")}
@@ -97,7 +97,7 @@ export function SiteLayout({
     <div className="flex min-h-dvh flex-col">
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-sm focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-xl focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-foreground"
       >
         {locale === "eu" ? "Edukira joan" : "Ir al contenido"}
       </a>
@@ -128,7 +128,7 @@ export function SiteLayout({
               href={joinUrl}
               rel="noreferrer noopener"
               target="_blank"
-              className="hidden min-h-10 items-center rounded-sm bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground lg:inline-flex"
+              className="hidden min-h-10 items-center rounded-full bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground lg:inline-flex"
             >
               {tx(texts, locale, "join_short")}
             </a>
@@ -141,7 +141,7 @@ export function SiteLayout({
               aria-expanded={open}
               aria-controls="menu-movil"
               aria-label={open ? t(locale, "close") : t(locale, "menu")}
-              className="grid h-11 w-11 place-items-center rounded-sm border border-ink-border text-ink-foreground lg:hidden"
+              className="grid h-11 w-11 place-items-center rounded-2xl border border-ink-border text-ink-foreground lg:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -182,7 +182,7 @@ export function SiteLayout({
                 href={joinUrl}
                 rel="noreferrer noopener"
                 target="_blank"
-                className="inline-flex min-h-10 items-center rounded-sm bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground"
+                className="inline-flex min-h-10 items-center rounded-full bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground"
               >
                 {tx(texts, locale, "join_short")}
               </a>

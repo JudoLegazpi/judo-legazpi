@@ -391,8 +391,49 @@ export type Database = {
           },
         ]
       }
+      tournament_statuses: {
+        Row: {
+          active: boolean
+          bg_color: string
+          created_at: string
+          icon: string
+          id: string
+          name_es: string
+          name_eu: string
+          sort_order: number
+          text_color: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          bg_color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name_es?: string
+          name_eu?: string
+          sort_order?: number
+          text_color?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          bg_color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          name_es?: string
+          name_eu?: string
+          sort_order?: number
+          text_color?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tournaments: {
         Row: {
+          categories_es: string | null
+          categories_eu: string | null
           created_at: string
           description_es: string | null
           description_eu: string | null
@@ -400,15 +441,19 @@ export type Database = {
           event_date: string | null
           id: string
           location: string | null
+          location_eu: string | null
           poster_url: string | null
           published: boolean
           results_url: string | null
           slug: string
+          status_id: string | null
           title_es: string
           title_eu: string | null
           updated_at: string
         }
         Insert: {
+          categories_es?: string | null
+          categories_eu?: string | null
           created_at?: string
           description_es?: string | null
           description_eu?: string | null
@@ -416,15 +461,19 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          location_eu?: string | null
           poster_url?: string | null
           published?: boolean
           results_url?: string | null
           slug: string
+          status_id?: string | null
           title_es: string
           title_eu?: string | null
           updated_at?: string
         }
         Update: {
+          categories_es?: string | null
+          categories_eu?: string | null
           created_at?: string
           description_es?: string | null
           description_eu?: string | null
@@ -432,15 +481,25 @@ export type Database = {
           event_date?: string | null
           id?: string
           location?: string | null
+          location_eu?: string | null
           poster_url?: string | null
           published?: boolean
           results_url?: string | null
           slug?: string
+          status_id?: string | null
           title_es?: string
           title_eu?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

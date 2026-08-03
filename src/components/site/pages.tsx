@@ -1,10 +1,20 @@
-import { Download, ChevronDown, Mail, FileText } from "lucide-react";
+import {
+  Download,
+  ChevronDown,
+  Mail,
+  FileText,
+  CalendarDays,
+  MapPin,
+  Users,
+  BarChart3,
+  type LucideIcon,
+} from "lucide-react";
 import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
 import { dayName, formatDate, pick, t, tx, type Locale } from "@/lib/i18n";
 import { lopiviIcon } from "@/lib/lopivi-icons";
-import type { SiteContent } from "@/lib/site-content.functions";
+import type { SiteContent, TournamentStatus } from "@/lib/site-content.functions";
 import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
 const list = (value?: string | null) =>
@@ -153,7 +163,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
   const cellBorder = `${s.borderWidth} solid ${s.borderColor}`;
 
   return (
-    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap }}>
+    <div className="mt-12 overflow-x-auto" style={{ padding: s.gap, ...ageSizeVars(content) }}>
       <table
         className="w-full min-w-[640px] border-collapse overflow-hidden text-center align-middle"
         style={{ backgroundColor: s.cardBg, borderRadius: s.borderRadius, border: cellBorder }}
@@ -207,7 +217,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                             {pick(locale, cell.group_es, cell.group_eu)}
                           </span>
                           {cell.age_range && (
-                            <span className="block text-xs" style={{ color: s.ageColor }}>
+                            <span className="age-text block" style={{ color: s.ageColor }}>
                               {cell.age_range}
                             </span>
                           )}
@@ -257,13 +267,13 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
               href={tx(content.texts, locale, "join_url")}
               rel="noreferrer noopener"
               target="_blank"
-              className="inline-flex min-h-12 items-center justify-center rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
             >
               {tx(content.texts, locale, "cta_join")}
             </a>
             <a
               href="#kluba"
-              className="inline-flex min-h-12 items-center justify-center rounded-sm border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
             >
               {tx(content.texts, locale, "cta_know")}
             </a>
@@ -283,7 +293,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
               width={1280}
               height={960}
               loading="lazy"
-              className="w-full rounded-sm object-cover"
+              className="w-full rounded-3xl object-cover"
             />
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>{content.texts.club_history?.[locale] ?? ""}</p>
@@ -401,7 +411,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
             href={tx(content.texts, locale, "join_url")}
             rel="noreferrer noopener"
             target="_blank"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-sm bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-2xl bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
           >
             {tx(content.texts, locale, "join_short")}
           </a>
@@ -469,11 +479,11 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
           src={image}
           alt={locale === "eu" ? "Denboraldiko egutegia" : "Calendario de la temporada"}
           loading="lazy"
-          className="w-full rounded-sm border border-border bg-background"
+          className="w-full rounded-3xl border border-border bg-background"
         />
       )}
       {(pdf || updated) && (
-        <div className="mt-8 rounded-sm bg-secondary px-6 py-8 text-center">
+        <div className="mt-8 rounded-3xl bg-secondary px-6 py-8 text-center">
           <p className="text-base text-muted-foreground">{tx(content.texts, locale, "calendar_download_intro")}</p>
           {updated && (
             <p className="mt-1 text-sm text-muted-foreground">
@@ -485,7 +495,7 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
               href={pdf}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-sm bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
             >
               <Download className="h-4 w-4" aria-hidden /> {tx(content.texts, locale, "calendar_download_label")}
             </a>
@@ -511,6 +521,116 @@ export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale:
   );
 }
 
+/** Variables CSS con los tamaños de edades/categorías configurados en administración. */
+function ageSizeVars(content: SiteContent): React.CSSProperties {
+  return {
+    "--age-size-mobile": content.calendarStyle.ageSizeMobile,
+    "--age-size-tablet": content.calendarStyle.ageSizeTablet,
+    "--age-size-desktop": content.calendarStyle.ageSizeDesktop,
+  } as React.CSSProperties;
+}
+
+/** Etiqueta de estado del torneo (nombre, colores e icono configurables). */
+function StatusBadge({ locale, status }: { locale: Locale; status: TournamentStatus }) {
+  const Icon = lopiviIcon(status.icon);
+  return (
+    <span
+      className="inline-flex max-w-full items-center gap-1.5 rounded-full px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide"
+      style={{ backgroundColor: status.bg_color, color: status.text_color }}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      <span className="truncate">{pick(locale, status.name_es, status.name_eu)}</span>
+    </span>
+  );
+}
+
+function InfoRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+  return (
+    <li className="flex min-w-0 items-start gap-3">
+      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-accent/15" aria-hidden>
+        <Icon className="h-4 w-4 text-primary" />
+      </span>
+      <span className="min-w-0">
+        <span className="block font-display text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+          {label}
+        </span>
+        <span className="block text-sm font-semibold break-words text-foreground">{value}</span>
+      </span>
+    </li>
+  );
+}
+
+/** Tarjeta pública de un torneo: cartel, datos con iconos, estado y botones de enlaces. */
+function TournamentCard({
+  locale,
+  content,
+  tournament,
+}: {
+  locale: Locale;
+  content: SiteContent;
+  tournament: SiteContent["tournaments"][number];
+}) {
+  const title = pick(locale, tournament.title_es, tournament.title_eu);
+  const place = pick(locale, tournament.location, tournament.location_eu);
+  const categories = pick(locale, tournament.categories_es, tournament.categories_eu);
+  const status = content.tournamentStatuses.find((item) => item.id === tournament.status_id);
+
+  return (
+    <li className="card-elevated flex h-full min-w-0 flex-col overflow-hidden rounded-3xl">
+      <div className="relative bg-secondary">
+        {tournament.poster_url ? (
+          <img
+            src={tournament.poster_url}
+            alt={title}
+            loading="lazy"
+            className="aspect-4/3 w-full object-contain p-3"
+          />
+        ) : (
+          <div className="aspect-4/3 w-full" aria-hidden />
+        )}
+        {status && (
+          <span className="absolute left-4 top-4 max-w-[calc(100%-2rem)]">
+            <StatusBadge locale={locale} status={status} />
+          </span>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col p-5 sm:p-6">
+        {tournament.edition && <p className="eyebrow truncate">{tournament.edition}</p>}
+        <h2 className="mt-1 text-xl leading-tight break-words sm:text-2xl">{title}</h2>
+
+        {pick(locale, tournament.description_es, tournament.description_eu) && (
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            {pick(locale, tournament.description_es, tournament.description_eu)}
+          </p>
+        )}
+
+        <ul className="mt-5 space-y-3">
+          {tournament.event_date && (
+            <InfoRow icon={CalendarDays} label={t(locale, "tournament_date")} value={formatDate(locale, tournament.event_date)} />
+          )}
+          {place && <InfoRow icon={MapPin} label={t(locale, "tournament_place")} value={place} />}
+          {categories && (
+            <li className="flex min-w-0 items-start gap-3">
+              <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-accent/15" aria-hidden>
+                <Users className="h-4 w-4 text-primary" />
+              </span>
+              <span className="min-w-0">
+                <span className="block font-display text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+                  {t(locale, "tournament_categories")}
+                </span>
+                <span className="age-text block font-semibold break-words text-foreground">{categories}</span>
+              </span>
+            </li>
+          )}
+        </ul>
+
+        <TournamentLinks locale={locale} content={content} tournament={tournament} />
+      </div>
+    </li>
+  );
+}
+
 export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
     <SiteLayout locale={locale} path="/torneos" texts={content.texts}>
@@ -520,86 +640,83 @@ export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { loca
         intro={tx(content.texts, locale, "tournaments_intro")}
       />
       <Section>
-        <ul className="grid gap-6 sm:grid-cols-2">
-          {content.tournaments.map((tournament) => (
-            <li key={tournament.id} className="card-elevated overflow-hidden">
-              {tournament.poster_url && (
-                <img
-                  src={tournament.poster_url}
-                  alt={pick(locale, tournament.title_es, tournament.title_eu)}
-                  loading="lazy"
-                  className="aspect-16/9 w-full object-cover"
-                />
-              )}
-              <div className="p-5">
-                <p className="eyebrow">{tournament.edition}</p>
-                <h2 className="mt-1 text-xl">{pick(locale, tournament.title_es, tournament.title_eu)}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {tournament.event_date ? formatDate(locale, tournament.event_date) : ""}
-                  {tournament.location ? ` · ${tournament.location}` : ""}
-                </p>
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {pick(locale, tournament.description_es, tournament.description_eu)}
-                </p>
-                {tournament.results_url && tournament.results_url !== "#" && (
-                  <a
-                    href={tournament.results_url}
-                    className="mt-4 inline-flex font-display text-sm uppercase text-primary"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    {t(locale, "results")}
-                  </a>
-                )}
-                <TournamentDocs locale={locale} content={content} tournamentId={tournament.id} />
-
-              </div>
-            </li>
-          ))}
-        </ul>
+        {content.tournaments.length === 0 ? (
+          <p className="text-center text-muted-foreground">{t(locale, "tournaments_empty")}</p>
+        ) : (
+          <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" style={ageSizeVars(content)}>
+            {content.tournaments.map((tournament) => (
+              <TournamentCard key={tournament.id} locale={locale} content={content} tournament={tournament} />
+            ))}
+          </ul>
+        )}
       </Section>
     </SiteLayout>
   );
 }
 
-/** Enlaces externos a documentos de un torneo, filtrados por idioma. */
-function TournamentDocs({
+/** Botones de enlaces del torneo: resultados y documentos externos, filtrados por idioma. */
+function TournamentLinks({
   locale,
   content,
-  tournamentId,
+  tournament,
 }: {
   locale: Locale;
   content: SiteContent;
-  tournamentId: string;
+  tournament: SiteContent["tournaments"][number];
 }) {
   const docs = content.tournamentDocuments
-    .filter((doc) => doc.tournament_id === tournamentId && doc.visible)
+    .filter((doc) => doc.tournament_id === tournament.id && doc.visible)
     .filter((doc) => doc.locale === "both" || doc.locale === locale)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  if (docs.length === 0) return null;
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((doc) => ({
+      id: doc.id,
+      title: pick(locale, doc.title_es, doc.title_eu),
+      url: (locale === "eu" ? (doc.url_eu ?? doc.url_es) : (doc.url_es ?? doc.url_eu))?.trim() ?? "",
+    }))
+    .filter((doc) => doc.url && doc.title);
+
+  const results =
+    tournament.results_url && tournament.results_url !== "#" ? tournament.results_url.trim() : "";
+
+  if (docs.length === 0 && !results) return null;
+
+  const buttonClass =
+    "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center font-display text-sm font-semibold uppercase tracking-wide transition-colors";
 
   return (
-    <ul className="mt-4 space-y-2 border-t border-border pt-4">
-      {docs.map((doc) => {
-        const url = (locale === "eu" ? (doc.url_eu ?? doc.url_es) : (doc.url_es ?? doc.url_eu))?.trim();
-        if (!url) return null;
-        return (
-          <li key={doc.id}>
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-            >
-              <FileText className="h-4 w-4" aria-hidden />
-              {pick(locale, doc.title_es, doc.title_eu)}
-            </a>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="mt-6 border-t border-border pt-5">
+      <p className="font-display text-[0.7rem] uppercase tracking-widest text-muted-foreground">
+        {t(locale, "tournament_links")}
+      </p>
+      <div className="mt-3 grid gap-2">
+        {results && (
+          <a
+            href={results}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${buttonClass} bg-accent text-accent-foreground hover:brightness-95`}
+          >
+            <BarChart3 className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="truncate">{t(locale, "results")}</span>
+          </a>
+        )}
+        {docs.map((doc) => (
+          <a
+            key={doc.id}
+            href={doc.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${buttonClass} border border-border bg-background text-primary hover:border-accent hover:bg-secondary`}
+          >
+            <FileText className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="truncate">{doc.title}</span>
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
+
 
 export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (

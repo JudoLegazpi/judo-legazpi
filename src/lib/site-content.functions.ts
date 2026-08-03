@@ -11,6 +11,20 @@ export type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"]
 export type SiteText = Database["public"]["Tables"]["site_texts"]["Row"];
 export type LopiviButton = Database["public"]["Tables"]["lopivi_buttons"]["Row"];
 export type TournamentDocument = Database["public"]["Tables"]["tournament_documents"]["Row"];
+export type TournamentStatus = Database["public"]["Tables"]["tournament_statuses"]["Row"];
+
+/** Tamaños del texto de edades/categorías por dispositivo (editable en administración). */
+export type CalendarStyle = {
+  ageSizeDesktop: string;
+  ageSizeTablet: string;
+  ageSizeMobile: string;
+};
+
+export const DEFAULT_CALENDAR_STYLE: CalendarStyle = {
+  ageSizeDesktop: "0.875rem",
+  ageSizeTablet: "0.8125rem",
+  ageSizeMobile: "0.75rem",
+};
 
 /** Ajustes visuales editables de la sección de horarios. */
 export type ScheduleStyle = {
@@ -61,7 +75,9 @@ export type SiteContent = {
   images: Record<string, string>;
   lopiviButtons: LopiviButton[];
   tournamentDocuments: TournamentDocument[];
+  tournamentStatuses: TournamentStatus[];
   scheduleStyle: ScheduleStyle;
+  calendarStyle: CalendarStyle;
 };
 
 
@@ -83,7 +99,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs] =
+    const [schedules, events, staff, tournaments, documents, gallery, texts, images, lopivi, settings, tournamentDocs, tournamentStatuses] =
       await Promise.all([
         supabase.from("schedules").select("*").order("sort_order"),
         supabase.from("events").select("*").eq("published", true).order("event_date"),
@@ -96,6 +112,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
         supabase.from("lopivi_buttons").select("*").eq("active", true).order("sort_order"),
         supabase.from("site_settings").select("*"),
         supabase.from("tournament_documents").select("*").eq("visible", true).order("sort_order"),
+        supabase.from("tournament_statuses").select("*").eq("active", true).order("sort_order"),
       ]);
 
 
@@ -115,6 +132,12 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       ...((scheduleRow?.value as Partial<ScheduleStyle> | null) ?? {}),
     };
 
+    const calendarRow = (settings.data ?? []).find((row) => row.key === "calendar_style");
+    const calendarStyle: CalendarStyle = {
+      ...DEFAULT_CALENDAR_STYLE,
+      ...((calendarRow?.value as Partial<CalendarStyle> | null) ?? {}),
+    };
+
     return {
       schedules: schedules.data ?? [],
       events: events.data ?? [],
@@ -126,7 +149,9 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
       tournamentDocuments: tournamentDocs.data ?? [],
+      tournamentStatuses: tournamentStatuses.data ?? [],
       scheduleStyle,
+      calendarStyle,
     };
 
 

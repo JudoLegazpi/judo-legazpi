@@ -1,4 +1,8 @@
-import { DEFAULT_SCHEDULE_STYLE, type SiteContent } from "@/lib/site-content.functions";
+import {
+  DEFAULT_CALENDAR_STYLE,
+  DEFAULT_SCHEDULE_STYLE,
+  type SiteContent,
+} from "@/lib/site-content.functions";
 
 /** Fallback usado si el contenido aún no ha llegado, para que la web nunca quede en blanco. */
 export const EMPTY_SITE_CONTENT: SiteContent = {
@@ -12,6 +16,7 @@ export const EMPTY_SITE_CONTENT: SiteContent = {
   images: {},
   lopiviButtons: [],
   tournamentDocuments: [],
-
+  tournamentStatuses: [],
   scheduleStyle: DEFAULT_SCHEDULE_STYLE,
+  calendarStyle: DEFAULT_CALENDAR_STYLE,
 };
