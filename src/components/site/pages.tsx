@@ -1,10 +1,20 @@
-import { Download, ChevronDown, Mail, FileText } from "lucide-react";
+import {
+  Download,
+  ChevronDown,
+  Mail,
+  FileText,
+  CalendarDays,
+  MapPin,
+  Users,
+  BarChart3,
+  type LucideIcon,
+} from "lucide-react";
 import heroImg from "@/assets/hero-judo.jpg";
 import kidsImg from "@/assets/club-kids.jpg";
 import { PageHeader, Section, SiteLayout } from "@/components/site/SiteLayout";
 import { dayName, formatDate, pick, t, tx, type Locale } from "@/lib/i18n";
 import { lopiviIcon } from "@/lib/lopivi-icons";
-import type { SiteContent } from "@/lib/site-content.functions";
+import type { SiteContent, TournamentStatus } from "@/lib/site-content.functions";
 import { EMPTY_SITE_CONTENT } from "@/lib/site-content";
 
 const list = (value?: string | null) =>
