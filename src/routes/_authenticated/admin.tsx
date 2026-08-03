@@ -313,7 +313,7 @@ function AdminPage() {
       <div className="mx-auto max-w-md p-8">
         <h1 className="text-2xl">Sin permisos</h1>
         <p className="mt-2 text-muted-foreground">Esta cuenta no tiene permisos de administración del club.</p>
-        <button onClick={signOut} className="mt-6 min-h-11 rounded-sm border border-border px-4">
+        <button onClick={signOut} className="mt-6 min-h-11 rounded-2xl border border-border px-4">
           Cerrar sesión
         </button>
       </div>
@@ -332,7 +332,7 @@ function AdminPage() {
               Ver la web
             </Link>
           </div>
-          <button onClick={signOut} className="min-h-11 rounded-sm border border-border px-4 text-sm">
+          <button onClick={signOut} className="min-h-11 rounded-2xl border border-border px-4 text-sm">
             Cerrar sesión
           </button>
         </div>
@@ -342,7 +342,7 @@ function AdminPage() {
               key={item.key}
               onClick={() => setTab(item.key)}
               aria-current={tab === item.key}
-              className={`min-h-10 rounded-sm px-3 font-display text-sm uppercase ${
+              className={`min-h-10 rounded-2xl px-3 font-display text-sm uppercase ${
                 tab === item.key ? "bg-primary text-primary-foreground" : "border border-border"
               }`}
             >
@@ -401,7 +401,7 @@ function CrudSection({ config }: { config: TableConfig }) {
         <h3 className="truncate text-xl">{config.label}</h3>
         <button
           onClick={() => setEditing("new")}
-          className="min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+          className="min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
         >
           Añadir
         </button>
@@ -430,12 +430,12 @@ function CrudSection({ config }: { config: TableConfig }) {
               <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
             </span>
             <span className="flex gap-2">
-              <button onClick={() => setEditing(row)} className="min-h-10 rounded-sm border border-border px-3 text-sm">
+              <button onClick={() => setEditing(row)} className="min-h-10 rounded-2xl border border-border px-3 text-sm">
                 Editar
               </button>
               <button
                 onClick={() => remove(row.id)}
-                className="min-h-10 rounded-sm border border-destructive px-3 text-sm text-destructive"
+                className="min-h-10 rounded-2xl border border-destructive px-3 text-sm text-destructive"
               >
                 Borrar
               </button>
@@ -504,13 +504,33 @@ function RecordForm({
     else await onSaved();
   }
 
+  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([]);
+  const needsStatuses = config.fields.some((field) => field.type === "status");
+
+  useEffect(() => {
+    if (!needsStatuses) return;
+    void supabase
+      .from("tournament_statuses")
+      .select("id,name_es,active")
+      .order("sort_order")
+      .then(({ data }) =>
+        setStatusOptions(
+          (data ?? []).map((row) => ({
+            value: row.id,
+            label: row.active ? row.name_es : `${row.name_es} (inactivo)`,
+          })),
+        ),
+      );
+  }, [needsStatuses]);
+
   const preview = config.table === "lopivi_buttons";
+  const statusPreview = config.table === "tournament_statuses";
   const PreviewIcon = lopiviIcon(values.icon);
 
   return (
     <form onSubmit={save} className="card-elevated mt-6 space-y-4 p-6">
       {preview && (
-        <div className="rounded-sm border border-border bg-muted p-6">
+        <div className="rounded-2xl border border-border bg-muted p-6">
           <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Previsualización</p>
           <span
             className="mx-auto flex min-h-48 max-w-64 flex-col items-center justify-center rounded-3xl p-8 text-center shadow-[0_10px_30px_-18px_rgba(20,48,92,0.45)]"
@@ -532,6 +552,19 @@ function RecordForm({
         </div>
       )}
 
+      {statusPreview && (
+        <div className="rounded-2xl border border-border bg-muted p-6 text-center">
+          <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Previsualización</p>
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide"
+            style={{ backgroundColor: values.bg_color || "#A6ED19", color: values.text_color || "#14305C" }}
+          >
+            <PreviewIcon className="h-3.5 w-3.5" />
+            {values.name_es || "Estado"}
+          </span>
+        </div>
+      )}
+
       {config.fields.map((field) => {
         const id = `${config.key}-${field.name}`;
         return (
@@ -545,7 +578,7 @@ function RecordForm({
                 rows={3}
                 value={values[field.name]}
                 onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                className="mt-1 w-full rounded-sm border border-input bg-background p-2"
+                className="mt-1 w-full rounded-2xl border border-input bg-background p-2"
               />
             )}
             {field.type === "select" && (
@@ -553,7 +586,7 @@ function RecordForm({
                 id={id}
                 value={values[field.name]}
                 onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-2"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-2"
               >
                 <option value="">—</option>
                 {field.options?.map((option) => (
@@ -568,7 +601,7 @@ function RecordForm({
                 id={id}
                 value={values[field.name] === "false" ? "false" : "true"}
                 onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-2"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-2"
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
@@ -581,16 +614,39 @@ function RecordForm({
                   type="color"
                   value={values[field.name] || "#FFFFFF"}
                   onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                  className="h-11 w-16 rounded-sm border border-input bg-background"
+                  className="h-11 w-16 rounded-2xl border border-input bg-background"
                 />
                 <input
                   type="text"
                   aria-label={`${field.label} (código)`}
                   value={values[field.name]}
                   onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                  className="min-h-11 w-32 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 w-32 rounded-2xl border border-input bg-background px-3"
                 />
               </div>
+            )}
+            {field.type === "status" && (
+              <select
+                id={id}
+                value={values[field.name]}
+                onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-2"
+              >
+                <option value="">Sin estado</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            )}
+            {field.type === "poster" && (
+              <PosterField
+                id={id}
+                value={values[field.name]}
+                onChange={(url) => setValues({ ...values, [field.name]: url })}
+                onError={onError}
+              />
             )}
             {field.type === "url" && (
               <input
@@ -599,7 +655,7 @@ function RecordForm({
                 placeholder="https://…"
                 value={values[field.name]}
                 onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             )}
 
@@ -610,7 +666,7 @@ function RecordForm({
                 required={field.required}
                 value={values[field.name]}
                 onChange={(e) => setValues({ ...values, [field.name]: e.target.value })}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             )}
           </div>
@@ -621,15 +677,91 @@ function RecordForm({
         <button
           type="submit"
           disabled={busy}
-          className="min-h-11 rounded-sm bg-primary px-5 font-display text-sm uppercase text-primary-foreground disabled:opacity-60"
+          className="min-h-11 rounded-2xl bg-primary px-5 font-display text-sm uppercase text-primary-foreground disabled:opacity-60"
         >
           Guardar
         </button>
-        <button type="button" onClick={onCancel} className="min-h-11 rounded-sm border border-border px-5 text-sm">
+        <button type="button" onClick={onCancel} className="min-h-11 rounded-2xl border border-border px-5 text-sm">
           Cancelar
         </button>
       </div>
     </form>
+  );
+}
+
+const POSTER_SIGNED_SECONDS = 60 * 60 * 24 * 365 * 10;
+
+/** Cartel del torneo: se sube desde el dispositivo y se guarda en el almacenamiento del club. */
+function PosterField({
+  id,
+  value,
+  onChange,
+  onError,
+}: {
+  id: string;
+  value: string;
+  onChange: (url: string) => void;
+  onError: (message: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  async function upload(file: File) {
+    setBusy(true);
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `tournaments/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("media")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    if (uploadError) {
+      setBusy(false);
+      onError(uploadError.message);
+      return;
+    }
+    const { data, error: signError } = await supabase.storage
+      .from("media")
+      .createSignedUrl(path, POSTER_SIGNED_SECONDS);
+    setBusy(false);
+    if (signError || !data) {
+      onError(signError?.message ?? "No se ha podido generar el enlace de la imagen");
+      return;
+    }
+    onChange(data.signedUrl);
+  }
+
+  return (
+    <div className="mt-1 space-y-3">
+      {value ? (
+        <div className="overflow-hidden rounded-2xl border border-border bg-muted">
+          <img src={value} alt="Cartel del torneo" className="mx-auto max-h-72 w-full object-contain p-2" />
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">Todavía no hay cartel.</p>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        <input
+          id={id}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/avif"
+          disabled={busy}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.target.value = "";
+            if (file) void upload(file);
+          }}
+          className="min-h-11 rounded-2xl border border-input bg-background px-3 text-sm"
+        />
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="min-h-11 rounded-2xl border border-destructive px-4 text-sm text-destructive"
+          >
+            Quitar cartel
+          </button>
+        )}
+      </div>
+      {busy && <p className="text-sm text-muted-foreground">Subiendo imagen…</p>}
+    </div>
   );
 }
 
@@ -674,7 +806,7 @@ function ImagesEditor({ keys }: { keys: string[] }) {
       <ul className="mt-4 space-y-4">
         {rows.map((row) => (
           <li key={row.key} className="card-elevated grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
-            <div className="aspect-[3/2] overflow-hidden rounded-sm bg-muted">
+            <div className="aspect-[3/2] overflow-hidden rounded-2xl bg-muted">
               {row.image_url && <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />}
             </div>
             <div>
@@ -692,11 +824,11 @@ function ImagesEditor({ keys }: { keys: string[] }) {
                     list.map((item) => (item.key === row.key ? { ...item, image_url: e.target.value } : item)),
                   )
                 }
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
               <button
                 onClick={() => void save(row, row.image_url ?? "")}
-                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+                className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
               >
                 Guardar
               </button>
@@ -762,7 +894,7 @@ function TextsEditor({ keys }: { keys: string[] }) {
                     next[index] = { ...row, value_es: e.target.value };
                     setRows(next);
                   }}
-                  className="mt-1 w-full rounded-sm border border-input bg-background p-2 text-sm"
+                  className="mt-1 w-full rounded-2xl border border-input bg-background p-2 text-sm"
                 />
               </div>
               <div>
@@ -778,13 +910,13 @@ function TextsEditor({ keys }: { keys: string[] }) {
                     next[index] = { ...row, value_eu: e.target.value };
                     setRows(next);
                   }}
-                  className="mt-1 w-full rounded-sm border border-input bg-background p-2 text-sm"
+                  className="mt-1 w-full rounded-2xl border border-input bg-background p-2 text-sm"
                 />
               </div>
             </div>
             <button
               onClick={() => save(row)}
-              className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+              className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
             >
               Guardar
             </button>
@@ -842,7 +974,7 @@ function ScheduleStyleEditor() {
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
       <div
-        className="mt-4 rounded-sm p-6"
+        className="mt-4 rounded-2xl p-6"
         style={{ backgroundColor: style.sectionBg }}
         aria-label="Previsualización de horarios"
       >
@@ -908,14 +1040,14 @@ function ScheduleStyleEditor() {
                   type="color"
                   value={style[field.name]}
                   onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
-                  className="h-11 w-16 rounded-sm border border-input bg-background"
+                  className="h-11 w-16 rounded-2xl border border-input bg-background"
                 />
                 <input
                   type="text"
                   aria-label={`${field.label} (código)`}
                   value={style[field.name]}
                   onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
-                  className="min-h-11 w-32 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 w-32 rounded-2xl border border-input bg-background px-3"
                 />
               </div>
             ) : (
@@ -925,7 +1057,7 @@ function ScheduleStyleEditor() {
                 value={style[field.name]}
                 onChange={(e) => setStyle({ ...style, [field.name]: e.target.value })}
                 placeholder="1rem"
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             )}
           </div>
@@ -934,7 +1066,7 @@ function ScheduleStyleEditor() {
 
       <button
         onClick={() => void save()}
-        className="mt-4 min-h-11 rounded-sm bg-primary px-5 font-display text-sm uppercase text-primary-foreground"
+        className="mt-4 min-h-11 rounded-2xl bg-primary px-5 font-display text-sm uppercase text-primary-foreground"
       >
         Guardar estilos
       </button>
@@ -1006,7 +1138,7 @@ function CalendarEditor() {
           ).map(([key, label, url, setUrl, id]) => (
             <div key={key}>
               <h4 className="text-base">{label}</h4>
-              {url && <img src={url} alt={label} className="mt-3 w-full rounded-sm border border-border" />}
+              {url && <img src={url} alt={label} className="mt-3 w-full rounded-2xl border border-border" />}
               <label htmlFor={id} className="mt-3 block text-xs font-semibold">
                 URL de la imagen
               </label>
@@ -1016,11 +1148,11 @@ function CalendarEditor() {
                 placeholder="https://…"
                 value={url ?? ""}
                 onChange={(e) => setUrl(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
               <button
                 onClick={() => void saveImage(key, url ?? "")}
-                className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+                className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
               >
                 Guardar imagen
               </button>
@@ -1042,7 +1174,7 @@ function CalendarEditor() {
                 placeholder="https://…"
                 value={pdfEs}
                 onChange={(e) => setPdfEs(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             </div>
             <div>
@@ -1055,13 +1187,13 @@ function CalendarEditor() {
                 placeholder="https://…"
                 value={pdfEu}
                 onChange={(e) => setPdfEu(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             </div>
           </div>
           <button
             onClick={() => void saveText("calendar_pdf_url", pdfEs, pdfEu)}
-            className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+            className="mt-3 block min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
           >
             Guardar URLs
           </button>
@@ -1079,7 +1211,7 @@ function CalendarEditor() {
                 type="text"
                 value={updatedEs}
                 onChange={(e) => setUpdatedEs(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             </div>
             <div>
@@ -1091,13 +1223,13 @@ function CalendarEditor() {
                 type="text"
                 value={updatedEu}
                 onChange={(e) => setUpdatedEu(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-3"
+                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
               />
             </div>
           </div>
           <button
             onClick={() => void saveText("calendar_updated", updatedEs, updatedEu)}
-            className="mt-3 block min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+            className="mt-3 block min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
           >
             Guardar fechas
           </button>
@@ -1239,7 +1371,7 @@ function TournamentDocsEditor() {
             id="doc-tournament"
             value={tournamentId}
             onChange={(e) => setTournamentId(e.target.value)}
-            className="mt-1 min-h-11 w-full rounded-sm border border-input bg-background px-2"
+            className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-2"
           >
             {tournaments.map((item) => (
               <option key={item.id} value={item.id}>
@@ -1251,21 +1383,21 @@ function TournamentDocsEditor() {
 
         <ul className="space-y-4">
           {docs.map((doc) => (
-            <li key={doc.id} className="rounded-sm border border-border p-4">
+            <li key={doc.id} className="rounded-2xl border border-border p-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   aria-label="Título (castellano)"
                   placeholder="Título (castellano)"
                   value={doc.title_es}
                   onChange={(e) => patch(doc.id, { title_es: e.target.value })}
-                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 rounded-2xl border border-input bg-background px-3"
                 />
                 <input
                   aria-label="Título (euskera)"
                   placeholder="Título (euskera)"
                   value={doc.title_eu ?? ""}
                   onChange={(e) => patch(doc.id, { title_eu: e.target.value })}
-                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 rounded-2xl border border-input bg-background px-3"
                 />
                 <input
                   aria-label="URL (castellano)"
@@ -1273,7 +1405,7 @@ function TournamentDocsEditor() {
                   placeholder="URL (castellano)"
                   value={doc.url_es ?? ""}
                   onChange={(e) => patch(doc.id, { url_es: e.target.value })}
-                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 rounded-2xl border border-input bg-background px-3"
                 />
                 <input
                   aria-label="URL (euskera)"
@@ -1281,13 +1413,13 @@ function TournamentDocsEditor() {
                   placeholder="URL (euskera)"
                   value={doc.url_eu ?? ""}
                   onChange={(e) => patch(doc.id, { url_eu: e.target.value })}
-                  className="min-h-11 rounded-sm border border-input bg-background px-3"
+                  className="min-h-11 rounded-2xl border border-input bg-background px-3"
                 />
                 <select
                   aria-label="Idioma"
                   value={doc.locale}
                   onChange={(e) => patch(doc.id, { locale: e.target.value })}
-                  className="min-h-11 rounded-sm border border-input bg-background px-2"
+                  className="min-h-11 rounded-2xl border border-input bg-background px-2"
                 >
                   {localeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -1301,13 +1433,13 @@ function TournamentDocsEditor() {
                     type="number"
                     value={doc.sort_order}
                     onChange={(e) => patch(doc.id, { sort_order: Number(e.target.value) })}
-                    className="min-h-11 w-24 rounded-sm border border-input bg-background px-3"
+                    className="min-h-11 w-24 rounded-2xl border border-input bg-background px-3"
                   />
                   <select
                     aria-label="Visible"
                     value={doc.visible ? "true" : "false"}
                     onChange={(e) => patch(doc.id, { visible: e.target.value === "true" })}
-                    className="min-h-11 flex-1 rounded-sm border border-input bg-background px-2"
+                    className="min-h-11 flex-1 rounded-2xl border border-input bg-background px-2"
                   >
                     <option value="true">Visible</option>
                     <option value="false">Oculto</option>
@@ -1317,13 +1449,13 @@ function TournamentDocsEditor() {
               <div className="mt-3 flex gap-3">
                 <button
                   onClick={() => void update(doc)}
-                  className="min-h-10 rounded-sm bg-primary px-4 font-display text-sm uppercase text-primary-foreground"
+                  className="min-h-10 rounded-2xl bg-primary px-4 font-display text-sm uppercase text-primary-foreground"
                 >
                   Guardar
                 </button>
                 <button
                   onClick={() => void remove(doc.id)}
-                  className="min-h-10 rounded-sm border border-destructive px-4 text-sm text-destructive"
+                  className="min-h-10 rounded-2xl border border-destructive px-4 text-sm text-destructive"
                 >
                   Borrar
                 </button>
@@ -1332,7 +1464,7 @@ function TournamentDocsEditor() {
           ))}
         </ul>
 
-        <div className="rounded-sm border border-dashed border-border p-4">
+        <div className="rounded-2xl border border-dashed border-border p-4">
           <h4 className="text-base">Añadir documento</h4>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input
@@ -1340,14 +1472,14 @@ function TournamentDocsEditor() {
               placeholder="Título (castellano)"
               value={draft.title_es}
               onChange={(e) => setDraft({ ...draft, title_es: e.target.value })}
-              className="min-h-11 rounded-sm border border-input bg-background px-3"
+              className="min-h-11 rounded-2xl border border-input bg-background px-3"
             />
             <input
               aria-label="Nuevo título (euskera)"
               placeholder="Título (euskera)"
               value={draft.title_eu}
               onChange={(e) => setDraft({ ...draft, title_eu: e.target.value })}
-              className="min-h-11 rounded-sm border border-input bg-background px-3"
+              className="min-h-11 rounded-2xl border border-input bg-background px-3"
             />
             <input
               aria-label="Nueva URL (castellano)"
@@ -1355,7 +1487,7 @@ function TournamentDocsEditor() {
               placeholder="URL (castellano)"
               value={draft.url_es}
               onChange={(e) => setDraft({ ...draft, url_es: e.target.value })}
-              className="min-h-11 rounded-sm border border-input bg-background px-3"
+              className="min-h-11 rounded-2xl border border-input bg-background px-3"
             />
             <input
               aria-label="Nueva URL (euskera)"
@@ -1363,13 +1495,13 @@ function TournamentDocsEditor() {
               placeholder="URL (euskera)"
               value={draft.url_eu}
               onChange={(e) => setDraft({ ...draft, url_eu: e.target.value })}
-              className="min-h-11 rounded-sm border border-input bg-background px-3"
+              className="min-h-11 rounded-2xl border border-input bg-background px-3"
             />
             <select
               aria-label="Idioma del nuevo documento"
               value={draft.locale}
               onChange={(e) => setDraft({ ...draft, locale: e.target.value })}
-              className="min-h-11 rounded-sm border border-input bg-background px-2"
+              className="min-h-11 rounded-2xl border border-input bg-background px-2"
             >
               {localeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -1382,12 +1514,12 @@ function TournamentDocsEditor() {
               type="number"
               value={draft.sort_order}
               onChange={(e) => setDraft({ ...draft, sort_order: Number(e.target.value) })}
-              className="min-h-11 rounded-sm border border-input bg-background px-3"
+              className="min-h-11 rounded-2xl border border-input bg-background px-3"
             />
           </div>
           <button
             onClick={() => void add()}
-            className="mt-3 min-h-11 rounded-sm bg-foreground px-4 font-display text-sm uppercase text-background"
+            className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
           >
             Añadir
           </button>
