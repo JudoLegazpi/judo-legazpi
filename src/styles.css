@@ -43,7 +43,7 @@
 }
 
 :root {
-  --radius: 0.25rem;
+  --radius: 1rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.264 0.0858 259.2);
   --card: oklch(1 0 0);
@@ -124,4 +124,23 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-primary);
+}
+
+/* Tamaño del texto de edades/categorías, configurable por dispositivo desde administración. */
+.age-text {
+  font-size: var(--age-size-mobile, 0.75rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) {
+  .age-text {
+    font-size: var(--age-size-tablet, 0.8125rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .age-text {
+    font-size: var(--age-size-desktop, 0.875rem);
+  }
 }
