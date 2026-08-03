@@ -11,6 +11,20 @@ export type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"]
 export type SiteText = Database["public"]["Tables"]["site_texts"]["Row"];
 export type LopiviButton = Database["public"]["Tables"]["lopivi_buttons"]["Row"];
 export type TournamentDocument = Database["public"]["Tables"]["tournament_documents"]["Row"];
+export type TournamentStatus = Database["public"]["Tables"]["tournament_statuses"]["Row"];
+
+/** Tamaños del texto de edades/categorías por dispositivo (editable en administración). */
+export type CalendarStyle = {
+  ageSizeDesktop: string;
+  ageSizeTablet: string;
+  ageSizeMobile: string;
+};
+
+export const DEFAULT_CALENDAR_STYLE: CalendarStyle = {
+  ageSizeDesktop: "0.875rem",
+  ageSizeTablet: "0.8125rem",
+  ageSizeMobile: "0.75rem",
+};
 
 /** Ajustes visuales editables de la sección de horarios. */
 export type ScheduleStyle = {
