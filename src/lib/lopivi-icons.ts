@@ -11,10 +11,24 @@ import {
   HeartHandshake,
   Info,
   Lock,
+  CheckCircle2,
+  XCircle,
+  Flag,
+  Trophy,
+  Medal,
+  Calendar,
+  Clock,
+  MapPin,
+  ExternalLink,
+  Link2,
+  BarChart3,
+  Ticket,
+  Megaphone,
+  Image,
   type LucideIcon,
 } from "lucide-react";
 
-/** Iconos vectoriales disponibles para los botones de LOPIVI (editables desde administración). */
+/** Iconos vectoriales disponibles para botones, documentos y estados (editables desde administración). */
 export const LOPIVI_ICONS: Record<string, LucideIcon> = {
   FileText,
   ShieldCheck,
@@ -28,6 +42,20 @@ export const LOPIVI_ICONS: Record<string, LucideIcon> = {
   HeartHandshake,
   Info,
   Lock,
+  CheckCircle2,
+  XCircle,
+  Flag,
+  Trophy,
+  Medal,
+  Calendar,
+  Clock,
+  MapPin,
+  ExternalLink,
+  Link2,
+  BarChart3,
+  Ticket,
+  Megaphone,
+  Image,
 };
 
 export const LOPIVI_ICON_NAMES = Object.keys(LOPIVI_ICONS);
