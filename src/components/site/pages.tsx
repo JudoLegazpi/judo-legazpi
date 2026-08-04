@@ -217,7 +217,7 @@ export function ScheduleTable({ locale, content }: { locale: Locale; content: Si
                             {pick(locale, cell.group_es, cell.group_eu)}
                           </span>
                           {cell.age_range && (
-                            <span className="age-text block" style={{ color: s.ageColor }}>
+                            <span className="block" style={{ color: s.ageColor, fontSize: s.ageSize }}>
                               {cell.age_range}
                             </span>
                           )}

@@ -36,6 +36,7 @@ export type ScheduleStyle = {
   hourColor: string;
   groupSize: string;
   groupColor: string;
+  ageSize: string;
   ageColor: string;
   sectionBg: string;
   cardBg: string;
@@ -54,6 +55,7 @@ export const DEFAULT_SCHEDULE_STYLE: ScheduleStyle = {
   hourColor: "#14305C",
   groupSize: "0.875rem",
   groupColor: "#14305C",
+  ageSize: "0.8125rem",
   ageColor: "#14305C",
   sectionBg: "#F5F7FA",
   cardBg: "#FFFFFF",
