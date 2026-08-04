@@ -36,6 +36,7 @@ export type ScheduleStyle = {
   hourColor: string;
   groupSize: string;
   groupColor: string;
+  ageSize: string;
   ageColor: string;
   sectionBg: string;
   cardBg: string;
