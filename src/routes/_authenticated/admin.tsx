@@ -370,7 +370,12 @@ function AdminPage() {
             <CalendarAgeStyleEditor />
           </>
         )}
-        {section.extra === "scheduleStyle" && <ScheduleStyleEditor />}
+        {section.extra === "scheduleStyle" && (
+          <>
+            <ScheduleStyleEditor />
+            <CalendarAgeStyleEditor />
+          </>
+        )}
         {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
 
         {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
