@@ -96,7 +96,7 @@ const dict: Dict = {
   cat_curso: { es: "Curso", eu: "Ikastaroa" },
   cat_club: { es: "Club", eu: "Kluba" },
   hero_tagline: { es: "Club de Judo de Legazpi — desde 1986", eu: "Legazpi Judo taldea — 1986az geroztik" },
-  hero_descriptor: { es: "Judo para todas las edades", eu: "Judoa adin guztietarako" },
+  hero_descriptor: { es: "", eu: "" },
   cta_join: { es: "Inscripción 26/27", eu: "26/27 Izen Ematea" },
   cta_know: { es: "Conoce el club", eu: "Kluba ezagutu" },
   join_short: { es: "Inscripción", eu: "Izen Ematea" },
