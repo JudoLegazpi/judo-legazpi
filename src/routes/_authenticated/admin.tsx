@@ -201,7 +201,7 @@ const SECTIONS: SectionTab[] = [
     title: "Portada",
     help: "Imagen principal, lema y botones de la portada.",
     imageKeys: ["hero"],
-    textKeys: ["hero_tagline", "home_intro", "cta_join", "cta_know", "join_title", "join_text", "join_url"],
+    textKeys: ["hero_tagline", "hero_descriptor", "home_intro", "cta_join", "cta_know", "join_title", "join_text", "join_url"],
   },
   {
     key: "club",

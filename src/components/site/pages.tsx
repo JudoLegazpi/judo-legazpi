@@ -260,6 +260,9 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           <h1 className="font-display text-6xl leading-[0.9] font-bold tracking-tight text-ink-foreground sm:text-8xl lg:text-9xl">
             Judo
             <span className="block text-accent">Legazpi</span>
+            <span className="mt-3 block font-body text-lg font-medium tracking-normal text-ink-foreground/90 sm:text-2xl lg:text-3xl">
+              {tx(content.texts, locale, "hero_descriptor")}
+            </span>
           </h1>
           <p className="mt-6 text-base text-ink-muted sm:text-lg">{tx(content.texts, locale, "hero_tagline")}</p>
           <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
