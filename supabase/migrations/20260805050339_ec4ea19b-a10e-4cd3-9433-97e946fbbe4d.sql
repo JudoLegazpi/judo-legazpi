@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Public read tournament posters" ON storage.objects;
