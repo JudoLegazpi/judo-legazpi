@@ -148,6 +148,8 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
     const paths = new Set<string>();
     for (const value of Object.values(imageMap)) if (isStoragePath(value)) paths.add(value.trim());
     for (const row of tournaments.data ?? []) if (isStoragePath(row.poster_url)) paths.add(row.poster_url!.trim());
+    for (const row of staff.data ?? []) if (isStoragePath(row.photo_url)) paths.add(row.photo_url!.trim());
+    for (const row of gallery.data ?? []) if (isStoragePath(row.image_url)) paths.add(row.image_url.trim());
 
     const signed = new Map<string, string>();
     if (paths.size > 0) {
@@ -175,10 +177,11 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
     return {
       schedules: schedules.data ?? [],
       events: events.data ?? [],
-      staff: staff.data ?? [],
+      staff: (staff.data ?? []).map((row) => ({ ...row, photo_url: resolve(row.photo_url) })),
       tournaments: (tournaments.data ?? []).map((row) => ({ ...row, poster_url: resolve(row.poster_url) })),
       documents: documents.data ?? [],
-      gallery: gallery.data ?? [],
+      gallery: (gallery.data ?? []).map((row) => ({ ...row, image_url: resolve(row.image_url) ?? "" })),
+
       texts: textMap,
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
