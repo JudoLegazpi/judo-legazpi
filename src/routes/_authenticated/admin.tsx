@@ -661,12 +661,13 @@ function RecordForm({
               <ImageUploadField
                 id={id}
                 label={field.label}
-                folder="tournaments"
+                folder={config.key}
                 value={values[field.name] || null}
                 onChange={(path) => setValues({ ...values, [field.name]: path ?? "" })}
                 aspect="aspect-[3/4]"
               />
             )}
+
 
             {field.type === "url" && (
               <input
