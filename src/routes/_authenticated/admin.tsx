@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
+
 import {
   DEFAULT_CALENDAR_STYLE,
   DEFAULT_SCHEDULE_STYLE,
@@ -90,7 +92,7 @@ const STAFF_CONFIG: TableConfig = {
     { name: "qualifications", label: "Titulación", type: "text" },
     { name: "bio_es", label: "Biografía (castellano)", type: "textarea" },
     { name: "bio_eu", label: "Biografía (euskera)", type: "textarea" },
-    { name: "photo_url", label: "Foto (URL externa)", type: "url" },
+    { name: "photo_url", label: "Foto", type: "poster" },
     { name: "sort_order", label: "Orden", type: "number" },
   ],
 };
@@ -656,13 +658,17 @@ function RecordForm({
               </select>
             )}
             {field.type === "poster" && (
-              <PosterField
+              <ImageUploadField
                 id={id}
-                value={values[field.name]}
-                onChange={(url) => setValues({ ...values, [field.name]: url })}
-                onError={onError}
+                label={field.label}
+                folder={config.key}
+                value={values[field.name] || null}
+                onChange={(path) => setValues({ ...values, [field.name]: path ?? "" })}
+                aspect="aspect-[3/4]"
               />
             )}
+
+
             {field.type === "url" && (
               <input
                 id={id}
@@ -704,81 +710,8 @@ function RecordForm({
   );
 }
 
-const POSTER_SIGNED_SECONDS = 60 * 60 * 24 * 365 * 10;
 
-/** Cartel del torneo: se sube desde el dispositivo y se guarda en el almacenamiento del club. */
-function PosterField({
-  id,
-  value,
-  onChange,
-  onError,
-}: {
-  id: string;
-  value: string;
-  onChange: (url: string) => void;
-  onError: (message: string) => void;
-}) {
-  const [busy, setBusy] = useState(false);
 
-  async function upload(file: File) {
-    setBusy(true);
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `tournaments/${crypto.randomUUID()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from("media")
-      .upload(path, file, { contentType: file.type, upsert: true });
-    if (uploadError) {
-      setBusy(false);
-      onError(uploadError.message);
-      return;
-    }
-    const { data, error: signError } = await supabase.storage
-      .from("media")
-      .createSignedUrl(path, POSTER_SIGNED_SECONDS);
-    setBusy(false);
-    if (signError || !data) {
-      onError(signError?.message ?? "No se ha podido generar el enlace de la imagen");
-      return;
-    }
-    onChange(data.signedUrl);
-  }
-
-  return (
-    <div className="mt-1 space-y-3">
-      {value ? (
-        <div className="overflow-hidden rounded-2xl border border-border bg-muted">
-          <img src={value} alt="Cartel del torneo" className="mx-auto max-h-72 w-full object-contain p-2" />
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">Todavía no hay cartel.</p>
-      )}
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          id={id}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/avif"
-          disabled={busy}
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (file) void upload(file);
-          }}
-          className="min-h-11 rounded-2xl border border-input bg-background px-3 text-sm"
-        />
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="min-h-11 rounded-2xl border border-destructive px-4 text-sm text-destructive"
-          >
-            Quitar cartel
-          </button>
-        )}
-      </div>
-      {busy && <p className="text-sm text-muted-foreground">Subiendo imagen…</p>}
-    </div>
-  );
-}
 
 type ImageRow = { key: string; label: string; image_url: string | null };
 
@@ -800,11 +733,8 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     void load();
   }, [load]);
 
-  async function save(row: ImageRow, url: string) {
-    const { error } = await supabase
-      .from("site_images")
-      .update({ image_url: url.trim() || null })
-      .eq("key", row.key);
+  async function save(row: ImageRow, path: string | null) {
+    const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", row.key);
     setStatus(error ? error.message : `Actualizada: ${row.label}`);
     await load();
   }
@@ -815,45 +745,26 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     <section>
       <h3 className="text-xl">Imágenes de esta sección</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Las imágenes se gestionan mediante enlaces externos (URL).
+        Las imágenes se suben desde tu dispositivo y se guardan en el almacenamiento privado del club.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
-      <ul className="mt-4 space-y-4">
+      <ul className="mt-4 grid gap-4 md:grid-cols-2">
         {rows.map((row) => (
-          <li key={row.key} className="card-elevated grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
-            <div className="aspect-[3/2] overflow-hidden rounded-2xl bg-muted">
-              {row.image_url && <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />}
-            </div>
-            <div>
-              <h4 className="text-base">{row.label}</h4>
-              <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
-                URL de la imagen
-              </label>
-              <input
-                id={`img-${row.key}`}
-                type="url"
-                placeholder="https://…"
-                value={row.image_url ?? ""}
-                onChange={(e) =>
-                  setRows((list) =>
-                    list.map((item) => (item.key === row.key ? { ...item, image_url: e.target.value } : item)),
-                  )
-                }
-                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
-              />
-              <button
-                onClick={() => void save(row, row.image_url ?? "")}
-                className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
-              >
-                Guardar
-              </button>
-            </div>
+          <li key={row.key} className="card-elevated p-5">
+            <ImageUploadField
+              id={`img-${row.key}`}
+              label={row.label}
+              folder="site"
+              value={row.image_url}
+              onChange={(path) => void save(row, path)}
+            />
           </li>
         ))}
       </ul>
     </section>
   );
 }
+
 
 
 type TextRow = { key: string; label: string; value_es: string; value_eu: string };
@@ -1129,9 +1040,8 @@ function CalendarEditor() {
     setStatus(error ? error.message : "Guardado");
   }
 
-  async function saveImage(key: "calendar" | "calendar_eu", url: string) {
-    const value = url.trim() || null;
-    const { error } = await supabase.from("site_images").update({ image_url: value }).eq("key", key);
+  async function saveImage(key: "calendar" | "calendar_eu", path: string | null) {
+    const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", key);
     setStatus(error ? error.message : "Imagen actualizada");
   }
 
@@ -1140,7 +1050,7 @@ function CalendarEditor() {
       <h3 className="text-xl">Imagen, enlaces y fechas del calendario</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         La sección pública muestra la imagen del idioma correspondiente, la fecha de actualización y el botón de
-        descarga con la URL del calendario. Las imágenes se indican mediante enlaces externos.
+        descarga con la URL del calendario. Las imágenes se suben desde tu dispositivo.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
 
@@ -1151,30 +1061,21 @@ function CalendarEditor() {
               ["calendar", "Imagen del calendario (castellano)", imageEs, setImageEs, "cal-img-es"] as const,
               ["calendar_eu", "Imagen del calendario (euskera)", imageEu, setImageEu, "cal-img-eu"] as const,
             ]
-          ).map(([key, label, url, setUrl, id]) => (
-            <div key={key}>
-              <h4 className="text-base">{label}</h4>
-              {url && <img src={url} alt={label} className="mt-3 w-full rounded-2xl border border-border" />}
-              <label htmlFor={id} className="mt-3 block text-xs font-semibold">
-                URL de la imagen
-              </label>
-              <input
-                id={id}
-                type="url"
-                placeholder="https://…"
-                value={url ?? ""}
-                onChange={(e) => setUrl(e.target.value)}
-                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
-              />
-              <button
-                onClick={() => void saveImage(key, url ?? "")}
-                className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
-              >
-                Guardar imagen
-              </button>
-            </div>
+          ).map(([key, label, path, setPath, id]) => (
+            <ImageUploadField
+              key={key}
+              id={id}
+              label={label}
+              folder="calendar"
+              value={path}
+              onChange={(next) => {
+                setPath(next);
+                void saveImage(key, next);
+              }}
+            />
           ))}
         </div>
+
 
 
         <div>

@@ -140,13 +140,48 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       ...((calendarRow?.value as Partial<CalendarStyle> | null) ?? {}),
     };
 
+    // Las imágenes viven en el bucket privado: se firman en el servidor y nunca
+    // se expone su ubicación real ni un enlace público permanente.
+    const isStoragePath = (value: string | null | undefined) =>
+      Boolean(value && value.trim() && !/^(https?:|data:|blob:|\/\/)/i.test(value.trim()));
+
+    const paths = new Set<string>();
+    for (const value of Object.values(imageMap)) if (isStoragePath(value)) paths.add(value.trim());
+    for (const row of tournaments.data ?? []) if (isStoragePath(row.poster_url)) paths.add(row.poster_url!.trim());
+    for (const row of staff.data ?? []) if (isStoragePath(row.photo_url)) paths.add(row.photo_url!.trim());
+    for (const row of gallery.data ?? []) if (isStoragePath(row.image_url)) paths.add(row.image_url.trim());
+
+    const signed = new Map<string, string>();
+    if (paths.size > 0) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: signedData } = await supabaseAdmin.storage
+        .from("media")
+        .createSignedUrls([...paths], 60 * 60);
+      for (const item of signedData ?? []) {
+        if (item.path && item.signedUrl) signed.set(item.path, item.signedUrl);
+      }
+    }
+
+    const resolve = (value: string | null) => {
+      if (!value) return value;
+      const trimmed = value.trim();
+      return isStoragePath(trimmed) ? (signed.get(trimmed) ?? null) : trimmed;
+    };
+
+    for (const [key, value] of Object.entries(imageMap)) {
+      const url = resolve(value);
+      if (url) imageMap[key] = url;
+      else delete imageMap[key];
+    }
+
     return {
       schedules: schedules.data ?? [],
       events: events.data ?? [],
-      staff: staff.data ?? [],
-      tournaments: tournaments.data ?? [],
+      staff: (staff.data ?? []).map((row) => ({ ...row, photo_url: resolve(row.photo_url) })),
+      tournaments: (tournaments.data ?? []).map((row) => ({ ...row, poster_url: resolve(row.poster_url) })),
       documents: documents.data ?? [],
-      gallery: gallery.data ?? [],
+      gallery: (gallery.data ?? []).map((row) => ({ ...row, image_url: resolve(row.image_url) ?? "" })),
+
       texts: textMap,
       images: imageMap,
       lopiviButtons: lopivi.data ?? [],
@@ -155,7 +190,6 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       scheduleStyle,
       calendarStyle,
     };
-
-
   },
 );
+
