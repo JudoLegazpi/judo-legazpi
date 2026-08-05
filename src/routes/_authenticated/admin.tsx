@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
+
 import {
   DEFAULT_CALENDAR_STYLE,
   DEFAULT_SCHEDULE_STYLE,
