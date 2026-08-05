@@ -656,13 +656,16 @@ function RecordForm({
               </select>
             )}
             {field.type === "poster" && (
-              <PosterField
+              <ImageUploadField
                 id={id}
-                value={values[field.name]}
-                onChange={(url) => setValues({ ...values, [field.name]: url })}
-                onError={onError}
+                label={field.label}
+                folder="tournaments"
+                value={values[field.name] || null}
+                onChange={(path) => setValues({ ...values, [field.name]: path ?? "" })}
+                aspect="aspect-[3/4]"
               />
             )}
+
             {field.type === "url" && (
               <input
                 id={id}
