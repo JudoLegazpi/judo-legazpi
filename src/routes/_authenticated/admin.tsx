@@ -709,81 +709,8 @@ function RecordForm({
   );
 }
 
-const POSTER_SIGNED_SECONDS = 60 * 60 * 24 * 365 * 10;
 
-/** Cartel del torneo: se sube desde el dispositivo y se guarda en el almacenamiento del club. */
-function PosterField({
-  id,
-  value,
-  onChange,
-  onError,
-}: {
-  id: string;
-  value: string;
-  onChange: (url: string) => void;
-  onError: (message: string) => void;
-}) {
-  const [busy, setBusy] = useState(false);
 
-  async function upload(file: File) {
-    setBusy(true);
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `tournaments/${crypto.randomUUID()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from("media")
-      .upload(path, file, { contentType: file.type, upsert: true });
-    if (uploadError) {
-      setBusy(false);
-      onError(uploadError.message);
-      return;
-    }
-    const { data, error: signError } = await supabase.storage
-      .from("media")
-      .createSignedUrl(path, POSTER_SIGNED_SECONDS);
-    setBusy(false);
-    if (signError || !data) {
-      onError(signError?.message ?? "No se ha podido generar el enlace de la imagen");
-      return;
-    }
-    onChange(data.signedUrl);
-  }
-
-  return (
-    <div className="mt-1 space-y-3">
-      {value ? (
-        <div className="overflow-hidden rounded-2xl border border-border bg-muted">
-          <img src={value} alt="Cartel del torneo" className="mx-auto max-h-72 w-full object-contain p-2" />
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">Todavía no hay cartel.</p>
-      )}
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          id={id}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/avif"
-          disabled={busy}
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (file) void upload(file);
-          }}
-          className="min-h-11 rounded-2xl border border-input bg-background px-3 text-sm"
-        />
-        {value && (
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="min-h-11 rounded-2xl border border-destructive px-4 text-sm text-destructive"
-          >
-            Quitar cartel
-          </button>
-        )}
-      </div>
-      {busy && <p className="text-sm text-muted-foreground">Subiendo imagen…</p>}
-    </div>
-  );
-}
 
 type ImageRow = { key: string; label: string; image_url: string | null };
 
