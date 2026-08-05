@@ -732,11 +732,8 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     void load();
   }, [load]);
 
-  async function save(row: ImageRow, url: string) {
-    const { error } = await supabase
-      .from("site_images")
-      .update({ image_url: url.trim() || null })
-      .eq("key", row.key);
+  async function save(row: ImageRow, path: string | null) {
+    const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", row.key);
     setStatus(error ? error.message : `Actualizada: ${row.label}`);
     await load();
   }
@@ -747,45 +744,26 @@ function ImagesEditor({ keys }: { keys: string[] }) {
     <section>
       <h3 className="text-xl">Imágenes de esta sección</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Las imágenes se gestionan mediante enlaces externos (URL).
+        Las imágenes se suben desde tu dispositivo y se guardan en el almacenamiento privado del club.
       </p>
       {status && <p className="mt-2 text-sm text-muted-foreground">{status}</p>}
-      <ul className="mt-4 space-y-4">
+      <ul className="mt-4 grid gap-4 md:grid-cols-2">
         {rows.map((row) => (
-          <li key={row.key} className="card-elevated grid gap-4 p-5 sm:grid-cols-[10rem_minmax(0,1fr)]">
-            <div className="aspect-[3/2] overflow-hidden rounded-2xl bg-muted">
-              {row.image_url && <img src={row.image_url} alt={row.label} className="h-full w-full object-cover" />}
-            </div>
-            <div>
-              <h4 className="text-base">{row.label}</h4>
-              <label htmlFor={`img-${row.key}`} className="mt-2 block text-xs font-semibold">
-                URL de la imagen
-              </label>
-              <input
-                id={`img-${row.key}`}
-                type="url"
-                placeholder="https://…"
-                value={row.image_url ?? ""}
-                onChange={(e) =>
-                  setRows((list) =>
-                    list.map((item) => (item.key === row.key ? { ...item, image_url: e.target.value } : item)),
-                  )
-                }
-                className="mt-1 min-h-11 w-full rounded-2xl border border-input bg-background px-3"
-              />
-              <button
-                onClick={() => void save(row, row.image_url ?? "")}
-                className="mt-3 min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
-              >
-                Guardar
-              </button>
-            </div>
+          <li key={row.key} className="card-elevated p-5">
+            <ImageUploadField
+              id={`img-${row.key}`}
+              label={row.label}
+              folder="site"
+              value={row.image_url}
+              onChange={(path) => void save(row, path)}
+            />
           </li>
         ))}
       </ul>
     </section>
   );
 }
+
 
 
 type TextRow = { key: string; label: string; value_es: string; value_eu: string };
