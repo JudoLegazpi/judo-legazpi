@@ -1565,12 +1565,7 @@ function TournamentDocsEditor() {
                 >
                   Guardar
                 </button>
-                <button
-                  onClick={() => void remove(doc.id)}
-                  className="min-h-10 rounded-2xl border border-destructive px-4 text-sm text-destructive"
-                >
-                  Borrar
-                </button>
+                <ConfirmDelete onConfirm={() => void remove(doc.id)} />
               </div>
             </li>
           ))}
