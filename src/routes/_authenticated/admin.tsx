@@ -1,8 +1,33 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import {
+  CalendarDays,
+  Home,
+  Images,
+  LogOut,
+  Plus,
+  Search,
+  Settings,
+  ShieldCheck,
+  Tags,
+  Timer,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import {
+  ConfirmDelete,
+  DarkButton,
+  EmptyState,
+  GhostButton,
+  Loading,
+  PrimaryButton,
+  StatusBadge,
+} from "@/components/admin/kit";
 
 import {
   DEFAULT_CALENDAR_STYLE,
