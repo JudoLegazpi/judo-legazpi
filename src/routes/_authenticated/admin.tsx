@@ -442,35 +442,70 @@ function CrudSection({ config }: { config: TableConfig }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   const load = useCallback(async () => {
+    setLoading(true);
     const { data, error: loadError } = await supabase.from(config.table).select("*").order(config.orderBy);
-    if (loadError) setError(loadError.message);
+    if (loadError) {
+      setError(loadError.message);
+      toast.error("No se pudo cargar la lista");
+    }
     setRows((data ?? []) as Row[]);
+    setLoading(false);
   }, [config.table, config.orderBy]);
 
   useEffect(() => {
     setEditing(null);
+    setQuery("");
     void load();
   }, [load]);
 
   async function remove(id: string) {
-    if (!window.confirm("¿Seguro que quieres borrarlo?")) return;
     const { error: deleteError } = await supabase.from(config.table).delete().eq("id", id);
-    if (deleteError) setError(deleteError.message);
+    if (deleteError) {
+      setError(deleteError.message);
+      toast.error("No se pudo borrar");
+    } else {
+      toast.success("Elemento borrado");
+    }
     await load();
   }
 
+  /** Campo de estado (publicado/visible/activo) si la tabla lo tiene. */
+  const stateField = ["published", "visible", "active"].find((key) =>
+    config.fields.some((field) => field.name === key),
+  );
+
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return rows;
+    return rows.filter((row) =>
+      Object.values(row).some((value) => typeof value === "string" && value.toLowerCase().includes(term)),
+    );
+  }, [rows, query]);
+
   return (
     <section>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="truncate text-xl">{config.label}</h3>
-        <button
-          onClick={() => setEditing("new")}
-          className="min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
-        >
-          Añadir
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar…"
+              aria-label="Buscar"
+              className="min-h-11 w-44 rounded-2xl border border-input bg-background pl-9 pr-3 text-sm outline-none focus:border-primary"
+            />
+          </span>
+          <DarkButton onClick={() => setEditing("new")}>
+            <Plus className="h-4 w-4" />
+            Añadir
+          </DarkButton>
+        </div>
       </div>
 
       {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
@@ -482,33 +517,51 @@ function CrudSection({ config }: { config: TableConfig }) {
           onCancel={() => setEditing(null)}
           onSaved={async () => {
             setEditing(null);
+            toast.success("Cambios guardados");
             await load();
           }}
-          onError={setError}
+          onError={(message) => {
+            setError(message);
+            if (message) toast.error("No se pudo guardar");
+          }}
         />
       )}
 
-      <ul className="mt-6 space-y-2">
-        {rows.map((row) => (
-          <li key={row.id} className="card-elevated grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4">
-            <span className="min-w-0">
-              <span className="block truncate font-semibold">{String(row[config.titleField] ?? "(sin título)")}</span>
-              <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
-            </span>
-            <span className="flex gap-2">
-              <button onClick={() => setEditing(row)} className="min-h-10 rounded-2xl border border-border px-3 text-sm">
-                Editar
-              </button>
-              <button
-                onClick={() => remove(row.id)}
-                className="min-h-10 rounded-2xl border border-destructive px-3 text-sm text-destructive"
-              >
-                Borrar
-              </button>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <Loading />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          text={
+            rows.length === 0
+              ? "Pulsa «Añadir» para crear el primer elemento."
+              : "Ningún elemento coincide con la búsqueda."
+          }
+        />
+      ) : (
+        <ul className="mt-6 space-y-2">
+          {filtered.map((row) => (
+            <li key={row.id} className="card-elevated flex flex-wrap items-center justify-between gap-3 p-4">
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="truncate font-semibold">
+                    {String(row[config.titleField] ?? "(sin título)")}
+                  </span>
+                  {stateField && (
+                    <StatusBadge on={Boolean(row[stateField])} onLabel="Visible" offLabel="Oculto" />
+                  )}
+                </span>
+                <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
+              </span>
+              <span className="flex gap-2">
+                <GhostButton onClick={() => setEditing(row)} className="min-h-10">
+                  Editar
+                </GhostButton>
+                <ConfirmDelete onConfirm={() => void remove(row.id)} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
