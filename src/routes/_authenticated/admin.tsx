@@ -225,6 +225,7 @@ type SectionTab = {
 const SECTIONS: SectionTab[] = [
   {
     key: "inicio",
+    icon: Home,
     label: "Inicio",
     title: "Portada",
     help: "Imagen principal, lema y botones de la portada.",
@@ -233,6 +234,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "club",
+    icon: Images,
     label: "El club",
     title: "Sección «El club»",
     imageKeys: ["club"],
@@ -240,6 +242,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "cuerpo-tecnico",
+    icon: Users,
     label: "Cuerpo técnico",
     title: "Cuerpo técnico",
     crud: STAFF_CONFIG,
@@ -247,6 +250,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "lopivi",
+    icon: ShieldCheck,
     label: "LOPIVI",
     title: "LOPIVI y protección de la infancia",
     help: "Los botones se muestran como tarjetas pulsables; puedes elegir icono, colores, tamaño del texto y orden.",
@@ -256,6 +260,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "horarios",
+    icon: Timer,
     label: "Horarios",
     title: "Horarios",
     crud: SCHEDULES_CONFIG,
@@ -264,6 +269,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "calendario",
+    icon: CalendarDays,
     label: "Calendario",
     title: "Calendario de temporada",
     extra: "calendar",
@@ -271,6 +277,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "torneos",
+    icon: Trophy,
     label: "Torneos",
     title: "Torneos",
     help: "Cada torneo puede tener enlaces ilimitados a documentos externos.",
@@ -280,6 +287,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "estados-torneos",
+    icon: Tags,
     label: "Estados de torneos",
     title: "Estados de los torneos",
     help: "Crea, edita, ordena, activa o desactiva los estados. No se puede borrar un estado asignado a algún torneo.",
@@ -287,6 +295,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "general",
+    icon: Settings,
     label: "Configuración general",
     title: "Configuración general",
     help: "Elementos comunes a toda la web: datos de contacto del pie, redes sociales, enlaces externos y etiquetas del menú. El idioma por defecto es el euskera.",
