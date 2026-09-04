@@ -347,7 +347,11 @@ function AdminPage() {
   }
 
   if (isAdmin === null) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return (
+      <div className="p-8">
+        <Loading />
+      </div>
+    );
   }
 
   if (!isAdmin) {
