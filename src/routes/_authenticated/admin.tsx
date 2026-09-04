@@ -436,6 +436,16 @@ function AdminPage() {
   );
 }
 
+/** Muestra un aviso flotante y devuelve el mensaje para el texto en línea. */
+function report(error: { message: string } | null, ok: string): string {
+  if (error) {
+    toast.error(error.message);
+    return error.message;
+  }
+  toast.success(ok);
+  return ok;
+}
+
 type Row = Record<string, unknown> & { id: string };
 
 function CrudSection({ config }: { config: TableConfig }) {
@@ -837,7 +847,7 @@ function ImagesEditor({ keys }: { keys: string[] }) {
 
   async function save(row: ImageRow, path: string | null) {
     const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", row.key);
-    setStatus(error ? error.message : `Actualizada: ${row.label}`);
+    setStatus(report(error, `Actualizada: ${row.label}`));
     await load();
   }
 
@@ -894,7 +904,7 @@ function TextsEditor({ keys }: { keys: string[] }) {
       .from("site_texts")
       .update({ value_es: row.value_es, value_eu: row.value_eu })
       .eq("key", row.key);
-    setStatus(error ? error.message : `Guardado: ${row.label}`);
+    setStatus(report(error, `Guardado: ${row.label}`));
   }
 
   if (rows.length === 0) return null;
@@ -994,7 +1004,7 @@ function ScheduleStyleEditor() {
     const { error } = await supabase
       .from("site_settings")
       .upsert({ key: "schedule_style", label: "Estilos de la sección de horarios", value: style });
-    setStatus(error ? error.message : "Estilos guardados");
+    setStatus(report(error, "Estilos guardados"));
   }
 
   return (
@@ -1139,12 +1149,12 @@ function CalendarEditor() {
 
   async function saveText(key: string, valueEs: string, valueEu: string) {
     const { error } = await supabase.from("site_texts").update({ value_es: valueEs, value_eu: valueEu }).eq("key", key);
-    setStatus(error ? error.message : "Guardado");
+    setStatus(report(error, "Guardado"));
   }
 
   async function saveImage(key: "calendar" | "calendar_eu", path: string | null) {
     const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", key);
-    setStatus(error ? error.message : "Imagen actualizada");
+    setStatus(report(error, "Imagen actualizada"));
   }
 
   return (
@@ -1286,7 +1296,7 @@ function CalendarAgeStyleEditor() {
       label: "Tamaños del texto de edades y categorías",
       value: style,
     });
-    setStatus(error ? error.message : "Tamaños guardados");
+    setStatus(report(error, "Tamaños guardados"));
   }
 
   function toPx(value: string): number {
@@ -1396,7 +1406,7 @@ function TournamentDocsEditor() {
       .select("*")
       .eq("tournament_id", tournamentId)
       .order("sort_order");
-    if (error) setStatus(error.message);
+    if (error) { setStatus(error.message); toast.error(error.message); }
     setDocs((data ?? []) as DocRow[]);
   }, [tournamentId]);
 
@@ -1419,7 +1429,7 @@ function TournamentDocsEditor() {
       sort_order: Number(draft.sort_order) || 0,
       visible: draft.visible,
     });
-    setStatus(error ? error.message : "Documento añadido");
+    setStatus(report(error, "Documento añadido"));
     if (!error) setDraft(EMPTY_DOC);
     await load();
   }
@@ -1437,14 +1447,14 @@ function TournamentDocsEditor() {
         visible: doc.visible,
       })
       .eq("id", doc.id);
-    setStatus(error ? error.message : "Documento guardado");
+    setStatus(report(error, "Documento guardado"));
     await load();
   }
 
   async function remove(id: string) {
     if (!window.confirm("¿Borrar este documento?")) return;
     const { error } = await supabase.from("tournament_documents").delete().eq("id", id);
-    setStatus(error ? error.message : "Documento borrado");
+    setStatus(report(error, "Documento borrado"));
     await load();
   }
 
