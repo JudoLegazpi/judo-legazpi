@@ -1,8 +1,32 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import {
+  CalendarDays,
+  Home,
+  Images,
+  LogOut,
+  Plus,
+  Search,
+  Settings,
+  ShieldCheck,
+  Tags,
+  Timer,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LOPIVI_ICON_NAMES, lopiviIcon } from "@/lib/lopivi-icons";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import {
+  ConfirmDelete,
+  DarkButton,
+  EmptyState,
+  GhostButton,
+  Loading,
+  StatusBadge,
+} from "@/components/admin/kit";
 
 import {
   DEFAULT_CALENDAR_STYLE,
@@ -188,6 +212,7 @@ const STATUSES_CONFIG: TableConfig = {
 type SectionTab = {
   key: string;
   label: string;
+  icon: LucideIcon;
   title: string;
   help?: string;
   textKeys?: string[];
@@ -199,6 +224,7 @@ type SectionTab = {
 const SECTIONS: SectionTab[] = [
   {
     key: "inicio",
+    icon: Home,
     label: "Inicio",
     title: "Portada",
     help: "Imagen principal, lema y botones de la portada.",
@@ -207,6 +233,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "club",
+    icon: Images,
     label: "El club",
     title: "Sección «El club»",
     imageKeys: ["club"],
@@ -214,6 +241,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "cuerpo-tecnico",
+    icon: Users,
     label: "Cuerpo técnico",
     title: "Cuerpo técnico",
     crud: STAFF_CONFIG,
@@ -221,6 +249,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "lopivi",
+    icon: ShieldCheck,
     label: "LOPIVI",
     title: "LOPIVI y protección de la infancia",
     help: "Los botones se muestran como tarjetas pulsables; puedes elegir icono, colores, tamaño del texto y orden.",
@@ -230,6 +259,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "horarios",
+    icon: Timer,
     label: "Horarios",
     title: "Horarios",
     crud: SCHEDULES_CONFIG,
@@ -238,6 +268,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "calendario",
+    icon: CalendarDays,
     label: "Calendario",
     title: "Calendario de temporada",
     extra: "calendar",
@@ -245,6 +276,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "torneos",
+    icon: Trophy,
     label: "Torneos",
     title: "Torneos",
     help: "Cada torneo puede tener enlaces ilimitados a documentos externos.",
@@ -254,6 +286,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "estados-torneos",
+    icon: Tags,
     label: "Estados de torneos",
     title: "Estados de los torneos",
     help: "Crea, edita, ordena, activa o desactiva los estados. No se puede borrar un estado asignado a algún torneo.",
@@ -261,6 +294,7 @@ const SECTIONS: SectionTab[] = [
   },
   {
     key: "general",
+    icon: Settings,
     label: "Configuración general",
     title: "Configuración general",
     help: "Elementos comunes a toda la web: datos de contacto del pie, redes sociales, enlaces externos y etiquetas del menú. El idioma por defecto es el euskera.",
@@ -312,7 +346,11 @@ function AdminPage() {
   }
 
   if (isAdmin === null) {
-    return <p className="p-8 text-muted-foreground">Cargando…</p>;
+    return (
+      <div className="p-8">
+        <Loading />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -330,39 +368,49 @@ function AdminPage() {
   const section = SECTIONS.find((s) => s.key === tab) ?? SECTIONS[0];
 
   return (
-    <div className="min-h-dvh bg-secondary">
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-4">
+    <div className="flex min-h-dvh flex-col bg-secondary lg:flex-row">
+      <aside className="border-b border-border bg-background lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+        <div className="flex flex-col gap-6 px-4 py-6">
           <div className="min-w-0">
-            <h1 className="truncate text-xl">Gestión del club</h1>
-            <Link to="/" className="text-sm text-muted-foreground underline">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Administración</p>
+            <h1 className="mt-1 truncate font-display text-lg uppercase leading-tight">Gestión del club</h1>
+          </div>
+
+          <nav className="flex flex-wrap gap-1 lg:flex-col" aria-label="Secciones">
+            {SECTIONS.map((item) => {
+              const active = tab === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => setTab(item.key)}
+                  aria-current={active}
+                  className={`inline-flex min-h-10 items-center gap-2 rounded-2xl px-3 text-sm ${
+                    active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4 text-sm">
+            <Link to="/" className="text-muted-foreground underline">
               Ver la web
             </Link>
+            <GhostButton onClick={signOut} className="min-h-10">
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </GhostButton>
           </div>
-          <button onClick={signOut} className="min-h-11 rounded-2xl border border-border px-4 text-sm">
-            Cerrar sesión
-          </button>
         </div>
-        <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4" aria-label="Secciones">
-          {SECTIONS.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key)}
-              aria-current={tab === item.key}
-              className={`min-h-10 rounded-2xl px-3 font-display text-sm uppercase ${
-                tab === item.key ? "bg-primary text-primary-foreground" : "border border-border"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </header>
+      </aside>
 
-      <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
-        <div>
+      <main className="mx-auto w-full max-w-5xl space-y-10 px-4 py-8 lg:px-8">
+        <div className="border-b border-border pb-6">
           <h2 className="text-2xl">{section.title}</h2>
-          {section.help && <p className="mt-1 text-sm text-muted-foreground">{section.help}</p>}
+          {section.help && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{section.help}</p>}
         </div>
 
         {section.crud && <CrudSection config={section.crud} />}
@@ -387,41 +435,86 @@ function AdminPage() {
   );
 }
 
+/** Muestra un aviso flotante y devuelve el mensaje para el texto en línea. */
+function report(error: { message: string } | null, ok: string): string {
+  if (error) {
+    toast.error(error.message);
+    return error.message;
+  }
+  toast.success(ok);
+  return ok;
+}
+
 type Row = Record<string, unknown> & { id: string };
 
 function CrudSection({ config }: { config: TableConfig }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   const load = useCallback(async () => {
+    setLoading(true);
     const { data, error: loadError } = await supabase.from(config.table).select("*").order(config.orderBy);
-    if (loadError) setError(loadError.message);
+    if (loadError) {
+      setError(loadError.message);
+      toast.error("No se pudo cargar la lista");
+    }
     setRows((data ?? []) as Row[]);
+    setLoading(false);
   }, [config.table, config.orderBy]);
 
   useEffect(() => {
     setEditing(null);
+    setQuery("");
     void load();
   }, [load]);
 
   async function remove(id: string) {
-    if (!window.confirm("¿Seguro que quieres borrarlo?")) return;
     const { error: deleteError } = await supabase.from(config.table).delete().eq("id", id);
-    if (deleteError) setError(deleteError.message);
+    if (deleteError) {
+      setError(deleteError.message);
+      toast.error("No se pudo borrar");
+    } else {
+      toast.success("Elemento borrado");
+    }
     await load();
   }
 
+  /** Campo de estado (publicado/visible/activo) si la tabla lo tiene. */
+  const stateField = ["published", "visible", "active"].find((key) =>
+    config.fields.some((field) => field.name === key),
+  );
+
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    if (!term) return rows;
+    return rows.filter((row) =>
+      Object.values(row).some((value) => typeof value === "string" && value.toLowerCase().includes(term)),
+    );
+  }, [rows, query]);
+
   return (
     <section>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="truncate text-xl">{config.label}</h3>
-        <button
-          onClick={() => setEditing("new")}
-          className="min-h-11 rounded-2xl bg-foreground px-4 font-display text-sm uppercase text-background"
-        >
-          Añadir
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar…"
+              aria-label="Buscar"
+              className="min-h-11 w-44 rounded-2xl border border-input bg-background pl-9 pr-3 text-sm outline-none focus:border-primary"
+            />
+          </span>
+          <DarkButton onClick={() => setEditing("new")}>
+            <Plus className="h-4 w-4" />
+            Añadir
+          </DarkButton>
+        </div>
       </div>
 
       {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
@@ -433,33 +526,51 @@ function CrudSection({ config }: { config: TableConfig }) {
           onCancel={() => setEditing(null)}
           onSaved={async () => {
             setEditing(null);
+            toast.success("Cambios guardados");
             await load();
           }}
-          onError={setError}
+          onError={(message) => {
+            setError(message);
+            if (message) toast.error("No se pudo guardar");
+          }}
         />
       )}
 
-      <ul className="mt-6 space-y-2">
-        {rows.map((row) => (
-          <li key={row.id} className="card-elevated grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4">
-            <span className="min-w-0">
-              <span className="block truncate font-semibold">{String(row[config.titleField] ?? "(sin título)")}</span>
-              <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
-            </span>
-            <span className="flex gap-2">
-              <button onClick={() => setEditing(row)} className="min-h-10 rounded-2xl border border-border px-3 text-sm">
-                Editar
-              </button>
-              <button
-                onClick={() => remove(row.id)}
-                className="min-h-10 rounded-2xl border border-destructive px-3 text-sm text-destructive"
-              >
-                Borrar
-              </button>
-            </span>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <Loading />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          text={
+            rows.length === 0
+              ? "Pulsa «Añadir» para crear el primer elemento."
+              : "Ningún elemento coincide con la búsqueda."
+          }
+        />
+      ) : (
+        <ul className="mt-6 space-y-2">
+          {filtered.map((row) => (
+            <li key={row.id} className="card-elevated flex flex-wrap items-center justify-between gap-3 p-4">
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="truncate font-semibold">
+                    {String(row[config.titleField] ?? "(sin título)")}
+                  </span>
+                  {stateField && (
+                    <StatusBadge on={Boolean(row[stateField])} onLabel="Visible" offLabel="Oculto" />
+                  )}
+                </span>
+                <span className="block text-xs text-muted-foreground">{String(row[config.orderBy] ?? "")}</span>
+              </span>
+              <span className="flex gap-2">
+                <GhostButton onClick={() => setEditing(row)} className="min-h-10">
+                  Editar
+                </GhostButton>
+                <ConfirmDelete onConfirm={() => void remove(row.id)} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
@@ -735,7 +846,7 @@ function ImagesEditor({ keys }: { keys: string[] }) {
 
   async function save(row: ImageRow, path: string | null) {
     const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", row.key);
-    setStatus(error ? error.message : `Actualizada: ${row.label}`);
+    setStatus(report(error, `Actualizada: ${row.label}`));
     await load();
   }
 
@@ -792,7 +903,7 @@ function TextsEditor({ keys }: { keys: string[] }) {
       .from("site_texts")
       .update({ value_es: row.value_es, value_eu: row.value_eu })
       .eq("key", row.key);
-    setStatus(error ? error.message : `Guardado: ${row.label}`);
+    setStatus(report(error, `Guardado: ${row.label}`));
   }
 
   if (rows.length === 0) return null;
@@ -892,7 +1003,7 @@ function ScheduleStyleEditor() {
     const { error } = await supabase
       .from("site_settings")
       .upsert({ key: "schedule_style", label: "Estilos de la sección de horarios", value: style });
-    setStatus(error ? error.message : "Estilos guardados");
+    setStatus(report(error, "Estilos guardados"));
   }
 
   return (
@@ -1037,12 +1148,12 @@ function CalendarEditor() {
 
   async function saveText(key: string, valueEs: string, valueEu: string) {
     const { error } = await supabase.from("site_texts").update({ value_es: valueEs, value_eu: valueEu }).eq("key", key);
-    setStatus(error ? error.message : "Guardado");
+    setStatus(report(error, "Guardado"));
   }
 
   async function saveImage(key: "calendar" | "calendar_eu", path: string | null) {
     const { error } = await supabase.from("site_images").update({ image_url: path }).eq("key", key);
-    setStatus(error ? error.message : "Imagen actualizada");
+    setStatus(report(error, "Imagen actualizada"));
   }
 
   return (
@@ -1184,7 +1295,7 @@ function CalendarAgeStyleEditor() {
       label: "Tamaños del texto de edades y categorías",
       value: style,
     });
-    setStatus(error ? error.message : "Tamaños guardados");
+    setStatus(report(error, "Tamaños guardados"));
   }
 
   function toPx(value: string): number {
@@ -1294,7 +1405,7 @@ function TournamentDocsEditor() {
       .select("*")
       .eq("tournament_id", tournamentId)
       .order("sort_order");
-    if (error) setStatus(error.message);
+    if (error) { setStatus(error.message); toast.error(error.message); }
     setDocs((data ?? []) as DocRow[]);
   }, [tournamentId]);
 
@@ -1317,7 +1428,7 @@ function TournamentDocsEditor() {
       sort_order: Number(draft.sort_order) || 0,
       visible: draft.visible,
     });
-    setStatus(error ? error.message : "Documento añadido");
+    setStatus(report(error, "Documento añadido"));
     if (!error) setDraft(EMPTY_DOC);
     await load();
   }
@@ -1335,14 +1446,13 @@ function TournamentDocsEditor() {
         visible: doc.visible,
       })
       .eq("id", doc.id);
-    setStatus(error ? error.message : "Documento guardado");
+    setStatus(report(error, "Documento guardado"));
     await load();
   }
 
   async function remove(id: string) {
-    if (!window.confirm("¿Borrar este documento?")) return;
     const { error } = await supabase.from("tournament_documents").delete().eq("id", id);
-    setStatus(error ? error.message : "Documento borrado");
+    setStatus(report(error, "Documento borrado"));
     await load();
   }
 
@@ -1455,12 +1565,7 @@ function TournamentDocsEditor() {
                 >
                   Guardar
                 </button>
-                <button
-                  onClick={() => void remove(doc.id)}
-                  className="min-h-10 rounded-2xl border border-destructive px-4 text-sm text-destructive"
-                >
-                  Borrar
-                </button>
+                <ConfirmDelete onConfirm={() => void remove(doc.id)} />
               </div>
             </li>
           ))}
