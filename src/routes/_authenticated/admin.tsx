@@ -1451,7 +1451,6 @@ function TournamentDocsEditor() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm("¿Borrar este documento?")) return;
     const { error } = await supabase.from("tournament_documents").delete().eq("id", id);
     setStatus(report(error, "Documento borrado"));
     await load();
