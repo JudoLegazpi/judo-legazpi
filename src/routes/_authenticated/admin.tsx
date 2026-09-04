@@ -369,39 +369,49 @@ function AdminPage() {
   const section = SECTIONS.find((s) => s.key === tab) ?? SECTIONS[0];
 
   return (
-    <div className="min-h-dvh bg-secondary">
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-4">
+    <div className="flex min-h-dvh flex-col bg-secondary lg:flex-row">
+      <aside className="border-b border-border bg-background lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+        <div className="flex flex-col gap-6 px-4 py-6">
           <div className="min-w-0">
-            <h1 className="truncate text-xl">Gestión del club</h1>
-            <Link to="/" className="text-sm text-muted-foreground underline">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Administración</p>
+            <h1 className="mt-1 truncate font-display text-lg uppercase leading-tight">Gestión del club</h1>
+          </div>
+
+          <nav className="flex flex-wrap gap-1 lg:flex-col" aria-label="Secciones">
+            {SECTIONS.map((item) => {
+              const active = tab === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => setTab(item.key)}
+                  aria-current={active}
+                  className={`inline-flex min-h-10 items-center gap-2 rounded-2xl px-3 text-sm ${
+                    active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4 text-sm">
+            <Link to="/" className="text-muted-foreground underline">
               Ver la web
             </Link>
+            <GhostButton onClick={signOut} className="min-h-10">
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
+            </GhostButton>
           </div>
-          <button onClick={signOut} className="min-h-11 rounded-2xl border border-border px-4 text-sm">
-            Cerrar sesión
-          </button>
         </div>
-        <nav className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 pb-4" aria-label="Secciones">
-          {SECTIONS.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key)}
-              aria-current={tab === item.key}
-              className={`min-h-10 rounded-2xl px-3 font-display text-sm uppercase ${
-                tab === item.key ? "bg-primary text-primary-foreground" : "border border-border"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </header>
+      </aside>
 
-      <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
-        <div>
+      <main className="mx-auto w-full max-w-5xl space-y-10 px-4 py-8 lg:px-8">
+        <div className="border-b border-border pb-6">
           <h2 className="text-2xl">{section.title}</h2>
-          {section.help && <p className="mt-1 text-sm text-muted-foreground">{section.help}</p>}
+          {section.help && <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{section.help}</p>}
         </div>
 
         {section.crud && <CrudSection config={section.crud} />}
