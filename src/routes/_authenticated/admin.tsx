@@ -213,6 +213,7 @@ const STATUSES_CONFIG: TableConfig = {
 type SectionTab = {
   key: string;
   label: string;
+  icon: LucideIcon;
   title: string;
   help?: string;
   textKeys?: string[];
