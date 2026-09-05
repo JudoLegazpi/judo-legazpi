@@ -26,6 +26,49 @@ export const DEFAULT_CALENDAR_STYLE: CalendarStyle = {
   ageSizeMobile: "0.75rem",
 };
 
+/** Apariencia global de toda la web pública, editable desde administración. */
+export type AppearanceStyle = {
+  menuFont: string;
+  buttonFont: string;
+  bodyFont: string;
+  titleFont: string;
+  subtitleFont: string;
+  menuSize: string;
+  buttonSize: string;
+  bodySize: string;
+  titleSize: string;
+  subtitleSize: string;
+  backgroundColor: string;
+  textColor: string;
+  mutedTextColor: string;
+  primaryColor: string;
+  accentColor: string;
+  darkSurfaceColor: string;
+  cardColor: string;
+  borderColor: string;
+};
+
+export const DEFAULT_APPEARANCE_STYLE: AppearanceStyle = {
+  menuFont: '"Oswald", "Arial Narrow", sans-serif',
+  buttonFont: '"Oswald", "Arial Narrow", sans-serif',
+  bodyFont: '"Source Sans 3", system-ui, sans-serif',
+  titleFont: '"Oswald", "Arial Narrow", sans-serif',
+  subtitleFont: '"Source Sans 3", system-ui, sans-serif',
+  menuSize: "0.875rem",
+  buttonSize: "0.875rem",
+  bodySize: "1rem",
+  titleSize: "3rem",
+  subtitleSize: "1rem",
+  backgroundColor: "#FFFFFF",
+  textColor: "#14305C",
+  mutedTextColor: "#64748B",
+  primaryColor: "#14305C",
+  accentColor: "#A6ED19",
+  darkSurfaceColor: "#14305C",
+  cardColor: "#FFFFFF",
+  borderColor: "#DDE3EC",
+};
+
 /** Ajustes visuales editables de la sección de horarios. */
 export type ScheduleStyle = {
   titleSize: string;
@@ -80,6 +123,7 @@ export type SiteContent = {
   tournamentStatuses: TournamentStatus[];
   scheduleStyle: ScheduleStyle;
   calendarStyle: CalendarStyle;
+  appearanceStyle: AppearanceStyle;
 };
 
 
@@ -140,6 +184,12 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       ...((calendarRow?.value as Partial<CalendarStyle> | null) ?? {}),
     };
 
+    const appearanceRow = (settings.data ?? []).find((row) => row.key === "appearance_style");
+    const appearanceStyle: AppearanceStyle = {
+      ...DEFAULT_APPEARANCE_STYLE,
+      ...((appearanceRow?.value as Partial<AppearanceStyle> | null) ?? {}),
+    };
+
     // Las imágenes viven en el bucket privado: se firman en el servidor y nunca
     // se expone su ubicación real ni un enlace público permanente.
     const isStoragePath = (value: string | null | undefined) =>
@@ -189,6 +239,7 @@ export const getSiteContent = createServerFn({ method: "GET" }).handler(
       tournamentStatuses: tournamentStatuses.data ?? [],
       scheduleStyle,
       calendarStyle,
+      appearanceStyle,
     };
   },
 );

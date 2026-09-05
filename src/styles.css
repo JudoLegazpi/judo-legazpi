@@ -126,6 +126,43 @@
   color: var(--color-primary);
 }
 
+/* Variables de apariencia configurables, limitadas a la web pública. */
+.public-site {
+  font-family: var(--site-font-body, var(--font-sans));
+  font-size: var(--site-size-body, 1rem);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+}
+
+.public-site :where(p, li, address, td) {
+  font-family: var(--site-font-body, var(--font-sans));
+}
+
+.public-site :where(h1, h2, h3, h4),
+.public-site .site-title {
+  font-family: var(--site-font-title, var(--font-display));
+}
+
+.public-site .site-title {
+  font-size: clamp(2rem, var(--site-size-title, 3rem), 5rem);
+  line-height: 1.05;
+}
+
+.public-site .site-subtitle {
+  font-family: var(--site-font-subtitle, var(--font-sans));
+  font-size: var(--site-size-subtitle, 1rem);
+}
+
+.public-site .site-menu-text {
+  font-family: var(--site-font-menu, var(--font-display));
+  font-size: var(--site-size-menu, 0.875rem);
+}
+
+.public-site .site-button-text {
+  font-family: var(--site-font-button, var(--font-display));
+  font-size: var(--site-size-button, 0.875rem);
+}
+
 /* Tamaño del texto de edades/categorías, configurable por dispositivo desde administración. */
 .age-text {
   font-size: var(--age-size-mobile, 0.75rem);
