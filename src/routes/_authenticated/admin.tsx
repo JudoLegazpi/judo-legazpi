@@ -208,6 +208,15 @@ const STATUSES_CONFIG: TableConfig = {
   ],
 };
 
+/** Subsección de una pestaña: agrupa textos e imágenes en bloques manejables. */
+type SectionGroup = {
+  key: string;
+  label: string;
+  help?: string;
+  textKeys?: string[];
+  imageKeys?: string[];
+};
+
 /** Cada pestaña corresponde a una sección pública de la web. */
 type SectionTab = {
   key: string;
@@ -217,9 +226,11 @@ type SectionTab = {
   help?: string;
   textKeys?: string[];
   imageKeys?: string[];
+  groups?: SectionGroup[];
   crud?: TableConfig;
   extra?: "calendar" | "scheduleStyle" | "tournamentDocs";
 };
+
 
 const SECTIONS: SectionTab[] = [
   {
