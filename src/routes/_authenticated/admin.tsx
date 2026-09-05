@@ -465,8 +465,39 @@ function AdminPage() {
         )}
         {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
 
+        {section.groups && section.groups.length > 0 && (
+          <section className="space-y-6">
+            <nav className="flex flex-wrap gap-2" aria-label="Apartados">
+              {section.groups.map((item) => {
+                const active = (group ?? section.groups![0]).key === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setGroupKey(item.key)}
+                    aria-current={active}
+                    className={`min-h-10 rounded-2xl border px-4 text-xs font-semibold uppercase tracking-wide ${
+                      active
+                        ? "border-primary text-primary"
+                        : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {group?.help && <p className="text-sm text-muted-foreground">{group.help}</p>}
+            {group?.imageKeys && group.imageKeys.length > 0 && <ImagesEditor keys={group.imageKeys} />}
+            {group?.textKeys && group.textKeys.length > 0 && (
+              <TextsEditor key={group.key} keys={group.textKeys} />
+            )}
+          </section>
+        )}
+
         {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
         {section.textKeys && section.textKeys.length > 0 && <TextsEditor keys={section.textKeys} />}
+
       </main>
     </div>
   );
