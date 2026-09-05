@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Menu, X, CalendarDays, Clock, Mail, Phone, Instagram, Send, ExternalLink, ShieldCheck } from "lucide-react";
 import { localePath, t, tx, LOCALE_STORAGE_KEY, type Locale, type TextMap } from "@/lib/i18n";
 import { useDefaultLocale } from "@/hooks/use-default-locale";
 import logoAsset from "@/assets/logo-judo-legazpi.png.asset.json";
+import type { AppearanceStyle } from "@/lib/site-content.functions";
 
 type NavItem = { path: string; labelKey: string; hash?: string };
 
@@ -21,7 +22,52 @@ const NAV: NavItem[] = [
 const SECONDARY: NavItem[] = [];
 
 const MENU_LINK_CLASS =
-  "font-display text-sm font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent";
+  "site-menu-text font-medium uppercase tracking-wide text-ink-foreground/85 transition-colors hover:text-accent";
+
+type AppearanceVars = CSSProperties & Record<`--${string}`, string>;
+
+function readableText(hex: string): string {
+  const value = hex.trim().replace("#", "");
+  if (!/^[0-9a-f]{6}$/i.test(value)) return "#FFFFFF";
+  const [r, g, b] = [0, 2, 4].map((start) => parseInt(value.slice(start, start + 2), 16));
+  return (r * 299 + g * 587 + b * 114) / 1000 > 155 ? "#14305C" : "#FFFFFF";
+}
+
+function appearanceVariables(style: AppearanceStyle): AppearanceVars {
+  return {
+    "--site-font-menu": style.menuFont,
+    "--site-font-button": style.buttonFont,
+    "--site-font-body": style.bodyFont,
+    "--site-font-title": style.titleFont,
+    "--site-font-subtitle": style.subtitleFont,
+    "--site-size-menu": style.menuSize,
+    "--site-size-button": style.buttonSize,
+    "--site-size-body": style.bodySize,
+    "--site-size-title": style.titleSize,
+    "--site-size-subtitle": style.subtitleSize,
+    "--background": style.backgroundColor,
+    "--secondary": style.secondaryColor,
+    "--secondary-foreground": style.textColor,
+    "--muted": style.secondaryColor,
+    "--foreground": style.textColor,
+    "--muted-foreground": style.mutedTextColor,
+    "--primary": style.primaryColor,
+    "--primary-foreground": readableText(style.primaryColor),
+    "--accent": style.accentColor,
+    "--accent-foreground": readableText(style.accentColor),
+    "--ink": style.darkSurfaceColor,
+    "--ink-foreground": readableText(style.darkSurfaceColor),
+    "--card": style.cardColor,
+    "--card-foreground": style.textColor,
+    "--border": style.borderColor,
+    "--input": style.borderColor,
+    "--popover": style.cardColor,
+    "--popover-foreground": style.textColor,
+    "--ring": style.accentColor,
+    "--ink-border": style.borderColor,
+    "--ink-muted": readableText(style.darkSurfaceColor),
+  };
+}
 
 
 // El router tipa `to` con las rutas literales; construimos la ruta por idioma.
@@ -80,11 +126,13 @@ export function SiteLayout({
   locale,
   path,
   texts,
+  appearance,
   children,
 }: {
   locale: Locale;
   path: string;
   texts?: TextMap;
+  appearance: AppearanceStyle;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -94,7 +142,7 @@ export function SiteLayout({
 
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="public-site flex min-h-dvh flex-col" style={appearanceVariables(appearance)}>
       <a
         href="#contenido"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-xl focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-foreground"
@@ -128,7 +176,7 @@ export function SiteLayout({
               href={joinUrl}
               rel="noreferrer noopener"
               target="_blank"
-              className="hidden min-h-10 items-center rounded-full bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground lg:inline-flex"
+              className="site-button-text hidden min-h-10 items-center rounded-full bg-accent px-4 font-semibold uppercase tracking-wider text-accent-foreground lg:inline-flex"
             >
               {tx(texts, locale, "join_short")}
             </a>
@@ -157,7 +205,7 @@ export function SiteLayout({
                     to={to(locale, item.path)}
                     hash={item.hash}
                     onClick={() => setOpen(false)}
-                    className="block border-b border-ink-border py-3 font-display text-base uppercase text-ink-foreground"
+                    className="site-menu-text block border-b border-ink-border py-3 uppercase text-ink-foreground"
                   >
                     {tx(texts, locale, item.labelKey)}
                   </Link>
@@ -169,7 +217,7 @@ export function SiteLayout({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="block border-b border-ink-border py-3 font-display text-base uppercase text-ink-foreground"
+                  className="site-menu-text block border-b border-ink-border py-3 uppercase text-ink-foreground"
                 >
                   {tx(texts, locale, "nav_intranet")}
                 </a>
@@ -182,7 +230,7 @@ export function SiteLayout({
                 href={joinUrl}
                 rel="noreferrer noopener"
                 target="_blank"
-                className="inline-flex min-h-10 items-center rounded-full bg-accent px-4 font-display text-xs font-semibold uppercase tracking-wider text-accent-foreground"
+                className="site-button-text inline-flex min-h-10 items-center rounded-full bg-accent px-4 font-semibold uppercase tracking-wider text-accent-foreground"
               >
                 {tx(texts, locale, "join_short")}
               </a>
@@ -332,8 +380,8 @@ export function PageHeader({
     <div className="border-b border-border bg-secondary">
       <div className="mx-auto max-w-6xl px-4 py-12 lg:px-6 lg:py-16">
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h1 className="mt-2 text-3xl sm:text-4xl lg:text-5xl">{title}</h1>
-        {intro && <p className="mt-4 max-w-2xl text-base text-muted-foreground">{intro}</p>}
+        <h1 className="site-title mt-2">{title}</h1>
+        {intro && <p className="site-subtitle mt-4 max-w-2xl text-muted-foreground">{intro}</p>}
       </div>
     </div>
   );

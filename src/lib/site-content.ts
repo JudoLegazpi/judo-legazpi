@@ -1,4 +1,5 @@
 import {
+  DEFAULT_APPEARANCE_STYLE,
   DEFAULT_CALENDAR_STYLE,
   DEFAULT_SCHEDULE_STYLE,
   type SiteContent,
@@ -19,4 +20,5 @@ export const EMPTY_SITE_CONTENT: SiteContent = {
   tournamentStatuses: [],
   scheduleStyle: DEFAULT_SCHEDULE_STYLE,
   calendarStyle: DEFAULT_CALENDAR_STYLE,
+  appearanceStyle: DEFAULT_APPEARANCE_STYLE,
 };

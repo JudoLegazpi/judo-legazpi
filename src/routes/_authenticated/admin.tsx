@@ -24,13 +24,17 @@ import {
   DarkButton,
   EmptyState,
   GhostButton,
+  inputClass,
   Loading,
+  PrimaryButton,
   StatusBadge,
 } from "@/components/admin/kit";
 
 import {
+  DEFAULT_APPEARANCE_STYLE,
   DEFAULT_CALENDAR_STYLE,
   DEFAULT_SCHEDULE_STYLE,
+  type AppearanceStyle,
   type CalendarStyle,
   type ScheduleStyle,
 } from "@/lib/site-content.functions";
@@ -215,6 +219,7 @@ type SectionGroup = {
   help?: string;
   textKeys?: string[];
   imageKeys?: string[];
+  extra?: "appearance";
 };
 
 /** Cada pestaña corresponde a una sección pública de la web. */
@@ -315,6 +320,12 @@ const SECTIONS: SectionTab[] = [
         label: "General",
         help: "Nombre del club y llamada corta a la acción.",
         textKeys: ["club_name", "join_short"],
+      },
+      {
+        key: "apariencia",
+        label: "Apariencia",
+        help: "Tipografías, tamaños y colores de toda la web pública.",
+        extra: "appearance",
       },
       {
         key: "navegacion",
@@ -498,6 +509,7 @@ function AdminPage() {
             </nav>
 
             {group?.help && <p className="text-sm text-muted-foreground">{group.help}</p>}
+            {group?.extra === "appearance" && <AppearanceEditor />}
             {group?.imageKeys && group.imageKeys.length > 0 && <ImagesEditor keys={group.imageKeys} />}
             {group?.textKeys && group.textKeys.length > 0 && (
               <TextsEditor key={group.key} keys={group.textKeys} />
@@ -521,6 +533,197 @@ function report(error: { message: string } | null, ok: string): string {
   }
   toast.success(ok);
   return ok;
+}
+
+const FONT_OPTIONS = [
+  { value: '"Oswald", "Arial Narrow", sans-serif', label: "Oswald — deportiva y condensada" },
+  { value: '"Source Sans 3", system-ui, sans-serif', label: "Source Sans 3 — clara y neutra" },
+  { value: 'Arial, Helvetica, sans-serif', label: "Arial — universal" },
+  { value: 'Georgia, "Times New Roman", serif', label: "Georgia — clásica" },
+  { value: 'system-ui, sans-serif', label: "Sistema — rápida y nativa" },
+] as const;
+
+const TYPOGRAPHY_FIELDS: { name: keyof AppearanceStyle; label: string; kind: "font" | "size" }[] = [
+  { name: "menuFont", label: "Tipografía del menú", kind: "font" },
+  { name: "menuSize", label: "Tamaño del menú", kind: "size" },
+  { name: "buttonFont", label: "Tipografía de botones", kind: "font" },
+  { name: "buttonSize", label: "Tamaño de botones", kind: "size" },
+  { name: "bodyFont", label: "Tipografía de textos generales", kind: "font" },
+  { name: "bodySize", label: "Tamaño de textos generales", kind: "size" },
+  { name: "titleFont", label: "Tipografía de títulos", kind: "font" },
+  { name: "titleSize", label: "Tamaño de títulos", kind: "size" },
+  { name: "subtitleFont", label: "Tipografía de subtítulos", kind: "font" },
+  { name: "subtitleSize", label: "Tamaño de subtítulos", kind: "size" },
+];
+
+const COLOR_FIELDS: { name: keyof AppearanceStyle; label: string }[] = [
+  { name: "primaryColor", label: "Color principal" },
+  { name: "accentColor", label: "Color de acento y llamadas a la acción" },
+  { name: "backgroundColor", label: "Fondo general" },
+  { name: "secondaryColor", label: "Fondo de secciones alternas" },
+  { name: "cardColor", label: "Fondo de tarjetas" },
+  { name: "darkSurfaceColor", label: "Cabecera y pie" },
+  { name: "textColor", label: "Texto principal" },
+  { name: "mutedTextColor", label: "Texto secundario" },
+  { name: "borderColor", label: "Bordes" },
+];
+
+function AppearanceEditor() {
+  const [style, setStyle] = useState<AppearanceStyle>(DEFAULT_APPEARANCE_STYLE);
+  const [status, setStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    void supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "appearance_style")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) {
+          setStyle({ ...DEFAULT_APPEARANCE_STYLE, ...(data.value as Partial<AppearanceStyle>) });
+        }
+      });
+  }, []);
+
+  function patch(name: keyof AppearanceStyle, value: string) {
+    setStyle((current) => ({ ...current, [name]: value }));
+  }
+
+  async function save() {
+    setBusy(true);
+    const invalidSize = TYPOGRAPHY_FIELDS.filter((field) => field.kind === "size").find(
+      (field) => !/^\d*\.?\d+(rem|px|em)$/.test(style[field.name].trim()),
+    );
+    if (invalidSize) {
+      const message = `${invalidSize.label}: usa un valor como 1rem o 16px`;
+      setStatus(message);
+      toast.error(message);
+      setBusy(false);
+      return;
+    }
+    const invalidColor = COLOR_FIELDS.find((field) => !/^#[0-9a-f]{6}$/i.test(style[field.name].trim()));
+    if (invalidColor) {
+      const message = `${invalidColor.label}: usa un color hexadecimal como #14305C`;
+      setStatus(message);
+      toast.error(message);
+      setBusy(false);
+      return;
+    }
+    const { error } = await supabase.from("site_settings").upsert({
+      key: "appearance_style",
+      label: "Apariencia global de la web",
+      value: style,
+    });
+    setStatus(report(error, "Apariencia guardada"));
+    setBusy(false);
+  }
+
+  return (
+    <section className="space-y-6">
+      {status && <p className="text-sm text-muted-foreground">{status}</p>}
+
+      <div className="card-elevated space-y-5 p-6">
+        <div>
+          <h3 className="text-xl">Tipografías y tamaños</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cada tipo de texto se configura por separado. Los tamaños aceptan valores como 1rem o 16px.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {TYPOGRAPHY_FIELDS.map((field) => (
+            <div key={field.name}>
+              <label htmlFor={`appearance-${field.name}`} className="block text-xs font-semibold">
+                {field.label}
+              </label>
+              {field.kind === "font" ? (
+                <select
+                  id={`appearance-${field.name}`}
+                  value={style[field.name]}
+                  onChange={(event) => patch(field.name, event.target.value)}
+                  className={`mt-1 ${inputClass}`}
+                >
+                  {FONT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id={`appearance-${field.name}`}
+                  value={style[field.name]}
+                  onChange={(event) => patch(field.name, event.target.value)}
+                  placeholder="1rem"
+                  className={`mt-1 ${inputClass}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card-elevated space-y-5 p-6">
+        <div>
+          <h3 className="text-xl">Colores generales</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            El texto de los botones y superficies oscuras se ajusta automáticamente para mantener la legibilidad.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {COLOR_FIELDS.map((field) => (
+            <div key={field.name}>
+              <label htmlFor={`appearance-${field.name}`} className="block text-xs font-semibold">
+                {field.label}
+              </label>
+              <div className="mt-1 flex gap-3">
+                <input
+                  id={`appearance-${field.name}`}
+                  type="color"
+                  value={style[field.name]}
+                  onChange={(event) => patch(field.name, event.target.value.toUpperCase())}
+                  className="h-11 w-16 shrink-0 rounded-2xl border border-input bg-background p-1"
+                />
+                <input
+                  aria-label={`${field.label}, código hexadecimal`}
+                  value={style[field.name]}
+                  onChange={(event) => patch(field.name, event.target.value)}
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className="overflow-hidden rounded-2xl border"
+        style={{ backgroundColor: style.backgroundColor, borderColor: style.borderColor, color: style.textColor }}
+      >
+        <div className="flex items-center justify-between gap-4 p-4" style={{ backgroundColor: style.darkSurfaceColor }}>
+          <strong style={{ color: style.accentColor, fontFamily: style.titleFont }}>JUDO LEGAZPI</strong>
+          <span style={{ color: "white", fontFamily: style.menuFont, fontSize: style.menuSize }}>INICIO · CLUB · HORARIOS</span>
+        </div>
+        <div className="space-y-3 p-6">
+          <h3 style={{ fontFamily: style.titleFont, fontSize: style.titleSize }}>Título de ejemplo</h3>
+          <p style={{ fontFamily: style.subtitleFont, fontSize: style.subtitleSize, color: style.mutedTextColor }}>
+            Subtítulo de la sección para comprobar la apariencia.
+          </p>
+          <p style={{ fontFamily: style.bodyFont, fontSize: style.bodySize }}>Texto general del Club Judo Legazpi.</p>
+          <button
+            type="button"
+            style={{ backgroundColor: style.accentColor, color: style.primaryColor, fontFamily: style.buttonFont, fontSize: style.buttonSize }}
+            className="rounded-2xl px-5 py-3 font-semibold uppercase"
+          >
+            Botón de ejemplo
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <PrimaryButton type="button" busy={busy} onClick={() => void save()}>Guardar apariencia</PrimaryButton>
+        <GhostButton type="button" onClick={() => setStyle(DEFAULT_APPEARANCE_STYLE)}>Cargar valores originales</GhostButton>
+      </div>
+    </section>
+  );
 }
 
 type Row = Record<string, unknown> & { id: string };
