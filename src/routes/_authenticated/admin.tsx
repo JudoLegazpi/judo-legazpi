@@ -425,7 +425,11 @@ function AdminPage() {
               return (
                 <button
                   key={item.key}
-                  onClick={() => setTab(item.key)}
+                  onClick={() => {
+                    setTab(item.key);
+                    setGroupKey(null);
+                  }}
+
                   aria-current={active}
                   className={`inline-flex min-h-10 items-center gap-2 rounded-2xl px-3 text-sm ${
                     active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
