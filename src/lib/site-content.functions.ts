@@ -39,6 +39,7 @@ export type AppearanceStyle = {
   titleSize: string;
   subtitleSize: string;
   backgroundColor: string;
+  secondaryColor: string;
   textColor: string;
   mutedTextColor: string;
   primaryColor: string;
@@ -60,6 +61,7 @@ export const DEFAULT_APPEARANCE_STYLE: AppearanceStyle = {
   titleSize: "3rem",
   subtitleSize: "1rem",
   backgroundColor: "#FFFFFF",
+  secondaryColor: "#F5F7FA",
   textColor: "#14305C",
   mutedTextColor: "#64748B",
   primaryColor: "#14305C",

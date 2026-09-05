@@ -29,8 +29,10 @@ import {
 } from "@/components/admin/kit";
 
 import {
+  DEFAULT_APPEARANCE_STYLE,
   DEFAULT_CALENDAR_STYLE,
   DEFAULT_SCHEDULE_STYLE,
+  type AppearanceStyle,
   type CalendarStyle,
   type ScheduleStyle,
 } from "@/lib/site-content.functions";
@@ -215,6 +217,7 @@ type SectionGroup = {
   help?: string;
   textKeys?: string[];
   imageKeys?: string[];
+  extra?: "appearance";
 };
 
 /** Cada pestaña corresponde a una sección pública de la web. */
@@ -315,6 +318,12 @@ const SECTIONS: SectionTab[] = [
         label: "General",
         help: "Nombre del club y llamada corta a la acción.",
         textKeys: ["club_name", "join_short"],
+      },
+      {
+        key: "apariencia",
+        label: "Apariencia",
+        help: "Tipografías, tamaños y colores de toda la web pública.",
+        extra: "appearance",
       },
       {
         key: "navegacion",
@@ -498,6 +507,7 @@ function AdminPage() {
             </nav>
 
             {group?.help && <p className="text-sm text-muted-foreground">{group.help}</p>}
+            {group?.extra === "appearance" && <AppearanceEditor />}
             {group?.imageKeys && group.imageKeys.length > 0 && <ImagesEditor keys={group.imageKeys} />}
             {group?.textKeys && group.textKeys.length > 0 && (
               <TextsEditor key={group.key} keys={group.textKeys} />

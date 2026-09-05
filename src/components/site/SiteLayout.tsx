@@ -46,6 +46,9 @@ function appearanceVariables(style: AppearanceStyle): AppearanceVars {
     "--site-size-title": style.titleSize,
     "--site-size-subtitle": style.subtitleSize,
     "--background": style.backgroundColor,
+    "--secondary": style.secondaryColor,
+    "--secondary-foreground": style.textColor,
+    "--muted": style.secondaryColor,
     "--foreground": style.textColor,
     "--muted-foreground": style.mutedTextColor,
     "--primary": style.primaryColor,
@@ -58,7 +61,11 @@ function appearanceVariables(style: AppearanceStyle): AppearanceVars {
     "--card-foreground": style.textColor,
     "--border": style.borderColor,
     "--input": style.borderColor,
+    "--popover": style.cardColor,
+    "--popover-foreground": style.textColor,
+    "--ring": style.accentColor,
     "--ink-border": style.borderColor,
+    "--ink-muted": readableText(style.darkSurfaceColor),
   };
 }
 

@@ -245,7 +245,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
 
 
   return (
-    <SiteLayout locale={locale} path="/" texts={content.texts}>
+    <SiteLayout locale={locale} path="/" texts={content.texts} appearance={content.appearanceStyle}>
       {/* HERO a pantalla completa */}
       <section className="relative isolate flex min-h-[88vh] items-center justify-center overflow-hidden">
         <img
@@ -433,7 +433,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
 
 export function StaffPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
-    <SiteLayout locale={locale} path="/cuerpo-tecnico" texts={content.texts}>
+    <SiteLayout locale={locale} path="/cuerpo-tecnico" texts={content.texts} appearance={content.appearanceStyle}>
       <PageHeader
         eyebrow={tx(content.texts, locale, "club_name")}
         title={tx(content.texts, locale, "staff_title")}
@@ -518,7 +518,7 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
 
 export function CalendarPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
-    <SiteLayout locale={locale} path="/calendario" texts={content.texts}>
+    <SiteLayout locale={locale} path="/calendario" texts={content.texts} appearance={content.appearanceStyle}>
       <PageHeader
         eyebrow={tx(content.texts, locale, "club_name")}
         title={tx(content.texts, locale, "calendar_title")}
@@ -643,7 +643,7 @@ function TournamentCard({
 
 export function TournamentsPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
-    <SiteLayout locale={locale} path="/torneos" texts={content.texts}>
+    <SiteLayout locale={locale} path="/torneos" texts={content.texts} appearance={content.appearanceStyle}>
       <PageHeader
         eyebrow={tx(content.texts, locale, "club_name")}
         title={tx(content.texts, locale, "tournaments_title")}
@@ -730,7 +730,7 @@ function TournamentLinks({
 
 export function LopiviPage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Locale; content?: SiteContent }) {
   return (
-    <SiteLayout locale={locale} path="/lopivi" texts={content.texts}>
+    <SiteLayout locale={locale} path="/lopivi" texts={content.texts} appearance={content.appearanceStyle}>
       <PageHeader eyebrow="LOPIVI" title={tx(content.texts, locale, "lopivi_title")} />
       <Section>
         <div className="mx-auto max-w-3xl text-center">

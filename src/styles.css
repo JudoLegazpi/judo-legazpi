@@ -143,9 +143,14 @@
   font-family: var(--site-font-title, var(--font-display));
 }
 
+.public-site :where(h1, h2),
 .public-site .site-title {
   font-size: clamp(2rem, var(--site-size-title, 3rem), 5rem);
   line-height: 1.05;
+}
+
+.public-site :where(h3, h4) {
+  font-size: clamp(1.25rem, calc(var(--site-size-title, 3rem) * 0.6), 2.5rem);
 }
 
 .public-site .site-subtitle {
@@ -159,6 +164,11 @@
 }
 
 .public-site .site-button-text {
+  font-family: var(--site-font-button, var(--font-display));
+  font-size: var(--site-size-button, 0.875rem);
+}
+
+.public-site :where(button, a.rounded-2xl, a.rounded-full) {
   font-family: var(--site-font-button, var(--font-display));
   font-size: var(--site-size-button, 0.875rem);
 }
