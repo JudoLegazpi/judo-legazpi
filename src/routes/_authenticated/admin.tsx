@@ -208,6 +208,15 @@ const STATUSES_CONFIG: TableConfig = {
   ],
 };
 
+/** Subsección de una pestaña: agrupa textos e imágenes en bloques manejables. */
+type SectionGroup = {
+  key: string;
+  label: string;
+  help?: string;
+  textKeys?: string[];
+  imageKeys?: string[];
+};
+
 /** Cada pestaña corresponde a una sección pública de la web. */
 type SectionTab = {
   key: string;
@@ -217,9 +226,11 @@ type SectionTab = {
   help?: string;
   textKeys?: string[];
   imageKeys?: string[];
+  groups?: SectionGroup[];
   crud?: TableConfig;
   extra?: "calendar" | "scheduleStyle" | "tournamentDocs";
 };
+
 
 const SECTIONS: SectionTab[] = [
   {
@@ -297,28 +308,54 @@ const SECTIONS: SectionTab[] = [
     icon: Settings,
     label: "Configuración general",
     title: "Configuración general",
-    help: "Elementos comunes a toda la web: datos de contacto del pie, redes sociales, enlaces externos y etiquetas del menú. El idioma por defecto es el euskera.",
-    textKeys: [
-      "club_name",
-      "footer_address",
-      "contact_email",
-      "contact_phone",
-      "contact_phone_label",
-      "social_instagram",
-      "social_telegram",
-      "intranet_url",
-      "footer_unsubscribe",
-      "footer_unsubscribe_url",
-      "join_short",
-      "nav_home",
-      "nav_club",
-      "nav_staff",
-      "nav_calendar",
-      "nav_schedule",
-      "nav_lopivi",
-      "nav_tournaments",
-      "nav_intranet",
+    help: "Textos, enlaces, menú, pie de página y redes sociales. Elige un apartado para editarlo. El idioma por defecto es el euskera.",
+    groups: [
+      {
+        key: "general",
+        label: "General",
+        help: "Nombre del club y llamada corta a la acción.",
+        textKeys: ["club_name", "join_short"],
+      },
+      {
+        key: "navegacion",
+        label: "Navegación",
+        help: "Etiquetas de las entradas del menú.",
+        textKeys: [
+          "nav_home",
+          "nav_club",
+          "nav_staff",
+          "nav_calendar",
+          "nav_schedule",
+          "nav_lopivi",
+          "nav_tournaments",
+          "nav_intranet",
+        ],
+      },
+      {
+        key: "contacto",
+        label: "Contacto",
+        help: "Datos que aparecen en el pie de página.",
+        textKeys: ["footer_address", "contact_email", "contact_phone", "contact_phone_label"],
+      },
+      {
+        key: "pie-redes",
+        label: "Pie y redes",
+        help: "Redes sociales y enlaces del pie.",
+        textKeys: [
+          "social_instagram",
+          "social_telegram",
+          "footer_unsubscribe",
+          "footer_unsubscribe_url",
+        ],
+      },
+      {
+        key: "enlaces",
+        label: "Enlaces externos",
+        help: "Acceso a la intranet del club.",
+        textKeys: ["intranet_url"],
+      },
     ],
+
   },
 ];
 
@@ -330,6 +367,8 @@ function AdminPage() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<string>("inicio");
+  const [groupKey, setGroupKey] = useState<string | null>(null);
+
 
   useEffect(() => {
     supabase
@@ -366,6 +405,10 @@ function AdminPage() {
   }
 
   const section = SECTIONS.find((s) => s.key === tab) ?? SECTIONS[0];
+  const group = section.groups
+    ? (section.groups.find((item) => item.key === groupKey) ?? section.groups[0])
+    : null;
+
 
   return (
     <div className="flex min-h-dvh flex-col bg-secondary lg:flex-row">
@@ -382,7 +425,11 @@ function AdminPage() {
               return (
                 <button
                   key={item.key}
-                  onClick={() => setTab(item.key)}
+                  onClick={() => {
+                    setTab(item.key);
+                    setGroupKey(null);
+                  }}
+
                   aria-current={active}
                   className={`inline-flex min-h-10 items-center gap-2 rounded-2xl px-3 text-sm ${
                     active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
@@ -428,8 +475,39 @@ function AdminPage() {
         )}
         {section.extra === "tournamentDocs" && <TournamentDocsEditor />}
 
+        {section.groups && section.groups.length > 0 && (
+          <section className="space-y-6">
+            <nav className="flex flex-wrap gap-2" aria-label="Apartados">
+              {section.groups.map((item) => {
+                const active = (group ?? section.groups![0]).key === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setGroupKey(item.key)}
+                    aria-current={active}
+                    className={`min-h-10 rounded-2xl border px-4 text-xs font-semibold uppercase tracking-wide ${
+                      active
+                        ? "border-primary text-primary"
+                        : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {group?.help && <p className="text-sm text-muted-foreground">{group.help}</p>}
+            {group?.imageKeys && group.imageKeys.length > 0 && <ImagesEditor keys={group.imageKeys} />}
+            {group?.textKeys && group.textKeys.length > 0 && (
+              <TextsEditor key={group.key} keys={group.textKeys} />
+            )}
+          </section>
+        )}
+
         {section.imageKeys && section.imageKeys.length > 0 && <ImagesEditor keys={section.imageKeys} />}
         {section.textKeys && section.textKeys.length > 0 && <TextsEditor keys={section.textKeys} />}
+
       </main>
     </div>
   );
