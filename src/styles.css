@@ -136,6 +136,7 @@
 
 .public-site :where(p, li, address, td) {
   font-family: var(--site-font-body, var(--font-sans));
+  font-size: var(--site-size-body, 1rem);
 }
 
 .public-site :where(h1, h2, h3, h4),

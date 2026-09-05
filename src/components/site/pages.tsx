@@ -26,9 +26,9 @@ const list = (value?: string | null) =>
 function SectionHead({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <header className="text-center">
-      <h2 className="text-3xl sm:text-4xl lg:text-5xl">{title}</h2>
+      <h2 className="site-title">{title}</h2>
       <span className="mx-auto mt-4 block h-1 w-16 bg-accent" aria-hidden />
-      {subtitle && <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">{subtitle}</p>}
+      {subtitle && <p className="site-subtitle mx-auto mt-4 max-w-2xl text-muted-foreground">{subtitle}</p>}
     </header>
   );
 }
@@ -260,30 +260,30 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
           {(() => {
             const descriptor = tx(content.texts, locale, "hero_descriptor");
             return (
-              <h1 className="font-display text-6xl leading-[0.9] font-bold tracking-tight text-ink-foreground sm:text-8xl lg:text-9xl">
+              <h1 className="site-title font-bold tracking-tight text-ink-foreground">
                 Judo
                 <span className="block text-accent">Legazpi</span>
                 {descriptor && (
-                  <span className="mt-3 block font-body text-lg font-medium tracking-normal text-ink-foreground/90 sm:text-2xl lg:text-3xl">
+                  <span className="site-subtitle mt-3 block font-medium tracking-normal text-ink-foreground/90">
                     {descriptor}
                   </span>
                 )}
               </h1>
             );
           })()}
-          <p className="mt-6 text-base text-ink-muted sm:text-lg">{tx(content.texts, locale, "hero_tagline")}</p>
+          <p className="site-subtitle mt-6 text-ink-muted">{tx(content.texts, locale, "hero_tagline")}</p>
           <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <a
               href={tx(content.texts, locale, "join_url")}
               rel="noreferrer noopener"
               target="_blank"
-              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="site-button-text inline-flex min-h-12 items-center justify-center rounded-2xl bg-accent px-7 font-semibold uppercase tracking-wider text-accent-foreground"
             >
               {tx(content.texts, locale, "cta_join")}
             </a>
             <a
               href="#kluba"
-              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-ink-foreground/50 px-7 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+              className="site-button-text inline-flex min-h-12 items-center justify-center rounded-2xl border border-ink-foreground/50 px-7 font-semibold uppercase tracking-wider text-ink-foreground"
             >
               {tx(content.texts, locale, "cta_know")}
             </a>
@@ -421,7 +421,7 @@ export function HomePage({ locale, content = EMPTY_SITE_CONTENT }: { locale: Loc
             href={tx(content.texts, locale, "join_url")}
             rel="noreferrer noopener"
             target="_blank"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-2xl bg-ink px-8 font-display text-sm font-semibold uppercase tracking-wider text-ink-foreground"
+            className="site-button-text mt-8 inline-flex min-h-12 items-center justify-center rounded-2xl bg-ink px-8 font-semibold uppercase tracking-wider text-ink-foreground"
           >
             {tx(content.texts, locale, "join_short")}
           </a>
@@ -505,7 +505,7 @@ function CalendarBlock({ locale, content }: { locale: Locale; content: SiteConte
               href={pdf}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-7 font-display text-sm font-semibold uppercase tracking-wider text-accent-foreground"
+              className="site-button-text mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-7 font-semibold uppercase tracking-wider text-accent-foreground"
             >
               <Download className="h-4 w-4" aria-hidden /> {tx(content.texts, locale, "calendar_download_label")}
             </a>
@@ -691,7 +691,7 @@ function TournamentLinks({
   if (docs.length === 0 && !results) return null;
 
   const buttonClass =
-    "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center font-display text-sm font-semibold uppercase tracking-wide transition-colors";
+    "site-button-text inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center font-semibold uppercase tracking-wide transition-colors";
 
   return (
     <div className="mt-6 border-t border-border pt-5">

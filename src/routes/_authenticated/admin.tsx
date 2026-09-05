@@ -602,6 +602,14 @@ function AppearanceEditor() {
       setBusy(false);
       return;
     }
+    const invalidColor = COLOR_FIELDS.find((field) => !/^#[0-9a-f]{6}$/i.test(style[field.name].trim()));
+    if (invalidColor) {
+      const message = `${invalidColor.label}: usa un color hexadecimal como #14305C`;
+      setStatus(message);
+      toast.error(message);
+      setBusy(false);
+      return;
+    }
     const { error } = await supabase.from("site_settings").upsert({
       key: "appearance_style",
       label: "Apariencia global de la web",
@@ -712,7 +720,7 @@ function AppearanceEditor() {
 
       <div className="flex flex-wrap gap-3">
         <PrimaryButton type="button" busy={busy} onClick={() => void save()}>Guardar apariencia</PrimaryButton>
-        <GhostButton type="button" onClick={() => setStyle(DEFAULT_APPEARANCE_STYLE)}>Restablecer valores</GhostButton>
+        <GhostButton type="button" onClick={() => setStyle(DEFAULT_APPEARANCE_STYLE)}>Cargar valores originales</GhostButton>
       </div>
     </section>
   );
