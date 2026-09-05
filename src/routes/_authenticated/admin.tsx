@@ -367,6 +367,8 @@ function AdminPage() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<string>("inicio");
+  const [groupKey, setGroupKey] = useState<string | null>(null);
+
 
   useEffect(() => {
     supabase
