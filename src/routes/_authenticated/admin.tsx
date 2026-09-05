@@ -405,6 +405,10 @@ function AdminPage() {
   }
 
   const section = SECTIONS.find((s) => s.key === tab) ?? SECTIONS[0];
+  const group = section.groups
+    ? (section.groups.find((item) => item.key === groupKey) ?? section.groups[0])
+    : null;
+
 
   return (
     <div className="flex min-h-dvh flex-col bg-secondary lg:flex-row">
